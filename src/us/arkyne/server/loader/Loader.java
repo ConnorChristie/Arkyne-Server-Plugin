@@ -3,11 +3,23 @@ package us.arkyne.server.loader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+
+import us.arkyne.server.Main;
+import us.arkyne.server.command.CommandHandler;
 
 public abstract class Loader
 {
+	private Main main;
+	
 	private List<Loadable> loadables = new ArrayList<Loadable>();
+	
+	public Loader(Main main)
+	{
+		this.main = main;
+	}
 	
 	public void addLoadable(Loadable loadable)
 	{

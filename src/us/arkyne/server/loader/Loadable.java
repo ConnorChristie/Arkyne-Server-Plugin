@@ -4,13 +4,21 @@ import java.util.Map;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
-public interface Loadable extends ConfigurationSerializable
+import us.arkyne.server.command.CommandExecutor;
+import us.arkyne.server.command.CommandHandler;
+
+public abstract class Loadable implements ConfigurationSerializable, CommandExecutor
 {
-	public void load();
-	public void onLoad();
+	public Loadable()
+	{
+		CommandHandler.registerExecutor(this);
+	}
 	
-	public void unload();
-	public void onUnload();
+	public abstract void load();
+	public abstract void onLoad();
 	
-	public void deserialize(Map<String, Object> map);
+	public abstract void unload();
+	public abstract void onUnload();
+	
+	public abstract void deserialize(Map<String, Object> map);
 }
