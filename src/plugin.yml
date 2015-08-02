@@ -2,6 +2,7 @@ name: ArkyneServer
 version: 1.0.0
 main: us.arkyne.server.Main
 authors: [Chiller]
+depend: [WorldEdit]
 commands:
     arkyne:
         description: Admin use only
