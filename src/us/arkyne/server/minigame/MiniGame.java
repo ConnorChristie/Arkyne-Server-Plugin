@@ -3,18 +3,20 @@ package us.arkyne.server.minigame;
 import java.util.HashMap;
 import java.util.Map;
 
+import us.arkyne.server.Main;
+import us.arkyne.server.command.cmds.ArkyneCommand;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.lobby.Lobbys;
 
-public abstract class MiniGame implements Loadable
+public abstract class MiniGame extends Loadable implements ArkyneCommand
 {
 	//Minigame variables like a timer, field location
 	
 	private Lobbys lobbys;
 	
-	public MiniGame()
+	public MiniGame(Main main)
 	{
-		lobbys = new Lobbys();
+		lobbys = new Lobbys(main);
 	}
 	
 	public void load()
@@ -22,12 +24,15 @@ public abstract class MiniGame implements Loadable
 		//Load lobbys for each location
 		
 		lobbys.addLoadable(new MiniGameLobby());
+		lobbys.loadAll();
 		
 		onLoad();
 	}
 	
 	public void unload()
 	{
+		lobbys.unloadAll();
+		
 		onUnload();
 	}
 	
