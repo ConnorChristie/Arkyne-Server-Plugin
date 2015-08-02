@@ -2,9 +2,8 @@ package us.arkyne.server.minigame.battlefrontier;
 
 import java.util.Map;
 
-import org.bukkit.command.CommandSender;
-
 import us.arkyne.server.Main;
+import us.arkyne.server.command.Command;
 import us.arkyne.server.minigame.MiniGame;
 
 public class BattleFrontierMinigame extends MiniGame
@@ -27,9 +26,9 @@ public class BattleFrontierMinigame extends MiniGame
 	}
 	
 	@Override
-	public void arkyneCommand(CommandSender sender, String[] args)
+	public void arkyneCommand(Command command)
 	{
-		System.out.println("Arkyne command 2!");
+		
 	}
 	
 	@Override

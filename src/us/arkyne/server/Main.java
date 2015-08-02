@@ -15,6 +15,8 @@ import us.arkyne.server.minigame.MiniGames;
 
 public class Main extends JavaPlugin
 {
+	private static Main instance;
+	
 	private List<Loader> loaders = new ArrayList<Loader>();
 	
 	private Lobbys lobbys;
@@ -24,6 +26,8 @@ public class Main extends JavaPlugin
 	
 	public void onEnable()
 	{
+		instance = this;
+		
 		setupLobbys();
 		setupMiniGames();
 		
@@ -78,5 +82,10 @@ public class Main extends JavaPlugin
 		if (plugin == null || !(plugin instanceof WorldEditPlugin)) return null;
 		
 		return (WorldEditPlugin) plugin;
+	}
+	
+	public static Main getInstance()
+	{
+		return instance;
 	}
 }
