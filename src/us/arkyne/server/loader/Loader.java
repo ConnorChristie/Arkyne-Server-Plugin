@@ -3,6 +3,8 @@ package us.arkyne.server.loader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+
 public abstract class Loader
 {
 	private List<Loadable> loadables = new ArrayList<Loadable>();
@@ -10,6 +12,8 @@ public abstract class Loader
 	public void addLoadable(Loadable loadable)
 	{
 		loadables.add(loadable);
+		
+		ConfigurationSerialization.registerClass(loadable.getClass());
 	}
 	
 	public void loadAll()
