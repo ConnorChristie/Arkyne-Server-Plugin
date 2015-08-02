@@ -3,8 +3,7 @@ package us.arkyne.server.lobby;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.command.CommandSender;
-
+import us.arkyne.server.command.Command;
 import us.arkyne.server.command.cmds.ArkyneCommand;
 import us.arkyne.server.loader.Loadable;
 
@@ -21,9 +20,18 @@ public abstract class Lobby extends Loadable implements ArkyneCommand
 	}
 	
 	@Override
-	public void arkyneCommand(CommandSender sender, String[] args)
+	public void arkyneCommand(Command command)
 	{
-		System.out.println("Arkyne command 1!");
+		if (command.isSubCommand("lobby", 2, true) && command.isSenderPlayer(true))
+		{
+			if (command.hasArg("create", 2))
+			{
+				command.sendSenderMessage("Called the lobby create command!");
+			} else
+			{
+				command.sendSenderOptionalMessage("Usage: /arkyne lobby <command>");
+			}
+		}
 	}
 	
 	public void deserialize(Map<String, Object> map)
