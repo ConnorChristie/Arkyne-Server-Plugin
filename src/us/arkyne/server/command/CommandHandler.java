@@ -3,7 +3,6 @@ package us.arkyne.server.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import us.arkyne.server.Main;
@@ -24,15 +23,17 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+	public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args)
 	{
+		Command command = new Command(sender, args);
+		
 		for (CommandExecutor executor : registeredExecutors)
 		{
 			if (label.equalsIgnoreCase("arkyne"))
 			{
 				if (executor instanceof ArkyneCommand)
 				{
-					((ArkyneCommand) executor).arkyneCommand(sender, args);
+					((ArkyneCommand) executor).arkyneCommand(command);
 				}
 			}
 		}
