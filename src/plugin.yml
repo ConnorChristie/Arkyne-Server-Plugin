@@ -1,0 +1,13 @@
+name: ArkyneServer
+version: 1.0.0
+main: us.arkyne.server.Main
+authors: [Chiller]
+commands:
+    arkyne:
+        description: Admin use only
+        permission: arkyne.commands
+        usage: /arkyne <command>
+        aliases: [ark]
+permissions:
+    arkyne.commands:
+        description: Allows admins to use the commands
