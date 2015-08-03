@@ -4,14 +4,21 @@ import java.util.Map;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+import us.arkyne.server.Main;
 import us.arkyne.server.command.CommandExecutor;
-import us.arkyne.server.command.CommandHandler;
 
 public abstract class Loadable implements ConfigurationSerializable, CommandExecutor
 {
+	private Main main;
+	
 	public Loadable()
 	{
-		CommandHandler.registerExecutor(this);
+		main = Main.getInstance();
+	}
+	
+	public Main getMain()
+	{
+		return main;
 	}
 	
 	public abstract void load();

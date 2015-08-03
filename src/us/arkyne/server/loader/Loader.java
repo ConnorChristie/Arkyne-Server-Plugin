@@ -3,14 +3,13 @@ package us.arkyne.server.loader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import us.arkyne.server.Main;
+import us.arkyne.server.command.CommandExecutor;
 import us.arkyne.server.command.CommandHandler;
 
-public abstract class Loader
+public abstract class Loader implements CommandExecutor
 {
 	private Main main;
 	
@@ -19,12 +18,20 @@ public abstract class Loader
 	public Loader(Main main)
 	{
 		this.main = main;
+		
+		CommandHandler.registerExecutor(this);
+	}
+	
+	public Main getMain()
+	{
+		return main;
 	}
 	
 	public void addLoadable(Loadable loadable)
 	{
 		loadables.add(loadable);
 		
+		CommandHandler.registerExecutor(loadable);
 		ConfigurationSerialization.registerClass(loadable.getClass());
 	}
 	

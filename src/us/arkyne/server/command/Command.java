@@ -59,6 +59,11 @@ public class Command
 		}
 	}
 	
+	public Player getPlayer()
+	{
+		return isSenderPlayer() ? ((Player) sender) : null;
+	}
+	
 	public boolean isSenderPlayer()
 	{
 		return sender instanceof Player;
