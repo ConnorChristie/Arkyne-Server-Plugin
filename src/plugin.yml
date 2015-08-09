@@ -1,14 +1,14 @@
-name: ArkyneServer
+name: ArkyneMinigameServer
 version: 1.0.0
-main: us.arkyne.server.Main
+main: us.arkyne.server.MinigameMain
 authors: [Chiller]
 depend: [WorldEdit]
 commands:
     arkyne:
         description: Admin use only
-        permission: arkyne.commands
+        permission: arkyne.manage
         usage: /arkyne <command>
         aliases: [ark]
 permissions:
-    arkyne.commands:
-        description: Allows admins to use the commands
+    arkyne.manage:
+        description: Allows admins to manage the server

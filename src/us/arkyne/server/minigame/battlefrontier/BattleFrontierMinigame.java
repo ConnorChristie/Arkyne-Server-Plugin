@@ -2,13 +2,13 @@ package us.arkyne.server.minigame.battlefrontier;
 
 import java.util.Map;
 
-import us.arkyne.server.Main;
+import us.arkyne.server.MinigameMain;
 import us.arkyne.server.command.Command;
 import us.arkyne.server.minigame.MiniGame;
 
 public class BattleFrontierMinigame extends MiniGame
 {
-	public BattleFrontierMinigame(Main main)
+	public BattleFrontierMinigame(MinigameMain main)
 	{
 		super(main);
 	}

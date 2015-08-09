@@ -5,14 +5,14 @@ import java.util.List;
 
 import org.bukkit.command.CommandSender;
 
-import us.arkyne.server.Main;
+import us.arkyne.server.MinigameMain;
 import us.arkyne.server.command.cmds.ArkyneCommand;
 
 public class CommandHandler implements org.bukkit.command.CommandExecutor
 {
 	private static List<CommandExecutor> registeredExecutors = new ArrayList<CommandExecutor>();
 	
-	public CommandHandler(Main main)
+	public CommandHandler(MinigameMain main)
 	{
 		main.getCommand("arkyne").setExecutor(this);
 	}

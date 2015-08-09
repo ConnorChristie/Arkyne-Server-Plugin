@@ -5,18 +5,8 @@ import java.util.Map;
 
 import us.arkyne.server.loader.Loadable;
 
-public abstract class Lobby extends Loadable
+public abstract class Lobby implements Loadable
 {
-	public void load()
-	{
-		onLoad();
-	}
-	
-	public void unload()
-	{
-		onUnload();
-	}
-	
 	public void deserialize(Map<String, Object> map)
 	{
 		

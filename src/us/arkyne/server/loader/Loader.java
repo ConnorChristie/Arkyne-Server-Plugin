@@ -5,24 +5,24 @@ import java.util.List;
 
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
-import us.arkyne.server.Main;
+import us.arkyne.server.MinigameMain;
 import us.arkyne.server.command.CommandExecutor;
 import us.arkyne.server.command.CommandHandler;
 
-public abstract class Loader implements CommandExecutor
+public abstract class Loader implements CommandExecutor, Loadable
 {
-	private Main main;
+	private MinigameMain main;
 	
 	private List<Loadable> loadables = new ArrayList<Loadable>();
 	
-	public Loader(Main main)
+	public Loader(MinigameMain main)
 	{
 		this.main = main;
 		
 		CommandHandler.registerExecutor(this);
 	}
 	
-	public Main getMain()
+	public MinigameMain getMain()
 	{
 		return main;
 	}
@@ -39,7 +39,7 @@ public abstract class Loader implements CommandExecutor
 	{
 		for (Loadable loadable : loadables)
 		{
-			loadable.load();
+			loadable.onLoad();
 		}
 	}
 	
@@ -47,7 +47,9 @@ public abstract class Loader implements CommandExecutor
 	{
 		for (Loadable loadable : loadables)
 		{
-			loadable.unload();
+			loadable.onUnload();
 		}
 	}
+	
+	
 }

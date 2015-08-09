@@ -13,9 +13,9 @@ import us.arkyne.server.loader.Loader;
 import us.arkyne.server.lobby.Lobbys;
 import us.arkyne.server.minigame.MiniGames;
 
-public class Main extends JavaPlugin
+public class MinigameMain extends JavaPlugin
 {
-	private static Main instance;
+	private static MinigameMain instance;
 	
 	private List<Loader> loaders = new ArrayList<Loader>();
 	
@@ -31,6 +31,8 @@ public class Main extends JavaPlugin
 		setupLobbys();
 		setupMiniGames();
 		
+		loadAll();
+		
 		commandHandler = new CommandHandler(this);
 		
 		getLogger().info("Loaded all lobby's and minigames!");
@@ -38,25 +40,36 @@ public class Main extends JavaPlugin
 	
 	public void onDisable()
 	{
-		lobbys.unloadAll();
-		miniGames.unloadAll();
+		unloadAll();
 		
 		getLogger().info("Unloaded all lobby's and minigames!");
+	}
+	
+	private void loadAll()
+	{
+		for (Loader loader : loaders)
+		{
+			loader.loadAll();
+		}
+	}
+	
+	private void unloadAll()
+	{
+		for (Loader loader : loaders)
+		{
+			loader.unloadAll();
+		}
 	}
 	
 	private void setupLobbys()
 	{
 		lobbys = new Lobbys(this);
-		lobbys.loadAll();
-		
 		loaders.add(lobbys);
 	}
 	
 	private void setupMiniGames()
 	{
 		miniGames = new MiniGames(this);
-		miniGames.loadAll();
-		
 		loaders.add(miniGames);
 	}
 	
@@ -84,7 +97,7 @@ public class Main extends JavaPlugin
 		return (WorldEditPlugin) plugin;
 	}
 	
-	public static Main getInstance()
+	public static MinigameMain getInstance()
 	{
 		return instance;
 	}
