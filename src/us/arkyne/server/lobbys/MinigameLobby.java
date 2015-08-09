@@ -1,10 +1,10 @@
-package us.arkyne.server.minigame;
+package us.arkyne.server.lobbys;
 
 import java.util.Map;
 
 import us.arkyne.server.lobby.Lobby;
 
-public class MiniGameLobby extends Lobby
+public class MinigameLobby extends Lobby
 {
 	@Override
 	public void onLoad()
@@ -18,10 +18,9 @@ public class MiniGameLobby extends Lobby
 		
 	}
 
-	@Override
-	public void deserialize(Map<String, Object> map)
+	public MinigameLobby(Map<String, Object> map)
 	{
-		
+		super(map);
 	}
 
 	@Override

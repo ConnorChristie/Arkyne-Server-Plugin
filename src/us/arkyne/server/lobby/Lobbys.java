@@ -1,9 +1,10 @@
 package us.arkyne.server.lobby;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 
 import com.sk89q.worldedit.bukkit.selections.Selection;
 
@@ -12,10 +13,13 @@ import us.arkyne.server.command.Command;
 import us.arkyne.server.command.cmds.ArkyneCommand;
 import us.arkyne.server.config.LobbysConfig;
 import us.arkyne.server.loader.Loader;
+import us.arkyne.server.lobbys.MainLobby;
 
 public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 {
 	private LobbysConfig lobbysConfig;
+	
+	private Map<String, Lobby> lobbys = new HashMap<String, Lobby>();
 	
 	public Lobbys(MinigameMain main)
 	{
@@ -24,10 +28,9 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 		lobbysConfig = new LobbysConfig();
 		
 		//Load all lobby's from the config file
+		lobbys = lobbysConfig.getLobbys();
 		
-		List<Lobby> lobbys = lobbysConfig.getLobbys();
-		
-		for (Lobby lobby : lobbys)
+		for (Lobby lobby : lobbys.values())
 		{
 			addLoadable(lobby);
 		}
@@ -36,7 +39,7 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 	@Override
 	public boolean arkyneCommand(Command command)
 	{
-		if (command.isSubCommandMessageIfError("createlobby", 1, false, "Usage: /{cmd} createlobby <name>"))
+		if (command.isSubCommandMessageIfError("mainlobby", 2, false, "Usage: /{cmd} mainlobby <name> <id>"))
 		{
 			//Create a lobby based on the region the player selected
 			
@@ -46,7 +49,17 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 				
 				if (selection != null)
 				{
-					command.sendSenderMessage("Successfully created a lobby!", ChatColor.GREEN);
+					//Create lobby with name, id and selected region
+					
+					boolean created = createMainLobby(command.getArg(0), command.getArg(1), selection.getMinimumPoint(), selection.getMaximumPoint());;
+					
+					if (created)
+					{
+						command.sendSenderMessage("Successfully created a lobby!", ChatColor.GREEN);
+					} else
+					{
+						command.sendSenderMessage("That lobby id is already in use!", ChatColor.RED);
+					}
 				} else
 				{
 					command.sendSenderMessage("Please select a region with worldedit first!", ChatColor.RED);
@@ -73,19 +86,30 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public void deserialize(Map<String, Object> map)
+	
+	public boolean containsLobby(String id)
 	{
-		// TODO Auto-generated method stub
-		
+		return lobbys.containsKey(id);
 	}
-
-	@Override
-	public Map<String, Object> serialize()
+	
+	public Lobby getLobby(String id)
 	{
-		// TODO Auto-generated method stub
+		return lobbys.get(id);
+	}
+	
+	public boolean createMainLobby(String name, String id, Location min, Location max)
+	{
+		if (!containsLobby(id))
+		{
+			Lobby lobby = new MainLobby(name, id, min, max);
+			
+			//Other lobby creation stuff
+			
+			lobbys.put(id, lobby);
+			
+			return true;
+		}
 		
-		return null;
+		return false;
 	}
 }

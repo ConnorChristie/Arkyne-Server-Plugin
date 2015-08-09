@@ -4,9 +4,9 @@ import java.util.Map;
 
 import us.arkyne.server.MinigameMain;
 import us.arkyne.server.command.Command;
-import us.arkyne.server.minigame.MiniGame;
+import us.arkyne.server.minigame.Minigame;
 
-public class BattleFrontierMinigame extends MiniGame
+public class BattleFrontierMinigame extends Minigame
 {
 	public BattleFrontierMinigame(MinigameMain main)
 	{

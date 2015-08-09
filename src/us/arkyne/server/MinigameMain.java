@@ -11,7 +11,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import us.arkyne.server.command.CommandHandler;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.lobby.Lobbys;
-import us.arkyne.server.minigame.MiniGames;
+import us.arkyne.server.minigame.Minigames;
 
 public class MinigameMain extends JavaPlugin
 {
@@ -20,7 +20,7 @@ public class MinigameMain extends JavaPlugin
 	private List<Loader<?>> loaders = new ArrayList<Loader<?>>();
 	
 	private Lobbys lobbys;
-	private MiniGames miniGames;
+	private Minigames miniGames;
 	
 	private CommandHandler commandHandler;
 	
@@ -70,7 +70,7 @@ public class MinigameMain extends JavaPlugin
 	
 	private void setupMiniGames()
 	{
-		miniGames = new MiniGames(this);
+		miniGames = new Minigames(this);
 		loaders.add(miniGames);
 	}
 	
@@ -79,7 +79,7 @@ public class MinigameMain extends JavaPlugin
 		return lobbys;
 	}
 	
-	public MiniGames getMiniGames()
+	public Minigames getMiniGames()
 	{
 		return miniGames;
 	}

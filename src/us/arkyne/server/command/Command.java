@@ -29,9 +29,9 @@ public class Command
 		return sender;
 	}
 	
-	public String[] getArgs()
+	public String getArg(int arg)
 	{
-		return args;
+		return args[arg++];
 	}
 	
 	public boolean wasArgLengthError()

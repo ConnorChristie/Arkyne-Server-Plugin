@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.List;
+import java.util.Map;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -28,9 +28,14 @@ public abstract class Config extends YamlConfiguration
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> List<T> getInstanceList(String path, List<T> def)
+	public <T> Map<String, T> getInstanceMap(String path, Map<String, T> def)
 	{
-		return (List<T>) getList(path, def);
+		for (String id : getConfigurationSection(path).getKeys(false))
+		{
+			def.put(id, (T) get(path + "." + id));
+		}
+		
+		return def;
 	}
 	
 	public void saveConfig()

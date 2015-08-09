@@ -1,14 +1,12 @@
 package us.arkyne.server.minigame;
 
-import java.util.Map;
-
 import us.arkyne.server.MinigameMain;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.minigame.battlefrontier.BattleFrontierMinigame;
 
-public class MiniGames extends Loader<MiniGame>
+public class Minigames extends Loader<Minigame>
 {
-	public MiniGames(MinigameMain main)
+	public Minigames(MinigameMain main)
 	{
 		super(main);
 		
@@ -27,19 +25,5 @@ public class MiniGames extends Loader<MiniGame>
 	{
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void deserialize(Map<String, Object> map)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Map<String, Object> serialize()
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

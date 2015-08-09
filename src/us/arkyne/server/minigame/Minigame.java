@@ -7,11 +7,11 @@ import us.arkyne.server.MinigameMain;
 import us.arkyne.server.command.cmds.ArkyneCommand;
 import us.arkyne.server.loader.Loadable;
 
-public abstract class MiniGame implements Loadable, ArkyneCommand
+public abstract class Minigame implements Loadable, ArkyneCommand
 {
 	//Minigame variables like a timer, field location
 	
-	public MiniGame(MinigameMain main)
+	public Minigame(MinigameMain main)
 	{
 		
 	}

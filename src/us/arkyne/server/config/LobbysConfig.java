@@ -1,7 +1,7 @@
 package us.arkyne.server.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import us.arkyne.server.lobby.Lobby;
 
@@ -13,8 +13,8 @@ public class LobbysConfig extends Config
 	}
 	
 	//Gets all the saved lobbys in the config, and casts them to a Lobby
-	public List<Lobby> getLobbys()
+	public Map<String, Lobby> getLobbys()
 	{
-		return getInstanceList("lobbys", new ArrayList<Lobby>());
+		return getInstanceMap("lobbys", new HashMap<String, Lobby>());
 	}
 }
