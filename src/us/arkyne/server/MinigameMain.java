@@ -9,6 +9,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import us.arkyne.server.command.CommandHandler;
+import us.arkyne.server.command.cmds.ArkyneCommand;
+import us.arkyne.server.command.cmds.LobbyCommand;
+import us.arkyne.server.event.EventListener;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.lobby.Lobbys;
 import us.arkyne.server.minigame.Minigames;
@@ -23,6 +26,7 @@ public class MinigameMain extends JavaPlugin
 	private Minigames miniGames;
 	
 	private CommandHandler commandHandler;
+	private EventListener eventListener;
 	
 	public void onEnable()
 	{
@@ -34,7 +38,10 @@ public class MinigameMain extends JavaPlugin
 		
 		loadAll();
 		
-		commandHandler = new CommandHandler(this);
+		commandHandler = new CommandHandler();
+		eventListener = new EventListener();
+		
+		registerCommands();
 		
 		getLogger().info("Loaded all lobby's and minigames!");
 	}
@@ -72,6 +79,12 @@ public class MinigameMain extends JavaPlugin
 	{
 		miniGames = new Minigames(this);
 		loaders.add(miniGames);
+	}
+	
+	private void registerCommands()
+	{
+		commandHandler.registerCommand(ArkyneCommand.class);
+		commandHandler.registerCommand(LobbyCommand.class);
 	}
 	
 	public Lobbys getLobbys()

@@ -38,7 +38,7 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 	@Override
 	public boolean arkyneCommand(Command command)
 	{
-		if (command.isSubCommandMessageIfError("mainlobby", 2, false, "Usage: /{cmd} mainlobby <name> <id>"))
+		if (command.isSubCommandMessageIfError("createlobby", 2, false, "Usage: /{cmd} createlobby <name> <id>"))
 		{
 			//Create a lobby based on the region the player selected
 			

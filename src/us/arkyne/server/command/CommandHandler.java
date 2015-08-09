@@ -1,22 +1,48 @@
 package us.arkyne.server.command;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 
 import us.arkyne.server.MinigameMain;
 import us.arkyne.server.command.cmds.ArkyneCommand;
 
 public class CommandHandler implements org.bukkit.command.CommandExecutor
 {
+	private static Map<String[], Class<? extends CommandExecutor>> mappedCommandClasses = new HashMap<String[], Class<? extends CommandExecutor>>();
 	private static List<CommandExecutor> registeredExecutors = new ArrayList<CommandExecutor>();
 	
-	public CommandHandler(MinigameMain main)
+	public void registerCommand(Class<? extends CommandExecutor> commandClass)
 	{
-		main.getCommand(ArkyneCommand.commandNames[0]).setExecutor(this);
+		try
+		{
+			String[] commandNames = (String[]) commandClass.getField("commandNames").get(null);
+			
+			mappedCommandClasses.put(commandNames, commandClass);
+			
+			PluginCommand command = MinigameMain.getInstance().getCommand(commandNames[0]);
+			
+			if (command != null)
+			{
+				command.setExecutor(this);
+			} else
+			{
+				MinigameMain.getInstance().getLogger().severe("------------------------------------------------------------");
+				MinigameMain.getInstance().getLogger().severe("The command: " + commandNames[0] + ", is not registered in the plugin.yml");
+				MinigameMain.getInstance().getLogger().severe("------------------------------------------------------------");
+			}
+			
+			//Get command class from the string array
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
+		{
+			//Could not instantiate command class
+		}
 	}
 	
 	public static void registerExecutor(CommandExecutor executor)
@@ -28,6 +54,11 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 	public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args)
 	{
 		Command command = new Command(label, sender, args);
+		
+		for (String[] commandNames : mappedCommandClasses.keySet())
+		{
+			System.out.println("Name: " + commandNames[0]);
+		}
 		
 		if (ArrayUtils.contains(ArkyneCommand.commandNames, label.toLowerCase()))
 		{

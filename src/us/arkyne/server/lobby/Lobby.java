@@ -6,9 +6,11 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+import us.arkyne.server.command.Command;
+import us.arkyne.server.command.cmds.LobbyCommand;
 import us.arkyne.server.loader.Loadable;
 
-public class Lobby implements Loadable, ConfigurationSerializable
+public class Lobby implements Loadable, ConfigurationSerializable, LobbyCommand
 {
 	private String name;
 	private String id;
@@ -22,6 +24,28 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		
 		this.min = min;
 		this.max = max;
+	}
+	
+	@Override
+	public void onLoad()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onUnload()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean lobbyCommand(Command cmd)
+	{
+		
+		
+		return false;
 	}
 	
 	public String getName()
@@ -60,19 +84,5 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		map.put("boundry_max", max);
 		
 		return map;
-	}
-
-	@Override
-	public void onLoad()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onUnload()
-	{
-		// TODO Auto-generated method stub
-		
 	}
 }
