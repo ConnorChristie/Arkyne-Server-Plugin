@@ -1,5 +1,6 @@
 package us.arkyne.server.command;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 
 import us.arkyne.server.MinigameMain;
-import us.arkyne.server.command.cmds.ArkyneCommand;
+import us.arkyne.server.util.Util;
 
 public class CommandHandler implements org.bukkit.command.CommandExecutor
 {
@@ -23,19 +24,16 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 		try
 		{
 			String[] commandNames = (String[]) commandClass.getField("commandNames").get(null);
-			
-			mappedCommandClasses.put(commandNames, commandClass);
-			
 			PluginCommand command = MinigameMain.getInstance().getCommand(commandNames[0]);
 			
 			if (command != null)
 			{
 				command.setExecutor(this);
+				
+				mappedCommandClasses.put(commandNames, commandClass);
 			} else
 			{
-				MinigameMain.getInstance().getLogger().severe("------------------------------------------------------------");
-				MinigameMain.getInstance().getLogger().severe("The command: " + commandNames[0] + ", is not registered in the plugin.yml");
-				MinigameMain.getInstance().getLogger().severe("------------------------------------------------------------");
+				Util.noticeableConsoleMessage("The command: " + commandNames[0] + ", is not registered in the plugin.yml");
 			}
 			
 			//Get command class from the string array
@@ -57,25 +55,34 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 		
 		for (String[] commandNames : mappedCommandClasses.keySet())
 		{
-			System.out.println("Name: " + commandNames[0]);
-		}
-		
-		if (ArrayUtils.contains(ArkyneCommand.commandNames, label.toLowerCase()))
-		{
-			boolean executed = false;
-			
-			for (CommandExecutor executor : getExecutors(ArkyneCommand.class))
+			if (ArrayUtils.contains(commandNames, label.toLowerCase()))
 			{
-				//Find all command executors for that command, and execute
+				boolean executed = false;
 				
-				executed = ((ArkyneCommand) executor).arkyneCommand(command) ? true : executed;
-			}
-			
-			if (!executed)
-			{
-				//Send user message because the command was not executed
+				Class<? extends CommandExecutor> commandClass = mappedCommandClasses.get(commandNames);
 				
-				command.sendSenderMessage("Usage: /{cmd} <subcommand>", ChatColor.RED);
+				for (CommandExecutor executor : getExecutors(commandClass))
+				{
+					//Find all command executors for that command, and execute
+					
+					try
+					{
+						executed = ((boolean) commandClass.getMethod(commandNames[0] + "Command", Command.class).invoke(executor, command)) ? true : executed;
+						
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
+					{
+						Util.noticeableConsoleMessage("Could not invoke the method: " + commandNames[0] + "Command, in the command class");
+					}
+				}
+				
+				if (!executed)
+				{
+					//Send user message because the command was not handled by anyone
+					
+					command.sendSenderMessage("Usage: /{cmd} <subcommand>", ChatColor.RED);
+				}
+				
+				break;
 			}
 		}
 		

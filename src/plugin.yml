@@ -7,8 +7,14 @@ commands:
     arkyne:
         description: Admin use only
         permission: arkyne.manage
-        usage: /arkyne <command>
+        usage: /arkyne <subcommand>
         aliases: [ark]
+    lobby:
+        description: Lobby manage command
+        permission: arkyne.lobby
+        usage: /lobby <subcommand>
 permissions:
     arkyne.manage:
         description: Allows admins to manage the server
+    arkyne.lobby:
+        description: Allows admins to manage the lobbys

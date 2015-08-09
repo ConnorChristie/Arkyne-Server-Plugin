@@ -83,6 +83,8 @@ public class MinigameMain extends JavaPlugin
 	
 	private void registerCommands()
 	{
+		//When adding commands, make sure you register them in the plugin.yml!
+		
 		commandHandler.registerCommand(ArkyneCommand.class);
 		commandHandler.registerCommand(LobbyCommand.class);
 	}

@@ -26,4 +26,11 @@ public class Util
 			to.sendMessage(PREFIX + msgColor + message);
 		}
 	}
+	
+	public static void noticeableConsoleMessage(String message)
+	{
+		MinigameMain.getInstance().getLogger().severe("------------------------------------------------------------");
+		MinigameMain.getInstance().getLogger().severe(message);
+		MinigameMain.getInstance().getLogger().severe("------------------------------------------------------------");
+	}
 }
