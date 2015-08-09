@@ -3,6 +3,7 @@ package us.arkyne.server.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -15,7 +16,7 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 	
 	public CommandHandler(MinigameMain main)
 	{
-		main.getCommand(ArkyneCommand.commandName).setExecutor(this);
+		main.getCommand(ArkyneCommand.commandNames[0]).setExecutor(this);
 	}
 	
 	public static void registerExecutor(CommandExecutor executor)
@@ -28,7 +29,7 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 	{
 		Command command = new Command(label, sender, args);
 		
-		if (label.equalsIgnoreCase(ArkyneCommand.commandName))
+		if (ArrayUtils.contains(ArkyneCommand.commandNames, label.toLowerCase()))
 		{
 			boolean executed = false;
 			

@@ -31,10 +31,9 @@ public class BattleFrontierMinigame extends Minigame
 		return false;
 	}
 	
-	@Override
-	public void deserialize(Map<String, Object> map)
+	public BattleFrontierMinigame(Map<String, Object> map)
 	{
-		super.deserialize(map);
+		super(map);
 	}
 	
 	@Override

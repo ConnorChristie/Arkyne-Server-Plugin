@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Map;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -23,16 +24,19 @@ public abstract class Config extends YamlConfiguration
 		this.fileName = fileName;
 		
 		main = MinigameMain.getInstance();
-		
-		loadConfig();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> Map<String, T> getInstanceMap(String path, Map<String, T> def)
 	{
-		for (String id : getConfigurationSection(path).getKeys(false))
+		ConfigurationSection section = getConfigurationSection(path);
+		
+		if (section != null)
 		{
-			def.put(id, (T) get(path + "." + id));
+			for (String id : section.getKeys(false))
+			{
+				def.put(id, (T) section.get(id));
+			}
 		}
 		
 		return def;

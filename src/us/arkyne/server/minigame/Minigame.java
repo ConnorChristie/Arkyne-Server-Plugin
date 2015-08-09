@@ -16,7 +16,7 @@ public abstract class Minigame implements Loadable, ArkyneCommand
 		
 	}
 	
-	public void deserialize(Map<String, Object> map)
+	public Minigame(Map<String, Object> map)
 	{
 		
 	}

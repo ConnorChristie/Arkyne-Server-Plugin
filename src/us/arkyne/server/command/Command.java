@@ -31,7 +31,7 @@ public class Command
 	
 	public String getArg(int arg)
 	{
-		return args[arg++];
+		return args[arg + 1];
 	}
 	
 	public boolean wasArgLengthError()

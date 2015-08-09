@@ -13,7 +13,6 @@ import us.arkyne.server.command.Command;
 import us.arkyne.server.command.cmds.ArkyneCommand;
 import us.arkyne.server.config.LobbysConfig;
 import us.arkyne.server.loader.Loader;
-import us.arkyne.server.lobbys.MainLobby;
 
 public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 {
@@ -51,7 +50,7 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 				{
 					//Create lobby with name, id and selected region
 					
-					boolean created = createMainLobby(command.getArg(0), command.getArg(1), selection.getMinimumPoint(), selection.getMaximumPoint());;
+					boolean created = createLobby(command.getArg(0), command.getArg(1), selection.getMinimumPoint(), selection.getMaximumPoint());;
 					
 					if (created)
 					{
@@ -97,19 +96,31 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 		return lobbys.get(id);
 	}
 	
-	public boolean createMainLobby(String name, String id, Location min, Location max)
+	public boolean createLobby(String name, String id, Location min, Location max)
 	{
 		if (!containsLobby(id))
 		{
-			Lobby lobby = new MainLobby(name, id, min, max);
+			Lobby lobby = new Lobby(name, id, min, max);
 			
 			//Other lobby creation stuff
 			
 			lobbys.put(id, lobby);
 			
+			saveLobbys();
+			
 			return true;
 		}
 		
 		return false;
+	}
+	
+	public void saveLobbys()
+	{
+		for (String id : lobbys.keySet())
+		{
+			lobbysConfig.set("lobbys." + id, lobbys.get(id));
+		}
+		
+		lobbysConfig.saveConfig();
 	}
 }

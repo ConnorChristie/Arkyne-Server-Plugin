@@ -8,7 +8,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import us.arkyne.server.loader.Loadable;
 
-public abstract class Lobby implements Loadable, ConfigurationSerializable
+public class Lobby implements Loadable, ConfigurationSerializable
 {
 	private String name;
 	private String id;
@@ -60,5 +60,19 @@ public abstract class Lobby implements Loadable, ConfigurationSerializable
 		map.put("boundry_max", max);
 		
 		return map;
+	}
+
+	@Override
+	public void onLoad()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onUnload()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
