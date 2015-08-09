@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.List;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -26,6 +27,12 @@ public abstract class Config extends YamlConfiguration
 		loadConfig();
 	}
 	
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getInstanceList(String path, List<T> def)
+	{
+		return (List<T>) getList(path, def);
+	}
+	
 	public void saveConfig()
 	{
 		if (configFile == null)
@@ -46,20 +53,42 @@ public abstract class Config extends YamlConfiguration
 		{
 			if (configFile == null)
 				configFile = new File(main.getDataFolder(), fileName + ".yml");
-				
+			
+			if (!configFile.exists())
+			{
+				configFile.getParentFile().mkdirs();
+				configFile.createNewFile();
+			}
+			
 			load(configFile);
 			
-			// Look for defaults in the jar
-			Reader defConfigStream = new InputStreamReader(main.getResource(fileName + ".yml"), "UTF8");
-			
-			if (defConfigStream != null)
+			try
 			{
-				YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
-				setDefaults(defConfig);
+				// Look for defaults in the jar
+				Reader defConfigStream = new InputStreamReader(main.getResource(fileName + ".yml"), "UTF8");
+				
+				if (defConfigStream != null)
+				{
+					YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+					setDefaults(defConfig);
+				}
+			} catch (Exception e)
+			{
+				//Could not load defaults, no big deal...
 			}
 		} catch (IOException | InvalidConfigurationException e)
 		{
 			e.printStackTrace();
+			
+			//Could not load saved file, bigger deal...
+		}
+	}
+	
+	public void saveDefaultConfig()
+	{
+		if (!configFile.exists())
+		{
+			main.saveResource(fileName + ".yml", false);
 		}
 	}
 }

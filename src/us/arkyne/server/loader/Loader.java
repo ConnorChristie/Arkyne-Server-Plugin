@@ -9,11 +9,11 @@ import us.arkyne.server.MinigameMain;
 import us.arkyne.server.command.CommandExecutor;
 import us.arkyne.server.command.CommandHandler;
 
-public abstract class Loader implements CommandExecutor, Loadable
+public abstract class Loader<T extends Loadable> implements CommandExecutor, Loadable
 {
 	private MinigameMain main;
 	
-	private List<Loadable> loadables = new ArrayList<Loadable>();
+	private List<T> loadables = new ArrayList<T>();
 	
 	public Loader(MinigameMain main)
 	{
@@ -22,12 +22,7 @@ public abstract class Loader implements CommandExecutor, Loadable
 		CommandHandler.registerExecutor(this);
 	}
 	
-	public MinigameMain getMain()
-	{
-		return main;
-	}
-	
-	public void addLoadable(Loadable loadable)
+	public void addLoadable(T loadable)
 	{
 		loadables.add(loadable);
 		
@@ -37,7 +32,9 @@ public abstract class Loader implements CommandExecutor, Loadable
 	
 	public void loadAll()
 	{
-		for (Loadable loadable : loadables)
+		onLoad();
+		
+		for (T loadable : loadables)
 		{
 			loadable.onLoad();
 		}
@@ -45,11 +42,16 @@ public abstract class Loader implements CommandExecutor, Loadable
 	
 	public void unloadAll()
 	{
-		for (Loadable loadable : loadables)
+		onUnload();
+		
+		for (T loadable : loadables)
 		{
 			loadable.onUnload();
 		}
 	}
 	
-	
+	protected MinigameMain getMain()
+	{
+		return main;
+	}
 }

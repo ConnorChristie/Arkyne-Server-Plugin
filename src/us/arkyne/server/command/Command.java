@@ -8,13 +8,18 @@ import us.arkyne.server.util.Util;
 
 public class Command
 {
+	private String label;
+	
 	private CommandSender sender;
 	private String[] args;
 	
 	private boolean sentMessage;
+	private boolean argLengthError;
 	
-	public Command(CommandSender sender, String[] args)
+	public Command(String label, CommandSender sender, String[] args)
 	{
+		this.label = label;
+		
 		this.sender = sender;
 		this.args = args;
 	}
@@ -29,15 +34,22 @@ public class Command
 		return args;
 	}
 	
+	public boolean wasArgLengthError()
+	{
+		//If it was the correct sub command but the wrong arg length
+		
+		return argLengthError;
+	}
+	
 	public void sendSenderMessage(String msg)
 	{
-		Util.sendMessage(sender, msg);
-		
-		sentMessage = true;
+		sendSenderMessage(msg, ChatColor.AQUA);
 	}
 	
 	public void sendSenderMessage(String msg, ChatColor color)
 	{
+		msg = msg.replace("{cmd}", label);
+		
 		Util.sendMessage(sender, msg, color);
 		
 		sentMessage = true;
@@ -83,22 +95,30 @@ public class Command
 	
 	public boolean isSubCommand(String cmd, int argLength, boolean canBeMore)
 	{
-		if ((canBeMore && args.length >= argLength) || (!canBeMore && args.length == argLength))
+		return isSubCommandMessageIfError(cmd, argLength, canBeMore, null);
+	}
+	
+	public boolean isSubCommandMessageIfError(String cmd, int argLength, boolean canBeMore, String msg)
+	{
+		argLength++;
+		
+		if (args.length > 0)
 		{
 			if (args[0].equalsIgnoreCase(cmd))
 			{
-				return true;
+				if ((canBeMore && args.length >= argLength) || (!canBeMore && args.length == argLength))
+				{
+					return true;
+				} else
+				{
+					// Send message
+					
+					argLengthError = true;
+					
+					if (msg != null)
+						sendSenderMessage(msg, ChatColor.RED);
+				}
 			}
-		}
-		
-		return false;
-	}
-	
-	public boolean hasArg(String arg, int argPos)
-	{
-		if (argPos <= args.length)
-		{
-			return args[argPos - 1].equalsIgnoreCase(arg);
 		}
 		
 		return false;

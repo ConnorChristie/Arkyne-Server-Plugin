@@ -5,5 +5,7 @@ import us.arkyne.server.command.CommandExecutor;
 
 public interface ArkyneCommand extends CommandExecutor
 {
-	public void arkyneCommand(Command cmd);
+	public String commandName = "arkyne";
+	
+	public boolean arkyneCommand(Command cmd);
 }

@@ -26,9 +26,9 @@ public class BattleFrontierMinigame extends MiniGame
 	}
 	
 	@Override
-	public void arkyneCommand(Command command)
+	public boolean arkyneCommand(Command command)
 	{
-		
+		return false;
 	}
 	
 	@Override

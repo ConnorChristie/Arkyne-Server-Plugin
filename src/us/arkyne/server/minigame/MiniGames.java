@@ -6,7 +6,7 @@ import us.arkyne.server.MinigameMain;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.minigame.battlefrontier.BattleFrontierMinigame;
 
-public class MiniGames extends Loader
+public class MiniGames extends Loader<MiniGame>
 {
 	public MiniGames(MinigameMain main)
 	{

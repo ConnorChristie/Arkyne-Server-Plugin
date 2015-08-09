@@ -17,7 +17,7 @@ public class MinigameMain extends JavaPlugin
 {
 	private static MinigameMain instance;
 	
-	private List<Loader> loaders = new ArrayList<Loader>();
+	private List<Loader<?>> loaders = new ArrayList<Loader<?>>();
 	
 	private Lobbys lobbys;
 	private MiniGames miniGames;
@@ -28,6 +28,7 @@ public class MinigameMain extends JavaPlugin
 	{
 		instance = this;
 		
+		//Sets up the lobbys and minigames loaders
 		setupLobbys();
 		setupMiniGames();
 		
@@ -47,7 +48,7 @@ public class MinigameMain extends JavaPlugin
 	
 	private void loadAll()
 	{
-		for (Loader loader : loaders)
+		for (Loader<?> loader : loaders)
 		{
 			loader.loadAll();
 		}
@@ -55,7 +56,7 @@ public class MinigameMain extends JavaPlugin
 	
 	private void unloadAll()
 	{
-		for (Loader loader : loaders)
+		for (Loader<?> loader : loaders)
 		{
 			loader.unloadAll();
 		}
@@ -83,7 +84,7 @@ public class MinigameMain extends JavaPlugin
 		return miniGames;
 	}
 	
-	public List<Loader> getLoaders()
+	public List<Loader<?>> getLoaders()
 	{
 		return loaders;
 	}
