@@ -95,10 +95,10 @@ public class Command
 	
 	public boolean isSubCommand(String cmd, int argLength, boolean canBeMore)
 	{
-		return isSubCommandMessageIfError(cmd, argLength, canBeMore, null);
+		return isSubCommandMessageIfError(cmd, argLength, canBeMore);
 	}
 	
-	public boolean isSubCommandMessageIfError(String cmd, int argLength, boolean canBeMore, String msg)
+	public boolean isSubCommandMessageIfError(String cmd, int argLength, boolean canBeMore, String... msgs)
 	{
 		argLength++;
 		
@@ -115,8 +115,13 @@ public class Command
 					
 					argLengthError = true;
 					
-					if (msg != null)
-						sendSenderMessage(msg, ChatColor.RED);
+					if (msgs.length > 0)
+					{
+						for (String msg : msgs)
+						{
+							sendSenderMessage(msg, ChatColor.RED);
+						}
+					}
 				}
 			}
 		}

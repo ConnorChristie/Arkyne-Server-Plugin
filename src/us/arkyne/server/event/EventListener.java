@@ -5,6 +5,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import us.arkyne.server.MinigameMain;
+import us.arkyne.server.event.customevents.PlayerChangeLobbyEvent;
 
 public class EventListener implements Listener
 {
@@ -19,6 +20,15 @@ public class EventListener implements Listener
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event)
+	{
+		// If player was in game but left, try to make them go back in that game
+		// Otherwise spawn them in the main lobby
+		
+		
+	}
+	
+	@EventHandler
+	public void onPlayerChangeLobby(PlayerChangeLobbyEvent event)
 	{
 		
 	}

@@ -38,7 +38,8 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 	@Override
 	public boolean arkyneCommand(Command command)
 	{
-		if (command.isSubCommandMessageIfError("createlobby", 2, false, "Usage: /{cmd} createlobby <name> <id>"))
+		//TODO: Make it so the player can change a lobby later on
+		if (command.isSubCommandMessageIfError("createlobby", 2, false, "First select the boundry's with worldedit", "Then stand where you you want the spawn point", "Then execute: /{cmd} createlobby <name> <id>"))
 		{
 			//Create a lobby based on the region the player selected
 			
@@ -50,7 +51,7 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 				{
 					//Create lobby with name, id and selected region
 					
-					boolean created = createLobby(command.getArg(0), command.getArg(1), selection.getMinimumPoint(), selection.getMaximumPoint());;
+					boolean created = createLobby(command.getArg(0), command.getArg(1), command.getPlayer().getLocation(), selection.getMinimumPoint(), selection.getMaximumPoint());;
 					
 					if (created)
 					{
@@ -96,11 +97,11 @@ public class Lobbys extends Loader<Lobby> implements ArkyneCommand
 		return lobbys.get(id);
 	}
 	
-	public boolean createLobby(String name, String id, Location min, Location max)
+	public boolean createLobby(String name, String id, Location spawn, Location min, Location max)
 	{
 		if (!containsLobby(id))
 		{
-			Lobby lobby = new Lobby(name, id, min, max);
+			Lobby lobby = new Lobby(name, id, spawn, min, max);
 			
 			//Other lobby creation stuff
 			

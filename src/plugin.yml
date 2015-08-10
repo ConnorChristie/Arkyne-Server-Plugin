@@ -2,7 +2,8 @@ name: ArkyneMinigameServer
 version: 1.0.0
 main: us.arkyne.server.MinigameMain
 authors: [Chiller]
-depend: [WorldEdit]
+depend: [WorldEdit, Multiverse-Core]
+load: POSTWORLD
 commands:
     arkyne:
         description: Admin use only
