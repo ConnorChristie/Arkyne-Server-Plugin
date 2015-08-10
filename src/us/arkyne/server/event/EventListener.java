@@ -1,9 +1,14 @@
 package us.arkyne.server.event;
 
 import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -36,7 +41,6 @@ public class EventListener implements Listener
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
 		ArkynePlayer player = main.getArkynePlayers().getPlayer(event.getPlayer());
-		
 		Lobby lobby = player.getLobby();
 		
 		if (lobby != null)
@@ -46,7 +50,43 @@ public class EventListener implements Listener
 				//Bounce them back into the cuboid region
 				
 				player.pushTowards(lobby.getSpawn());
+			} else if (player.getLocation().getY() < lobby.getCuboid().getMinimumY())
+			{
+				//If player falls out of lobby, tp them back to spawn
+				
+				player.teleport(lobby.getSpawn());
 			}
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event)
+	{
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
+		{
+			Block block = event.getClickedBlock();
+			
+			if (block.getState() instanceof Sign)
+			{
+				Lobby lobby = main.getLobbys().getLobby(block.getLocation());
+				
+				if (lobby != null)
+				{
+					main.getArkynePlayers().getPlayer(event.getPlayer()).changeLobby(lobby);
+				}
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent event)
+	{
+		if (event.getPlayer().hasPermission("arkyne.manage"))
+		{
+			
+		} else
+		{
+			event.setCancelled(true);
 		}
 	}
 	

@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.util.Vector;
 
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
@@ -58,11 +61,15 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		addPlayer(player);
 		
 		player.teleport(spawn);
+		
+		updateSign();
 	}
 	
 	public void leaveLobby(ArkynePlayer player)
 	{
 		currentPlayers.remove(player);
+		
+		updateSign();
 	}
 	
 	public boolean isInLobby(ArkynePlayer player)
@@ -134,9 +141,17 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		return sign;
 	}
 	
+	//Count only the players online
 	public int getPlayerCount()
 	{
-		return currentPlayers.size();
+		int count = 0;
+		
+		for (ArkynePlayer player : currentPlayers)
+		{
+			count += player.isOnline() ? 1 : 0;
+		}
+		
+		return count;
 	}
 	
 	public Lobby(Map<String, Object> map)
@@ -144,11 +159,13 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		name = map.get("name").toString();
 		id = map.get("id").toString();
 		
-		spawn = (Location) map.get("spawn");
-		sign = (Location) map.get("sign");
+		UUID world = UUID.fromString(map.get("world").toString());
 		
-		Location min = (Location) map.get("boundry_min");
-		Location max = (Location) map.get("boundry_max");
+		spawn = ((Vector) map.get("spawn")).toLocation(Bukkit.getWorld(world));
+		sign = map.get("sign") != null ? ((Vector) map.get("sign")).toLocation(Bukkit.getWorld(world)) : null;
+		
+		Location min = ((Vector) map.get("boundry_min")).toLocation(Bukkit.getWorld(world));
+		Location max = ((Vector) map.get("boundry_max")).toLocation(Bukkit.getWorld(world));
 		
 		cuboid = new Cuboid(min.getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
 	}
@@ -160,11 +177,13 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		map.put("name", name);
 		map.put("id", id);
 		
-		map.put("spawn", spawn);
-		map.put("sign", sign);
+		map.put("world", spawn.getWorld().getUID().toString());
 		
-		map.put("boundry_min", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMinimumPoint()));
-		map.put("boundry_max", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMaximumPoint()));
+		map.put("spawn", spawn.toVector());
+		map.put("sign", sign != null ? sign.toVector() : null);
+		
+		map.put("boundry_min", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMinimumPoint()).toVector());
+		map.put("boundry_max", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMaximumPoint()).toVector());
 		
 		return map;
 	}

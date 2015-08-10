@@ -42,6 +42,11 @@ public class LobbyCommand implements CommandExecutor
 			}
 			
 			return true;
+		} else if (command.isSubCommandMessageIfError("leave", 0, false, "Usage: /{cmd} leave"))
+		{
+			command.getPlayer().changeLobby(null);
+			
+			return true;
 		}
 		
 		return command.wasArgLengthError();

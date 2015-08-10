@@ -63,9 +63,12 @@ public class ArkynePlayer implements ConfigurationSerializable
 			if (lobby != null)
 				lobby.leaveLobby(this);
 			
-			newLobby.joinLobby(this);
+			if (newLobby != null)
+				newLobby.joinLobby(this);
 			
 			this.lobby = newLobby;
+			
+			save();
 		}
 	}
 	
@@ -128,6 +131,11 @@ public class ArkynePlayer implements ConfigurationSerializable
 			
 			getOnlinePlayer().playEffect(getLocation().clone().add(0.5, 1, 0.5), Effect.POTION_BREAK, 5);
 		}
+	}
+	
+	public void save()
+	{
+		ArkyneMain.getInstance().getArkynePlayers().save(this);
 	}
 	
 	public ArkynePlayer(Map<String, Object> map)

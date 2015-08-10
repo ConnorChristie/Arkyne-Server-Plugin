@@ -64,6 +64,19 @@ public class Lobbys extends Loader<Lobby>
 		return null;
 	}
 	
+	public Lobby getLobby(Location signLocation)
+	{
+		for (Lobby lobby : lobbys.values())
+		{
+			if (lobby.getSign() != null && lobby.getSign().equals(signLocation))
+			{
+				return lobby;
+			}
+		}
+		
+		return null;
+	}
+	
 	public boolean createLobby(String name, String id, Location spawn, Cuboid cuboid)
 	{
 		if (!containsLobby(id))
