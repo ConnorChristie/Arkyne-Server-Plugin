@@ -10,20 +10,20 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import us.arkyne.server.MinigameMain;
+import us.arkyne.server.ArkyneMain;
 
 public abstract class Config extends YamlConfiguration
 {
 	private String fileName;
 	private File configFile;
 	
-	private MinigameMain main;
+	private ArkyneMain main;
 	
 	public Config(String fileName)
 	{
 		this.fileName = fileName;
 		
-		main = MinigameMain.getInstance();
+		main = ArkyneMain.getInstance();
 	}
 	
 	@SuppressWarnings("unchecked")

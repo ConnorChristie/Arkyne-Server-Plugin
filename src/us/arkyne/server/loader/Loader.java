@@ -6,15 +6,15 @@ import java.util.List;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
-import us.arkyne.server.MinigameMain;
+import us.arkyne.server.ArkyneMain;
 
 public abstract class Loader<T extends Loadable> implements Loadable
 {
-	private MinigameMain main;
+	private ArkyneMain main;
 	
 	private List<T> loadables = new ArrayList<T>();
 	
-	public Loader(MinigameMain main)
+	public Loader(ArkyneMain main)
 	{
 		this.main = main;
 	}
@@ -49,7 +49,7 @@ public abstract class Loader<T extends Loadable> implements Loadable
 		}
 	}
 	
-	protected MinigameMain getMain()
+	protected ArkyneMain getMain()
 	{
 		return main;
 	}

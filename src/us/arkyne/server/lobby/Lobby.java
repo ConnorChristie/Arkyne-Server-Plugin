@@ -6,13 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Sign;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.entity.Player;
+import org.bukkit.event.block.SignChangeEvent;
 
+import com.sk89q.worldedit.bukkit.BukkitUtil;
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+
+import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.loader.Loadable;
+import us.arkyne.server.message.SignMessage;
 import us.arkyne.server.player.ArkynePlayer;
+import us.arkyne.server.util.Cuboid;
 
 public class Lobby implements Loadable, ConfigurationSerializable
 {
@@ -20,21 +26,19 @@ public class Lobby implements Loadable, ConfigurationSerializable
 	private String id;
 	
 	private Location spawn;
-	private Location min, max;
-	
 	private Location sign;
+	
+	private Cuboid cuboid;
 	
 	private List<ArkynePlayer> currentPlayers = new ArrayList<ArkynePlayer>();
 	
-	public Lobby(String name, String id, Location spawn, Location min, Location max)
+	public Lobby(String name, String id, Location spawn, Cuboid cuboid)
 	{
 		this.name = name;
 		this.id = id;
 		
 		this.spawn = spawn;
-		
-		this.min = min;
-		this.max = max;
+		this.cuboid = cuboid;
 	}
 	
 	@Override
@@ -68,6 +72,35 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		return currentPlayers.contains(player);
 	}
 	
+	public void updateSign()
+	{
+		if (this.sign != null && this.sign.getBlock().getState() instanceof Sign)
+		{
+			Sign sign = (Sign) this.sign.getBlock().getState();
+			
+			for (int i = 0; i < 4; i++)
+			{
+				sign.setLine(i, SignMessage.LOBBY
+						.replace(i, "{lobby}", getName())
+						.replace("{lobby-id}", getId())
+						.replace("{count}", getPlayerCount() + ""));
+			}
+			
+			sign.update(true);
+		}
+	}
+	
+	public void updateSign(SignChangeEvent event)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			event.setLine(i, SignMessage.LOBBY
+					.replace(i, "{lobby}", getName())
+					.replace("{lobby-id}", getId())
+					.replace("{count}", getPlayerCount() + ""));
+		}
+	}
+	
 	public String getName()
 	{
 		return name;
@@ -83,14 +116,9 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		return spawn;
 	}
 
-	public Location getMin()
+	public Cuboid getCuboid()
 	{
-		return min;
-	}
-
-	public Location getMax()
-	{
-		return max;
+		return cuboid;
 	}
 	
 	public void setSign(Location sign)
@@ -114,7 +142,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		
 		for (ArkynePlayer player : currentPlayers)
 		{
-			uuids.add(player.getBukkitPlayer().getUniqueId().toString());
+			uuids.add(player.getOnlinePlayer().getUniqueId().toString());
 		}
 		
 		return uuids;
@@ -129,8 +157,10 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		spawn = (Location) map.get("spawn");
 		sign = (Location) map.get("sign");
 		
-		min = (Location) map.get("boundry_min");
-		max = (Location) map.get("boundry_max");
+		Location min = (Location) map.get("boundry_min");
+		Location max = (Location) map.get("boundry_max");
+		
+		cuboid = new Cuboid(min.getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
 		
 		//Maybe it was a reload? Have to persist the players in the lobby then
 		
@@ -140,14 +170,9 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		{
 			for (String uuid : uuids)
 			{
-				//Check if player is online, if online, most likely a reload, so persist the data
+				//Server was probably reloaded, so persist the data
 				
-				Player player = Bukkit.getPlayer(UUID.fromString(uuid));
-				
-				if (player != null && player.isOnline())
-				{
-					currentPlayers.add(new ArkynePlayer(player));
-				}
+				currentPlayers.add(ArkyneMain.getInstance().getArkynePlayers().getPlayer(UUID.fromString(uuid)));
 			}
 		}
 	}
@@ -162,8 +187,8 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		map.put("spawn", spawn);
 		map.put("sign", sign);
 		
-		map.put("boundry_min", min);
-		map.put("boundry_max", max);
+		map.put("boundry_min", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMinimumPoint()));
+		map.put("boundry_max", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMaximumPoint()));
 		
 		map.put("players", playersToUUID());
 		

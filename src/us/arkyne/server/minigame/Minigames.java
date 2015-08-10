@@ -1,12 +1,12 @@
 package us.arkyne.server.minigame;
 
-import us.arkyne.server.MinigameMain;
+import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.minigame.battlefrontier.BattleFrontierMinigame;
 
 public class Minigames extends Loader<Minigame>
 {
-	public Minigames(MinigameMain main)
+	public Minigames(ArkyneMain main)
 	{
 		super(main);
 		

@@ -11,7 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 
-import us.arkyne.server.MinigameMain;
+import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.util.Util;
 
 public class CommandHandler implements org.bukkit.command.CommandExecutor
@@ -24,7 +24,7 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 		try
 		{
 			String[] commandNames = (String[]) commandClass.getField("commandNames").get(null);
-			PluginCommand command = MinigameMain.getInstance().getCommand(commandNames[0]);
+			PluginCommand command = ArkyneMain.getInstance().getCommand(commandNames[0]);
 			
 			if (command != null)
 			{

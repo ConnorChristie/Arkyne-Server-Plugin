@@ -5,9 +5,10 @@ import java.util.Map;
 
 import org.bukkit.Location;
 
-import us.arkyne.server.MinigameMain;
+import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.config.LobbysConfig;
 import us.arkyne.server.loader.Loader;
+import us.arkyne.server.util.Cuboid;
 
 public class Lobbys extends Loader<Lobby>
 {
@@ -15,7 +16,7 @@ public class Lobbys extends Loader<Lobby>
 	
 	private Map<String, Lobby> lobbys = new HashMap<String, Lobby>();
 	
-	public Lobbys(MinigameMain main)
+	public Lobbys(ArkyneMain main)
 	{
 		super(main);
 		
@@ -62,17 +63,17 @@ public class Lobbys extends Loader<Lobby>
 		return null;
 	}
 	
-	public boolean createLobby(String name, String id, Location spawn, Location min, Location max)
+	public boolean createLobby(String name, String id, Location spawn, Cuboid cuboid)
 	{
 		if (!containsLobby(id))
 		{
-			Lobby lobby = new Lobby(name, id, spawn, min, max);
+			Lobby lobby = new Lobby(name, id, spawn, cuboid);
 			
 			//Other lobby creation stuff
 			
 			lobbys.put(id, lobby);
 			
-			saveLobbys();
+			save();
 			
 			return true;
 		}
@@ -80,11 +81,11 @@ public class Lobbys extends Loader<Lobby>
 		return false;
 	}
 	
-	public void saveLobbys()
+	public void save()
 	{
-		for (String id : lobbys.keySet())
+		for (Map.Entry<String, Lobby> lobby : lobbys.entrySet())
 		{
-			lobbysConfig.set("lobbys." + id, lobbys.get(id));
+			lobbysConfig.set("lobbys." + lobby.getKey(), lobby.getValue());
 		}
 		
 		lobbysConfig.saveConfig();

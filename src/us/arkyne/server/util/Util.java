@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
-import us.arkyne.server.MinigameMain;
+import us.arkyne.server.ArkyneMain;
 
 public class Util
 {
@@ -20,7 +20,7 @@ public class Util
 	{
 		if (to instanceof ConsoleCommandSender)
 		{
-			MinigameMain.getInstance().getLogger().info(ChatColor.stripColor(message));
+			ArkyneMain.getInstance().getLogger().info(ChatColor.stripColor(message));
 		} else if (to instanceof Player)
 		{
 			to.sendMessage(PREFIX + msgColor + message);
@@ -29,8 +29,8 @@ public class Util
 	
 	public static void noticeableConsoleMessage(String message)
 	{
-		MinigameMain.getInstance().getLogger().severe("------------------------------------------------------------");
-		MinigameMain.getInstance().getLogger().severe(message);
-		MinigameMain.getInstance().getLogger().severe("------------------------------------------------------------");
+		ArkyneMain.getInstance().getLogger().severe("------------------------------------------------------------");
+		ArkyneMain.getInstance().getLogger().severe(message);
+		ArkyneMain.getInstance().getLogger().severe("------------------------------------------------------------");
 	}
 }

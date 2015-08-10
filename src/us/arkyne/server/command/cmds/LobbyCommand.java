@@ -3,7 +3,7 @@ package us.arkyne.server.command.cmds;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
-import us.arkyne.server.MinigameMain;
+import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.command.Command;
 import us.arkyne.server.command.CommandExecutor;
 import us.arkyne.server.event.customevents.PlayerChangeLobbyEvent;
@@ -14,11 +14,11 @@ public class LobbyCommand implements CommandExecutor
 {
 	public static String[] commandNames = new String[] { "lobby" };
 	
-	private MinigameMain main;
+	private ArkyneMain main;
 	
 	public LobbyCommand()
 	{
-		main = MinigameMain.getInstance();
+		main = ArkyneMain.getInstance();
 	}
 	
 	public boolean lobbyCommand(Command command)
@@ -30,14 +30,12 @@ public class LobbyCommand implements CommandExecutor
 			if (lobby != null)
 			{
 				ArkynePlayer player = command.getPlayer();
+				Lobby prevLobby = player.getLobby();
 				
-				PlayerChangeLobbyEvent event = new PlayerChangeLobbyEvent(player, player.getLobby(), lobby);
+				player.changeLobby(lobby);
+				
+				PlayerChangeLobbyEvent event = new PlayerChangeLobbyEvent(player, prevLobby, lobby);
 				Bukkit.getServer().getPluginManager().callEvent(event);
-				
-				if (!event.isCancelled())
-				{
-					player.changeLobby(lobby);
-				}
 			} else
 			{
 				command.sendSenderMessage("Invalid name or id entered", ChatColor.RED);

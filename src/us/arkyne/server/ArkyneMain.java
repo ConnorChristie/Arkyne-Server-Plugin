@@ -15,15 +15,18 @@ import us.arkyne.server.event.EventListener;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.lobby.Lobbys;
 import us.arkyne.server.minigame.Minigames;
+import us.arkyne.server.player.ArkynePlayers;
 
-public class MinigameMain extends JavaPlugin
+public class ArkyneMain extends JavaPlugin
 {
-	private static MinigameMain instance;
+	private static ArkyneMain instance;
 	
 	private List<Loader<?>> loaders = new ArrayList<Loader<?>>();
 	
 	private Lobbys lobbys;
 	private Minigames miniGames;
+	
+	private ArkynePlayers arkynePlayers;
 	
 	private CommandHandler commandHandler;
 	private EventListener eventListener;
@@ -38,6 +41,7 @@ public class MinigameMain extends JavaPlugin
 		
 		loadAll();
 		
+		arkynePlayers = new ArkynePlayers();
 		commandHandler = new CommandHandler();
 		eventListener = new EventListener();
 		
@@ -89,6 +93,11 @@ public class MinigameMain extends JavaPlugin
 		commandHandler.registerCommand(LobbyCommand.class);
 	}
 	
+	public ArkynePlayers getArkynePlayers()
+	{
+		return arkynePlayers;
+	}
+	
 	public Lobbys getLobbys()
 	{
 		return lobbys;
@@ -113,7 +122,7 @@ public class MinigameMain extends JavaPlugin
 		return (WorldEditPlugin) plugin;
 	}
 	
-	public static MinigameMain getInstance()
+	public static ArkyneMain getInstance()
 	{
 		return instance;
 	}

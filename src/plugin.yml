@@ -1,6 +1,6 @@
 name: ArkyneMinigameServer
 version: 1.0.0
-main: us.arkyne.server.MinigameMain
+main: us.arkyne.server.ArkyneMain
 authors: [Chiller]
 depend: [WorldEdit, Multiverse-Core]
 load: POSTWORLD

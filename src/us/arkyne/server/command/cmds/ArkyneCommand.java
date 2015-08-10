@@ -1,22 +1,25 @@
 package us.arkyne.server.command.cmds;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 
+import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 
-import us.arkyne.server.MinigameMain;
+import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.command.Command;
 import us.arkyne.server.command.CommandExecutor;
+import us.arkyne.server.util.Cuboid;
 
 public class ArkyneCommand implements CommandExecutor
 {
 	public static String[] commandNames = new String[] { "arkyne", "ark" };
 	
-	private MinigameMain main;
+	private ArkyneMain main;
 	
 	public ArkyneCommand()
 	{
-		main = MinigameMain.getInstance();
+		main = ArkyneMain.getInstance();
 	}
 	
 	public boolean arkyneCommand(Command command)
@@ -29,13 +32,15 @@ public class ArkyneCommand implements CommandExecutor
 			
 			if (command.isSenderPlayer(true))
 			{
-				Selection selection = main.getWorldEdit().getSelection(command.getPlayer().getBukkitPlayer());
+				Selection selection = main.getWorldEdit().getSelection(command.getPlayer().getOnlinePlayer());
 				
-				if (selection != null)
+				if (selection != null && selection instanceof CuboidSelection)
 				{
 					// Create lobby with name, id and selected region
 					
-					boolean created = main.getLobbys().createLobby(command.getArg(0), command.getArg(1), command.getPlayer().getLocation(), selection.getMinimumPoint(), selection.getMaximumPoint());;
+					Cuboid cuboid = new Cuboid((World) selection.getWorld(), selection.getNativeMinimumPoint(), selection.getNativeMaximumPoint());
+					
+					boolean created = main.getLobbys().createLobby(command.getArg(0), command.getArg(1), command.getPlayer().getLocation(), cuboid);
 					
 					if (created)
 					{
