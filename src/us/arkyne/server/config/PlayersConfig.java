@@ -26,7 +26,10 @@ public class PlayersConfig extends Config
 		
 		for (Map.Entry<String, ArkynePlayer> player : getInstanceMap("players", new HashMap<String, ArkynePlayer>()).entrySet())
 		{
-			players.put(UUID.fromString(player.getKey()), player.getValue());
+			ArkynePlayer arkPlayer = player.getValue();
+			arkPlayer.setUUID(UUID.fromString(player.getKey()));
+			
+			players.put(arkPlayer.getUUID(), arkPlayer);
 		}
 		
 		return players;

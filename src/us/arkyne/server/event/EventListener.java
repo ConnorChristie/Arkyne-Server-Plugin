@@ -83,7 +83,7 @@ public class EventListener implements Listener
 				lobby.setSign(event.getBlock().getLocation());
 				lobby.updateSign(event);
 				
-				main.getLobbys().save();
+				main.getLobbys().save(lobby);
 			} else
 			{
 				event.setLine(1, ChatColor.DARK_RED + "Invalid ID");

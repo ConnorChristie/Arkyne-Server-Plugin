@@ -25,11 +25,15 @@ public class ArkynePlayers
 	public void addPlayer(Player player)
 	{
 		players.put(player.getUniqueId(), new ArkynePlayer(player.getUniqueId()));
+		
+		save(player.getUniqueId());
 	}
 	
 	public void removePlayer(Player player)
 	{
 		players.remove(player.getUniqueId());
+		
+		save(player.getUniqueId());
 	}
 	
 	public ArkynePlayer getPlayer(Player player)
@@ -47,7 +51,18 @@ public class ArkynePlayers
 		return players.get(uuid);
 	}
 	
-	public void save()
+	public void save(ArkynePlayer player)
+	{
+		playersConfig.set("players." + player.getUUID().toString(), player);
+		playersConfig.saveConfig();
+	}
+	
+	public void save(UUID uuid)
+	{
+		save(getPlayer(uuid));
+	}
+	
+	public void saveAll()
 	{
 		for (Map.Entry<UUID, ArkynePlayer> player : players.entrySet())
 		{

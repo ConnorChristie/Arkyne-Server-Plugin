@@ -43,6 +43,7 @@ public class Lobbys extends Loader<Lobby>
 	{
 		// TODO Auto-generated method stub
 		
+		saveAll();
 	}
 	
 	public boolean containsLobby(String id)
@@ -73,7 +74,7 @@ public class Lobbys extends Loader<Lobby>
 			
 			lobbys.put(id, lobby);
 			
-			save();
+			save(lobby);
 			
 			return true;
 		}
@@ -81,7 +82,13 @@ public class Lobbys extends Loader<Lobby>
 		return false;
 	}
 	
-	public void save()
+	public void save(Lobby lobby)
+	{
+		lobbysConfig.set("lobbys." + lobby.getId(), lobby);
+		lobbysConfig.saveConfig();
+	}
+	
+	public void saveAll()
 	{
 		for (Map.Entry<String, Lobby> lobby : lobbys.entrySet())
 		{

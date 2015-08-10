@@ -54,6 +54,8 @@ public class ArkyneMain extends JavaPlugin
 	{
 		unloadAll();
 		
+		arkynePlayers.saveAll();
+		
 		getLogger().info("Unloaded all lobby's and minigames!");
 	}
 	

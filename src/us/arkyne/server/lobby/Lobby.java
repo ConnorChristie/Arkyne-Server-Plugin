@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
@@ -14,7 +13,6 @@ import org.bukkit.event.block.SignChangeEvent;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 
-import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.message.SignMessage;
 import us.arkyne.server.player.ArkynePlayer;
@@ -57,7 +55,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 	
 	public void joinLobby(ArkynePlayer player)
 	{
-		currentPlayers.add(player);
+		addPlayer(player);
 		
 		player.teleport(spawn);
 	}
@@ -70,6 +68,11 @@ public class Lobby implements Loadable, ConfigurationSerializable
 	public boolean isInLobby(ArkynePlayer player)
 	{
 		return currentPlayers.contains(player);
+	}
+	
+	public void addPlayer(ArkynePlayer player)
+	{
+		currentPlayers.add(player);
 	}
 	
 	public void updateSign()
@@ -136,19 +139,6 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		return currentPlayers.size();
 	}
 	
-	private List<String> playersToUUID()
-	{
-		List<String> uuids = new ArrayList<String>();
-		
-		for (ArkynePlayer player : currentPlayers)
-		{
-			uuids.add(player.getOnlinePlayer().getUniqueId().toString());
-		}
-		
-		return uuids;
-	}
-	
-	@SuppressWarnings("unchecked")
 	public Lobby(Map<String, Object> map)
 	{
 		name = map.get("name").toString();
@@ -161,20 +151,6 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		Location max = (Location) map.get("boundry_max");
 		
 		cuboid = new Cuboid(min.getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
-		
-		//Maybe it was a reload? Have to persist the players in the lobby then
-		
-		List<String> uuids = (List<String>) map.get("players");
-		
-		if (uuids != null)
-		{
-			for (String uuid : uuids)
-			{
-				//Server was probably reloaded, so persist the data
-				
-				currentPlayers.add(ArkyneMain.getInstance().getArkynePlayers().getPlayer(UUID.fromString(uuid)));
-			}
-		}
 	}
 	
 	public Map<String, Object> serialize()
@@ -189,8 +165,6 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		
 		map.put("boundry_min", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMinimumPoint()));
 		map.put("boundry_max", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMaximumPoint()));
-		
-		map.put("players", playersToUUID());
 		
 		return map;
 	}

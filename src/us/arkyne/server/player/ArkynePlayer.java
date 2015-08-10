@@ -19,12 +19,14 @@ import us.arkyne.server.lobby.Lobby;
 
 public class ArkynePlayer implements ConfigurationSerializable
 {
+	private UUID uuid;
 	private OfflinePlayer player;
 	
 	private Lobby lobby;
 	
 	public ArkynePlayer(UUID uuid)
 	{
+		this.uuid = uuid;
 		this.player = Bukkit.getOfflinePlayer(uuid);
 	}
 	
@@ -36,6 +38,17 @@ public class ArkynePlayer implements ConfigurationSerializable
 	public Player getOnlinePlayer()
 	{
 		return player.getPlayer();
+	}
+	
+	public void setUUID(UUID uuid)
+	{
+		this.uuid = uuid;
+		this.player = Bukkit.getOfflinePlayer(uuid);
+	}
+	
+	public UUID getUUID()
+	{
+		return uuid;
 	}
 	
 	public Lobby getLobby()
@@ -119,7 +132,12 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public ArkynePlayer(Map<String, Object> map)
 	{
-		lobby = ArkyneMain.getInstance().getLobbys().getLobby(map.get("lobby").toString());
+		if (map.containsKey("lobby"))
+		{
+			lobby = ArkyneMain.getInstance().getLobbys().getLobby(map.get("lobby").toString());
+			
+			lobby.addPlayer(this);
+		}
 	}
 
 	@Override
@@ -127,7 +145,10 @@ public class ArkynePlayer implements ConfigurationSerializable
 	{
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		map.put("lobby", lobby.getId());
+		if (lobby != null)
+		{
+			map.put("lobby", lobby.getId());
+		}
 		
 		return map;
 	}
