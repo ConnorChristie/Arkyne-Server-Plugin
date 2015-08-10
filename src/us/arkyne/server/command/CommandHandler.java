@@ -31,23 +31,19 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 				command.setExecutor(this);
 				
 				mappedCommandClasses.put(commandNames, commandClass);
+				registeredExecutors.add(commandClass.newInstance());
 			} else
 			{
 				Util.noticeableConsoleMessage("The command: " + commandNames[0] + ", is not registered in the plugin.yml");
 			}
 			
 			//Get command class from the string array
-		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | InstantiationException e)
 		{
 			//Could not instantiate command class
 		}
 	}
 	
-	public static void registerExecutor(CommandExecutor executor)
-	{
-		registeredExecutors.add(executor);
-	}
-
 	@Override
 	public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args)
 	{
@@ -57,8 +53,6 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 		{
 			if (ArrayUtils.contains(commandNames, label.toLowerCase()))
 			{
-				boolean executed = false;
-				
 				Class<? extends CommandExecutor> commandClass = mappedCommandClasses.get(commandNames);
 				
 				for (CommandExecutor executor : getExecutors(commandClass))
@@ -67,22 +61,22 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 					
 					try
 					{
-						executed = ((boolean) commandClass.getMethod(commandNames[0] + "Command", Command.class).invoke(executor, command)) ? true : executed;
+						boolean executed = ((boolean) commandClass.getMethod(commandNames[0] + "Command", Command.class).invoke(executor, command));
 						
+						if (executed) return true;
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
 					{
+						e.printStackTrace();
+						
 						Util.noticeableConsoleMessage("Could not invoke the method: " + commandNames[0] + "Command, in the command class");
 					}
 				}
 				
-				if (!executed)
-				{
-					//Send user message because the command was not handled by anyone
-					
-					command.sendSenderMessage("Usage: /{cmd} <subcommand>", ChatColor.RED);
-				}
+				//Send user message because the command was not handled by anyone
 				
-				break;
+				command.sendSenderMessage("Usage: /{cmd} <subcommand>", ChatColor.RED);
+				
+				return true;
 			}
 		}
 		

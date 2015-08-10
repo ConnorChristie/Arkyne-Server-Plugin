@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.util.Util;
 
 public class Command
@@ -71,9 +72,9 @@ public class Command
 		}
 	}
 	
-	public Player getPlayer()
+	public ArkynePlayer getPlayer()
 	{
-		return isSenderPlayer() ? ((Player) sender) : null;
+		return isSenderPlayer() ? (new ArkynePlayer((Player) sender)) : null;
 	}
 	
 	public boolean isSenderPlayer()

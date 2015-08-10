@@ -3,7 +3,6 @@ package us.arkyne.server.minigame.battlefrontier;
 import java.util.Map;
 
 import us.arkyne.server.MinigameMain;
-import us.arkyne.server.command.Command;
 import us.arkyne.server.minigame.Minigame;
 
 public class BattleFrontierMinigame extends Minigame
@@ -23,12 +22,6 @@ public class BattleFrontierMinigame extends Minigame
 	public void onUnload()
 	{
 		
-	}
-	
-	@Override
-	public boolean arkyneCommand(Command command)
-	{
-		return false;
 	}
 	
 	public BattleFrontierMinigame(Map<String, Object> map)

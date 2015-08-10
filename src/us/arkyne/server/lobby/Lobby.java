@@ -11,12 +11,10 @@ import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
-import us.arkyne.server.command.Command;
-import us.arkyne.server.command.cmds.LobbyCommand;
 import us.arkyne.server.loader.Loadable;
-import us.arkyne.server.util.Util;
+import us.arkyne.server.player.ArkynePlayer;
 
-public class Lobby implements Loadable, ConfigurationSerializable, LobbyCommand
+public class Lobby implements Loadable, ConfigurationSerializable
 {
 	private String name;
 	private String id;
@@ -24,7 +22,9 @@ public class Lobby implements Loadable, ConfigurationSerializable, LobbyCommand
 	private Location spawn;
 	private Location min, max;
 	
-	private List<Player> currentPlayers = new ArrayList<Player>();
+	private Location sign;
+	
+	private List<ArkynePlayer> currentPlayers = new ArrayList<ArkynePlayer>();
 	
 	public Lobby(String name, String id, Location spawn, Location min, Location max)
 	{
@@ -50,26 +50,20 @@ public class Lobby implements Loadable, ConfigurationSerializable, LobbyCommand
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public boolean lobbyCommand(Command cmd)
-	{
-		return false;
-	}
 	
-	public void joinLobby(Player player)
+	public void joinLobby(ArkynePlayer player)
 	{
 		currentPlayers.add(player);
 		
-		Util.teleportPlayer(player, spawn);
+		player.teleport(spawn);
 	}
 	
-	public void leaveLobby(Player player)
+	public void leaveLobby(ArkynePlayer player)
 	{
 		currentPlayers.remove(player);
 	}
 	
-	public boolean isInLobby(Player player)
+	public boolean isInLobby(ArkynePlayer player)
 	{
 		return currentPlayers.contains(player);
 	}
@@ -99,6 +93,16 @@ public class Lobby implements Loadable, ConfigurationSerializable, LobbyCommand
 		return max;
 	}
 	
+	public void setSign(Location sign)
+	{
+		this.sign = sign;
+	}
+	
+	public Location getSign()
+	{
+		return sign;
+	}
+	
 	public int getPlayerCount()
 	{
 		return currentPlayers.size();
@@ -108,9 +112,9 @@ public class Lobby implements Loadable, ConfigurationSerializable, LobbyCommand
 	{
 		List<String> uuids = new ArrayList<String>();
 		
-		for (Player player : currentPlayers)
+		for (ArkynePlayer player : currentPlayers)
 		{
-			uuids.add(player.getUniqueId().toString());
+			uuids.add(player.getBukkitPlayer().getUniqueId().toString());
 		}
 		
 		return uuids;
@@ -123,6 +127,7 @@ public class Lobby implements Loadable, ConfigurationSerializable, LobbyCommand
 		id = map.get("id").toString();
 		
 		spawn = (Location) map.get("spawn");
+		sign = (Location) map.get("sign");
 		
 		min = (Location) map.get("boundry_min");
 		max = (Location) map.get("boundry_max");
@@ -131,15 +136,18 @@ public class Lobby implements Loadable, ConfigurationSerializable, LobbyCommand
 		
 		List<String> uuids = (List<String>) map.get("players");
 		
-		for (String uuid : uuids)
+		if (uuids != null)
 		{
-			//Check if player is online, if online, most likely a reload, so persist the data
-			
-			Player player = Bukkit.getPlayer(UUID.fromString(uuid));
-			
-			if (player != null && player.isOnline())
+			for (String uuid : uuids)
 			{
-				currentPlayers.add(player);
+				//Check if player is online, if online, most likely a reload, so persist the data
+				
+				Player player = Bukkit.getPlayer(UUID.fromString(uuid));
+				
+				if (player != null && player.isOnline())
+				{
+					currentPlayers.add(new ArkynePlayer(player));
+				}
 			}
 		}
 	}
@@ -152,6 +160,7 @@ public class Lobby implements Loadable, ConfigurationSerializable, LobbyCommand
 		map.put("id", id);
 		
 		map.put("spawn", spawn);
+		map.put("sign", sign);
 		
 		map.put("boundry_min", min);
 		map.put("boundry_max", max);

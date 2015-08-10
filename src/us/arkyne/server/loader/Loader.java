@@ -7,10 +7,8 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import us.arkyne.server.MinigameMain;
-import us.arkyne.server.command.CommandExecutor;
-import us.arkyne.server.command.CommandHandler;
 
-public abstract class Loader<T extends Loadable> implements CommandExecutor, Loadable
+public abstract class Loader<T extends Loadable> implements Loadable
 {
 	private MinigameMain main;
 	
@@ -19,18 +17,11 @@ public abstract class Loader<T extends Loadable> implements CommandExecutor, Loa
 	public Loader(MinigameMain main)
 	{
 		this.main = main;
-		
-		CommandHandler.registerExecutor(this);
 	}
 	
 	public void addLoadable(T loadable)
 	{
 		loadables.add(loadable);
-		
-		if (loadable instanceof CommandExecutor)
-		{
-			CommandHandler.registerExecutor((CommandExecutor) loadable);
-		}
 		
 		if (loadable instanceof ConfigurationSerializable)
 		{

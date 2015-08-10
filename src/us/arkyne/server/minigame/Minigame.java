@@ -4,10 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import us.arkyne.server.MinigameMain;
-import us.arkyne.server.command.cmds.ArkyneCommand;
 import us.arkyne.server.loader.Loadable;
 
-public abstract class Minigame implements Loadable, ArkyneCommand
+public abstract class Minigame implements Loadable
 {
 	//Minigame variables like a timer, field location
 	
