@@ -10,7 +10,6 @@ import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.UnknownDependencyException;
 
-import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.util.Util;
 
@@ -20,11 +19,6 @@ public class MinigameHandler extends Loader<Minigame>
 	
 	private Map<String, File> unloadedMinigames = new HashMap<String, File>();
 	
-	public MinigameHandler(ArkyneMain main)
-	{
-		super(main);
-	}
-
 	@Override
 	public void onLoad()
 	{

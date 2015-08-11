@@ -14,9 +14,9 @@ public abstract class Loader<T extends Loadable> implements Loadable
 	
 	private List<T> loadables = new ArrayList<T>();
 	
-	public Loader(ArkyneMain main)
+	public Loader()
 	{
-		this.main = main;
+		this.main = ArkyneMain.getInstance();
 	}
 	
 	public void addLoadable(T loadable)

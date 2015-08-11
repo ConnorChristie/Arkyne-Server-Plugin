@@ -3,14 +3,13 @@ package us.arkyne.server.minigame;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.plugin.java.JavaPlugin;
-
 import us.arkyne.server.ArkyneMain;
+import us.arkyne.server.game.Game;
 import us.arkyne.server.loader.Loadable;
-import us.arkyne.server.lobby.Lobby;
+import us.arkyne.server.loader.Loader;
 import us.arkyne.server.plugin.MinigamePlugin;
 
-public abstract class Minigame implements Loadable
+public abstract class Minigame extends Loader<Game> implements Loadable
 {
 	//Minigame variables like a timer, field location
 	
@@ -19,8 +18,6 @@ public abstract class Minigame implements Loadable
 	
 	private String name;
 	private String id;
-	
-	private Lobby pregameLobby;
 	
 	public Minigame(MinigamePlugin plugin, String name, String id)
 	{

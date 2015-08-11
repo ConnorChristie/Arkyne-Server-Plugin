@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.bukkit.Location;
 
-import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.config.LobbysConfig;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loader;
@@ -17,11 +16,6 @@ public class LobbyHandler extends Loader<Lobby>
 	private LobbysConfig lobbysConfig;
 	
 	private Map<String, Lobby> lobbys = new HashMap<String, Lobby>();
-	
-	public LobbyHandler(ArkyneMain main)
-	{
-		super(main);
-	}
 	
 	@Override
 	public void onLoad()

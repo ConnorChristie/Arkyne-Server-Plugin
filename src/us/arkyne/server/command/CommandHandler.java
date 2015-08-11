@@ -10,6 +10,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.util.Util;
@@ -21,10 +22,15 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 	
 	public void registerCommand(Class<? extends CommandExecutor> commandClass)
 	{
+		registerCommand(ArkyneMain.getInstance(), commandClass);
+	}
+	
+	public void registerCommand(JavaPlugin plugin, Class<? extends CommandExecutor> commandClass)
+	{
 		try
 		{
 			String[] commandNames = (String[]) commandClass.getField("commandNames").get(null);
-			PluginCommand command = ArkyneMain.getInstance().getCommand(commandNames[0]);
+			PluginCommand command = plugin.getCommand(commandNames[0]);
 			
 			if (command != null)
 			{

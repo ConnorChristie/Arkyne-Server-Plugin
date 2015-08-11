@@ -14,7 +14,6 @@ import us.arkyne.server.command.cmds.LobbyCommand;
 import us.arkyne.server.event.EventListener;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.lobby.LobbyHandler;
-import us.arkyne.server.minigame.Minigame;
 import us.arkyne.server.minigame.MinigameHandler;
 import us.arkyne.server.player.ArkynePlayerHandler;
 
@@ -78,13 +77,13 @@ public class ArkyneMain extends JavaPlugin
 	
 	private void setupLobbyHandler()
 	{
-		lobbyHandler = new LobbyHandler(this);
+		lobbyHandler = new LobbyHandler();
 		loaders.add(lobbyHandler);
 	}
 	
 	private void setupMiniGameHandler()
 	{
-		minigameHandler = new MinigameHandler(this);
+		minigameHandler = new MinigameHandler();
 		loaders.add(minigameHandler);
 	}
 	
