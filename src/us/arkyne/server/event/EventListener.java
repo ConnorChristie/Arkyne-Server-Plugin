@@ -17,6 +17,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.event.customevents.PlayerChangeLobbyEvent;
@@ -56,11 +58,27 @@ public class EventListener implements Listener
 			
 			if (player.isInLobby())
 			{
-				//Inventory management
+				updateSigns(null, main.getArkynePlayers().getPlayer(event.getPlayer()).getLobby());
 				
 				player.setInventory(player.getLobby().getInventory());
 			}
 		}
+	}
+	
+	@EventHandler
+	public void onPlayerQuit(final PlayerQuitEvent event)
+	{
+		//TODO: When player leave, check game status and what not
+		
+		new BukkitRunnable()
+		{
+			public void run()
+			{
+				//Have to update later because player hasn't actually left yet
+				
+				updateSigns(main.getArkynePlayers().getPlayer(event.getPlayer()).getLobby(), null);
+			}
+		}.runTaskLater(main, 5);
 	}
 	
 	@EventHandler
@@ -184,6 +202,19 @@ public class EventListener implements Listener
 		Lobby fromLobby = event.getFromLobby();
 		Lobby toLobby = event.getToLobby();
 		
+		updateSigns(fromLobby, toLobby);
+		
+		if (toLobby != null)
+		{
+			event.getPlayer().setInventory(toLobby.getInventory());
+		} else
+		{
+			event.getPlayer().getOnlinePlayer().getInventory().clear();
+		}
+	}
+	
+	private void updateSigns(Lobby fromLobby, Lobby toLobby)
+	{
 		if (fromLobby != null)
 		{
 			fromLobby.updateSign();
@@ -192,11 +223,6 @@ public class EventListener implements Listener
 		if (toLobby != null)
 		{
 			toLobby.updateSign();
-			
-			event.getPlayer().setInventory(toLobby.getInventory());
-		} else
-		{
-			event.getPlayer().getOnlinePlayer().getInventory().clear();
 		}
 	}
 	
