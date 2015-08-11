@@ -21,11 +21,14 @@ public abstract class Loader<T extends Loadable> implements Loadable
 	
 	public void addLoadable(T loadable)
 	{
-		loadables.add(loadable);
-		
-		if (loadable instanceof ConfigurationSerializable)
+		if (loadable != null)
 		{
-			ConfigurationSerialization.registerClass(((ConfigurationSerializable) loadable).getClass());
+			loadables.add(loadable);
+			
+			if (loadable instanceof ConfigurationSerializable)
+			{
+				ConfigurationSerialization.registerClass(((ConfigurationSerializable) loadable).getClass());
+			}
 		}
 	}
 	

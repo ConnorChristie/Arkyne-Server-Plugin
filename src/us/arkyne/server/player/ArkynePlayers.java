@@ -22,11 +22,20 @@ public class ArkynePlayers
 		players = playersConfig.getPlayers();
 	}
 	
-	public void addPlayer(Player player)
+	public ArkynePlayer addPlayer(Player player)
 	{
-		players.put(player.getUniqueId(), new ArkynePlayer(player.getUniqueId()));
+		if (!players.containsKey(player.getUniqueId()))
+		{
+			ArkynePlayer arkPlayer = new ArkynePlayer(player.getUniqueId());
+			
+			players.put(player.getUniqueId(), arkPlayer);
+			
+			save(player.getUniqueId());
+			
+			return arkPlayer;
+		}
 		
-		save(player.getUniqueId());
+		return players.get(player.getUniqueId());
 	}
 	
 	public void removePlayer(Player player)

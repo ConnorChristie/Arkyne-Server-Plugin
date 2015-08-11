@@ -16,6 +16,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.event.customevents.PlayerChangeLobbyEvent;
@@ -41,7 +42,20 @@ public class EventListener implements Listener
 		// If player was in game but left, try to make them go back in that game
 		// Otherwise spawn them in the main lobby
 		
-		main.getArkynePlayers().addPlayer(event.getPlayer());
+		final ArkynePlayer player = main.getArkynePlayers().addPlayer(event.getPlayer());
+		
+		//TODO: Check if in game, lobby... But for now, just TP them to main lobby
+		
+		new BukkitRunnable()
+		{
+			public void run()
+			{
+				if (!player.isInLobby())
+				{
+					player.changeLobby(main.getLobbys().getMainLobby());
+				}
+			}
+		}.runTaskLater(main, 5);
 	}
 	
 	@EventHandler

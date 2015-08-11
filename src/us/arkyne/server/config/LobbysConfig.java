@@ -23,4 +23,9 @@ public class LobbysConfig extends Config
 	{
 		return getInstanceMap("lobbys", new HashMap<String, Lobby>());
 	}
+	
+	public Lobby getMainLobby()
+	{
+		return (Lobby) get("mainlobby");
+	}
 }

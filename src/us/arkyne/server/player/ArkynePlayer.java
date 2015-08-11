@@ -12,7 +12,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import us.arkyne.server.ArkyneMain;
@@ -40,6 +39,11 @@ public class ArkynePlayer implements ConfigurationSerializable
 	public Player getOnlinePlayer()
 	{
 		return player.getPlayer();
+	}
+	
+	public boolean isInLobby()
+	{
+		return lobby != null;
 	}
 	
 	public void setUUID(UUID uuid)

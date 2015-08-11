@@ -14,9 +14,9 @@ public class Lobbys extends Loader<Lobby>
 {
 	private LobbysConfig lobbysConfig;
 	
-	private Map<String, Lobby> lobbys = new HashMap<String, Lobby>();
+	private Lobby mainLobby;
 	
-	//TODO: Add main lobby!
+	private Map<String, Lobby> lobbys = new HashMap<String, Lobby>();
 	
 	public Lobbys(ArkyneMain main)
 	{
@@ -26,6 +26,10 @@ public class Lobbys extends Loader<Lobby>
 		
 		//Load all lobby's from the config file
 		lobbys = lobbysConfig.getLobbys();
+		mainLobby = lobbysConfig.getMainLobby();
+		
+		lobbys.put(mainLobby.getId(), mainLobby);
+		addLoadable(mainLobby);
 		
 		for (Lobby lobby : lobbys.values())
 		{
@@ -46,6 +50,11 @@ public class Lobbys extends Loader<Lobby>
 		// TODO Auto-generated method stub
 		
 		saveAll();
+	}
+	
+	public Lobby getMainLobby()
+	{
+		return mainLobby;
 	}
 	
 	public boolean containsLobby(String id)
@@ -79,13 +88,25 @@ public class Lobbys extends Loader<Lobby>
 		return null;
 	}
 	
+	public boolean createMainLobby(Location spawn, Cuboid cuboid)
+	{
+		if (mainLobby == null)
+		{
+			mainLobby = new Lobby("MainLobby", "ML-1", spawn, cuboid);
+			
+			save(mainLobby);
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public boolean createLobby(String name, String id, Location spawn, Cuboid cuboid)
 	{
 		if (!containsLobby(id))
 		{
 			Lobby lobby = new Lobby(name, id, spawn, cuboid);
-			
-			//Other lobby creation stuff
 			
 			lobbys.put(id, lobby);
 			
@@ -99,12 +120,21 @@ public class Lobbys extends Loader<Lobby>
 	
 	public void save(Lobby lobby)
 	{
-		lobbysConfig.set("lobbys." + lobby.getId(), lobby);
+		if (lobby == mainLobby)
+		{
+			lobbysConfig.set("mainlobby", lobby);
+		} else
+		{
+			lobbysConfig.set("lobbys." + lobby.getId(), lobby);
+		}
+		
 		lobbysConfig.saveConfig();
 	}
 	
 	public void saveAll()
 	{
+		lobbysConfig.set("mainlobby", mainLobby);
+		
 		for (Map.Entry<String, Lobby> lobby : lobbys.entrySet())
 		{
 			lobbysConfig.set("lobbys." + lobby.getKey(), lobby.getValue());
