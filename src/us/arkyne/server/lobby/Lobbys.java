@@ -7,14 +7,14 @@ import org.bukkit.Location;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.config.LobbysConfig;
+import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.util.Cuboid;
 
 public class Lobbys extends Loader<Lobby>
 {
-	private LobbysConfig lobbysConfig;
-	
 	private Lobby mainLobby;
+	private LobbysConfig lobbysConfig;
 	
 	private Map<String, Lobby> lobbys = new HashMap<String, Lobby>();
 	
@@ -28,7 +28,11 @@ public class Lobbys extends Loader<Lobby>
 		lobbys = lobbysConfig.getLobbys();
 		mainLobby = lobbysConfig.getMainLobby();
 		
-		lobbys.put(mainLobby.getId(), mainLobby);
+		if (mainLobby != null)
+		{
+			lobbys.put(mainLobby.getId(), mainLobby);
+		}
+
 		addLoadable(mainLobby);
 		
 		for (Lobby lobby : lobbys.values())
@@ -92,7 +96,7 @@ public class Lobbys extends Loader<Lobby>
 	{
 		if (mainLobby == null)
 		{
-			mainLobby = new Lobby("MainLobby", "ML-1", spawn, cuboid);
+			mainLobby = new Lobby("MainLobby", "ML-1", spawn, cuboid, Inventory.MAIN_LOBBY);
 			
 			save(mainLobby);
 			
@@ -106,7 +110,7 @@ public class Lobbys extends Loader<Lobby>
 	{
 		if (!containsLobby(id))
 		{
-			Lobby lobby = new Lobby(name, id, spawn, cuboid);
+			Lobby lobby = new Lobby(name, id, spawn, cuboid, Inventory.LOBBY);
 			
 			lobbys.put(id, lobby);
 			

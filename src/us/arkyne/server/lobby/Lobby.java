@@ -16,6 +16,7 @@ import org.bukkit.util.Vector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 
+import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.message.SignMessage;
 import us.arkyne.server.player.ArkynePlayer;
@@ -30,16 +31,19 @@ public class Lobby implements Loadable, ConfigurationSerializable
 	private Location sign;
 	
 	private Cuboid cuboid;
+	private Inventory inventory;
 	
 	private List<ArkynePlayer> currentPlayers = new ArrayList<ArkynePlayer>();
 	
-	public Lobby(String name, String id, Location spawn, Cuboid cuboid)
+	public Lobby(String name, String id, Location spawn, Cuboid cuboid, Inventory inventory)
 	{
 		this.name = name;
 		this.id = id;
 		
 		this.spawn = spawn;
 		this.cuboid = cuboid;
+		
+		this.inventory = inventory;
 	}
 	
 	@Override
@@ -141,6 +145,11 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		return sign;
 	}
 	
+	public List<ArkynePlayer> getPlayers()
+	{
+		return currentPlayers;
+	}
+	
 	//Count only the players online
 	public int getPlayerCount()
 	{
@@ -152,6 +161,11 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		}
 		
 		return count;
+	}
+	
+	public Inventory getInventory()
+	{
+		return inventory;
 	}
 	
 	public Lobby(Map<String, Object> map)
@@ -169,6 +183,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		Location max = ((Vector) map.get("boundry_max")).toLocation(Bukkit.getWorld(world));
 		
 		cuboid = new Cuboid(min.getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
+		inventory = Inventory.valueOf(map.get("inventory").toString());
 	}
 	
 	public Map<String, Object> serialize()
@@ -186,6 +201,8 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		
 		map.put("boundry_min", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMinimumPoint()).toVector());
 		map.put("boundry_max", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMaximumPoint()).toVector());
+		
+		map.put("inventory", inventory.name());
 		
 		return map;
 	}

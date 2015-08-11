@@ -12,9 +12,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import us.arkyne.server.ArkyneMain;
+import us.arkyne.server.event.customevents.PlayerChangeLobbyEvent;
+import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.lobby.Lobby;
 import us.arkyne.server.util.Util;
 
@@ -24,6 +27,7 @@ public class ArkynePlayer implements ConfigurationSerializable
 	private OfflinePlayer player;
 	
 	private Lobby lobby;
+	private Inventory inventory;
 	
 	public ArkynePlayer(UUID uuid)
 	{
@@ -38,7 +42,7 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public Player getOnlinePlayer()
 	{
-		return player.getPlayer();
+		return Bukkit.getPlayer(uuid);
 	}
 	
 	public boolean isInLobby()
@@ -62,6 +66,18 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return lobby;
 	}
 	
+	public void setInventory(Inventory inventory)
+	{
+		this.inventory = inventory;
+		
+		inventory.updateInventory(this);
+	}
+	
+	public Inventory getInventory()
+	{
+		return inventory;
+	}
+	
 	public void changeLobby(Lobby newLobby)
 	{
 		if (isOnline())
@@ -71,6 +87,9 @@ public class ArkynePlayer implements ConfigurationSerializable
 			
 			if (newLobby != null)
 				newLobby.joinLobby(this);
+			
+			PlayerChangeLobbyEvent event = new PlayerChangeLobbyEvent(this, lobby, newLobby);
+			Bukkit.getServer().getPluginManager().callEvent(event);
 			
 			this.lobby = newLobby;
 			
@@ -88,7 +107,7 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return null;
 	}
 	
-	public void teleport(Location loc)
+	public void teleportRaw(Location loc)
 	{
 		if (isOnline())
 		{
@@ -102,7 +121,6 @@ public class ArkynePlayer implements ConfigurationSerializable
 		}
 	}
 	
-	/*
 	public void teleport(final Location loc)
 	{
 		if (isOnline())
@@ -117,12 +135,17 @@ public class ArkynePlayer implements ConfigurationSerializable
 					
 					//Loaded chunk, most likely it is already loaded!
 					
-					teleportRaw(loc);
+					new BukkitRunnable()
+					{
+						public void run()
+						{
+							teleportRaw(loc);
+						}
+					}.runTask(ArkyneMain.getInstance());
 				}
 			}.runTaskAsynchronously(ArkyneMain.getInstance());
 		}
 	}
-	*/
 	
 	@SuppressWarnings("deprecation")
 	public void pushTowards(Location loc)
@@ -148,9 +171,14 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public void sendMessage(String message, ChatColor msgColor)
 	{
+		sendMessageRaw(Util.PREFIX + msgColor + message);
+	}
+	
+	public void sendMessageRaw(String message)
+	{
 		if (isOnline())
 		{
-			getOnlinePlayer().sendMessage(Util.PREFIX + msgColor + message);
+			getOnlinePlayer().sendMessage(message);
 		}
 	}
 	

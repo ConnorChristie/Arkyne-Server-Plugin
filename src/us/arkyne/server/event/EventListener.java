@@ -13,13 +13,14 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.event.customevents.PlayerChangeLobbyEvent;
+import us.arkyne.server.inventory.Item;
 import us.arkyne.server.lobby.Lobby;
 import us.arkyne.server.player.ArkynePlayer;
 
@@ -42,20 +43,51 @@ public class EventListener implements Listener
 		// If player was in game but left, try to make them go back in that game
 		// Otherwise spawn them in the main lobby
 		
-		final ArkynePlayer player = main.getArkynePlayers().addPlayer(event.getPlayer());
+		ArkynePlayer player = main.getArkynePlayers().addPlayer(event.getPlayer());
 		
 		//TODO: Check if in game, lobby... But for now, just TP them to main lobby
 		
-		new BukkitRunnable()
+		//TODO: If player is not in game, check these
 		{
-			public void run()
+			if (!player.isInLobby())
 			{
-				if (!player.isInLobby())
+				player.changeLobby(main.getLobbys().getMainLobby());
+			}
+			
+			if (player.isInLobby())
+			{
+				//Inventory management
+				
+				player.setInventory(player.getLobby().getInventory());
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerChat(AsyncPlayerChatEvent event)
+	{
+		event.setCancelled(true);
+		
+		ArkynePlayer player = main.getArkynePlayers().addPlayer(event.getPlayer());
+		ChatColor color = ChatColor.GRAY; //TODO: Get the color from the players rank
+		
+		if (event.getPlayer().isOp())
+		{
+			color = ChatColor.GOLD;
+		}
+		
+		event.setFormat(ChatColor.RED + "[" + ChatColor.BLUE + "1" + ChatColor.RED + "] " + color + event.getPlayer().getName() + ": " + ChatColor.WHITE + "%2$s");
+		
+		//TODO: Check in the player is in a game, else do this
+		{
+			if (player.isInLobby())
+			{
+				for (ArkynePlayer p : player.getLobby().getPlayers())
 				{
-					player.changeLobby(main.getLobbys().getMainLobby());
+					p.sendMessageRaw(ChatColor.RED + "[" + ChatColor.BLUE + "1" + ChatColor.RED + "] " + color + event.getPlayer().getName() + ": " + ChatColor.WHITE + event.getMessage());
 				}
 			}
-		}.runTaskLater(main, 5);
+		}
 	}
 	
 	@EventHandler
@@ -83,6 +115,8 @@ public class EventListener implements Listener
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
+		ArkynePlayer player = main.getArkynePlayers().getPlayer(event.getPlayer());
+		
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
 		{
 			Block block = event.getClickedBlock();
@@ -93,8 +127,21 @@ public class EventListener implements Listener
 				
 				if (lobby != null)
 				{
-					main.getArkynePlayers().getPlayer(event.getPlayer()).changeLobby(lobby);
+					player.changeLobby(lobby);
+					
+					return;
 				}
+			}
+		}
+		
+		//Right clicking a sign has priority over item in hand
+		if (player.getInventory() != null)
+		{
+			Item item = player.getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+			
+			if (item != null)
+			{
+				item.clickItem(player);
 			}
 		}
 	}
@@ -145,6 +192,11 @@ public class EventListener implements Listener
 		if (toLobby != null)
 		{
 			toLobby.updateSign();
+			
+			event.getPlayer().setInventory(toLobby.getInventory());
+		} else
+		{
+			event.getPlayer().getOnlinePlayer().getInventory().clear();
 		}
 	}
 	

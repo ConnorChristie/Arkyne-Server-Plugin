@@ -1,14 +1,11 @@
 package us.arkyne.server.command.cmds;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.command.Command;
 import us.arkyne.server.command.CommandExecutor;
-import us.arkyne.server.event.customevents.PlayerChangeLobbyEvent;
 import us.arkyne.server.lobby.Lobby;
-import us.arkyne.server.player.ArkynePlayer;
 
 public class LobbyCommand implements CommandExecutor
 {
@@ -29,13 +26,7 @@ public class LobbyCommand implements CommandExecutor
 			
 			if (lobby != null)
 			{
-				ArkynePlayer player = command.getPlayer();
-				Lobby prevLobby = player.getLobby();
-				
-				player.changeLobby(lobby);
-				
-				PlayerChangeLobbyEvent event = new PlayerChangeLobbyEvent(player, prevLobby, lobby);
-				Bukkit.getServer().getPluginManager().callEvent(event);
+				command.getPlayer().changeLobby(lobby);
 			} else
 			{
 				command.sendSenderMessage("Invalid name or id entered", ChatColor.RED);
