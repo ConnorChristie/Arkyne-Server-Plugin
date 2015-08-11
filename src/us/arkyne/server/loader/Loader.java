@@ -32,6 +32,14 @@ public abstract class Loader<T extends Loadable> implements Loadable
 		}
 	}
 	
+	public void removeLoadable(T loadable)
+	{
+		if (loadable != null)
+		{
+			loadables.remove(loadable);
+		}
+	}
+	
 	public void loadAll()
 	{
 		onLoad();

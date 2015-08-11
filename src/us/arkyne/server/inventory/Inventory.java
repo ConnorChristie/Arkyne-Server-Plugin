@@ -17,7 +17,7 @@ public enum Inventory
 			/* Row 3 */ null, null, null, null, null, null, null, null, null,
 	}),
 	LOBBY(new Item[] {
-			/* Hotbar */ Item.i(NETHER_STAR, AQUA + "Pick a Class"), null, null, null, null, null, null, null, Item.i(REDSTONE_BLOCK, RED + "Exit to Main Lobby", (player) -> player.changeLobby(ArkyneMain.getInstance().getLobbys().getMainLobby())),
+			/* Hotbar */ Item.i(NETHER_STAR, AQUA + "Pick a Class"), null, null, null, null, null, null, null, Item.i(REDSTONE_BLOCK, RED + "Exit to Main Lobby", (player) -> player.changeLobby(ArkyneMain.getInstance().getLobbyHandler().getMainLobby())),
 			/* Row 1 */ null, null, null, null, null, null, null, null, null,
 			/* Row 2 */ null, null, null, null, null, null, null, null, null,
 			/* Row 3 */ null, null, null, null, null, null, null, null, null,

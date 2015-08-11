@@ -80,7 +80,7 @@ public class Command
 	
 	public ArkynePlayer getPlayer()
 	{
-		return isSenderPlayer() ? (ArkyneMain.getInstance().getArkynePlayers().getPlayer((Player) sender)) : null;
+		return isSenderPlayer() ? (ArkyneMain.getInstance().getArkynePlayerHandler().getPlayer((Player) sender)) : null;
 	}
 	
 	public boolean isSenderPlayer()

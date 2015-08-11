@@ -44,6 +44,21 @@ public class ArkyneCommand implements CommandExecutor
 			}
 			
 			return true;
+		} else if (command.isSubCommandMessageIfError("unload", 1, false, "Usage: /{cmd} unload <name|id>"))
+		{
+			main.getMinigameHandler().unloadMinigamePlugin(main.getMinigameHandler().getMinigame(command.getArg(0)));
+			
+			return true;
+		} else if (command.isSubCommandMessageIfError("load", 1, false, "Usage: /{cmd} load <name|id>"))
+		{
+			main.getMinigameHandler().loadMinigamePlugin(command.getArg(0));
+			
+			return true;
+		} else if (command.isSubCommandMessageIfError("reload", 1, false, "Usage: /{cmd} reload <name|id>"))
+		{
+			main.getMinigameHandler().reloadMinigamePlugin(main.getMinigameHandler().getMinigame(command.getArg(0)));
+			
+			return true;
 		}
 		
 		// Returns true if it was the correct sub command but incorrect amount of args
@@ -64,10 +79,10 @@ public class ArkyneCommand implements CommandExecutor
 			
 			if (mainLobby)
 			{
-				created = main.getLobbys().createMainLobby(command.getPlayer().getLocation(), cuboid);
+				created = main.getLobbyHandler().createMainLobby(command.getPlayer().getLocation(), cuboid);
 			} else
 			{
-				created = main.getLobbys().createLobby(command.getArg(0), command.getArg(1), command.getPlayer().getLocation(), cuboid);
+				created = main.getLobbyHandler().createLobby(command.getArg(0), command.getArg(1), command.getPlayer().getLocation(), cuboid);
 			}
 			
 			if (created)

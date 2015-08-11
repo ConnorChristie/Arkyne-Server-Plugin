@@ -8,13 +8,13 @@ import org.bukkit.entity.Player;
 
 import us.arkyne.server.config.PlayersConfig;
 
-public class ArkynePlayers
+public class ArkynePlayerHandler
 {
 	private Map<UUID, ArkynePlayer> players = new HashMap<UUID, ArkynePlayer>();
 	
 	private PlayersConfig playersConfig;
 	
-	public ArkynePlayers()
+	public ArkynePlayerHandler()
 	{
 		playersConfig = new PlayersConfig();
 		

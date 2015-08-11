@@ -22,7 +22,7 @@ public class LobbyCommand implements CommandExecutor
 	{
 		if (command.isSubCommandMessageIfError("join", 1, false, "Usage: /{cmd} join <name|id>"))
 		{
-			Lobby lobby = main.getLobbys().getLobby(command.getArg(0));
+			Lobby lobby = main.getLobbyHandler().getLobby(command.getArg(0));
 			
 			if (lobby != null)
 			{

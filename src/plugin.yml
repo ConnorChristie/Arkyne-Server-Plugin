@@ -1,4 +1,4 @@
-name: ArkyneMinigameServer
+name: ArkyneServerPlugin
 version: 1.0.0
 main: us.arkyne.server.ArkyneMain
 authors: [Chiller]
@@ -12,10 +12,8 @@ commands:
         aliases: [ark]
     lobby:
         description: Lobby manage command
-        permission: arkyne.lobby
+        permission: arkyne.manage
         usage: /lobby <subcommand>
 permissions:
     arkyne.manage:
         description: Allows admins to manage the server
-    arkyne.lobby:
-        description: Allows admins to manage the lobbys

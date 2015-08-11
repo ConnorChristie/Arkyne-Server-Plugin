@@ -45,7 +45,7 @@ public class EventListener implements Listener
 		// If player was in game but left, try to make them go back in that game
 		// Otherwise spawn them in the main lobby
 		
-		ArkynePlayer player = main.getArkynePlayers().addPlayer(event.getPlayer());
+		ArkynePlayer player = main.getArkynePlayerHandler().addPlayer(event.getPlayer());
 		
 		//TODO: Check if in game, lobby... But for now, just TP them to main lobby
 		
@@ -53,12 +53,12 @@ public class EventListener implements Listener
 		{
 			if (!player.isInLobby())
 			{
-				player.changeLobby(main.getLobbys().getMainLobby());
+				player.changeLobby(main.getLobbyHandler().getMainLobby());
 			}
 			
 			if (player.isInLobby())
 			{
-				updateSigns(null, main.getArkynePlayers().getPlayer(event.getPlayer()).getLobby());
+				updateSigns(null, main.getArkynePlayerHandler().getPlayer(event.getPlayer()).getLobby());
 				
 				player.setInventory(player.getLobby().getInventory());
 			}
@@ -76,7 +76,7 @@ public class EventListener implements Listener
 			{
 				//Have to update later because player hasn't actually left yet
 				
-				updateSigns(main.getArkynePlayers().getPlayer(event.getPlayer()).getLobby(), null);
+				updateSigns(main.getArkynePlayerHandler().getPlayer(event.getPlayer()).getLobby(), null);
 			}
 		}.runTaskLater(main, 5);
 	}
@@ -86,7 +86,7 @@ public class EventListener implements Listener
 	{
 		event.setCancelled(true);
 		
-		ArkynePlayer player = main.getArkynePlayers().addPlayer(event.getPlayer());
+		ArkynePlayer player = main.getArkynePlayerHandler().addPlayer(event.getPlayer());
 		ChatColor color = ChatColor.GRAY; //TODO: Get the color from the players rank
 		
 		if (event.getPlayer().isOp())
@@ -111,7 +111,7 @@ public class EventListener implements Listener
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
-		ArkynePlayer player = main.getArkynePlayers().getPlayer(event.getPlayer());
+		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(event.getPlayer());
 		Lobby lobby = player.getLobby();
 		
 		if (lobby != null)
@@ -133,7 +133,7 @@ public class EventListener implements Listener
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
-		ArkynePlayer player = main.getArkynePlayers().getPlayer(event.getPlayer());
+		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(event.getPlayer());
 		
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
 		{
@@ -141,7 +141,7 @@ public class EventListener implements Listener
 			
 			if (block.getState() instanceof Sign)
 			{
-				Lobby lobby = main.getLobbys().getLobby(block.getLocation());
+				Lobby lobby = main.getLobbyHandler().getLobby(block.getLocation());
 				
 				if (lobby != null)
 				{
@@ -167,7 +167,7 @@ public class EventListener implements Listener
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event)
 	{
-		ArkynePlayer player = main.getArkynePlayers().getPlayer(event.getPlayer());
+		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(event.getPlayer());
 		
 		if (event.getPlayer().hasPermission("arkyne.manage"))
 		{
@@ -181,7 +181,7 @@ public class EventListener implements Listener
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event)
 	{
-		ArkynePlayer player = main.getArkynePlayers().getPlayer(event.getPlayer());
+		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(event.getPlayer());
 		
 		if (event.getPlayer().hasPermission("arkyne.manage"))
 		{
@@ -231,14 +231,14 @@ public class EventListener implements Listener
 	{
 		if (event.getLine(0).equalsIgnoreCase("[lobby]"))
 		{
-			if (main.getLobbys().containsLobby(event.getLine(1)))
+			if (main.getLobbyHandler().containsLobby(event.getLine(1)))
 			{
-				Lobby lobby = main.getLobbys().getLobby(event.getLine(1));
+				Lobby lobby = main.getLobbyHandler().getLobby(event.getLine(1));
 				
 				lobby.setSign(event.getBlock().getLocation());
 				lobby.updateSign(event);
 				
-				main.getLobbys().save(lobby);
+				main.getLobbyHandler().save(lobby);
 			} else
 			{
 				event.setLine(1, ChatColor.DARK_RED + "Invalid ID");

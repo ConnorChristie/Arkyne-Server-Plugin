@@ -13,9 +13,10 @@ import us.arkyne.server.command.cmds.ArkyneCommand;
 import us.arkyne.server.command.cmds.LobbyCommand;
 import us.arkyne.server.event.EventListener;
 import us.arkyne.server.loader.Loader;
-import us.arkyne.server.lobby.Lobbys;
-import us.arkyne.server.minigame.Minigames;
-import us.arkyne.server.player.ArkynePlayers;
+import us.arkyne.server.lobby.LobbyHandler;
+import us.arkyne.server.minigame.Minigame;
+import us.arkyne.server.minigame.MinigameHandler;
+import us.arkyne.server.player.ArkynePlayerHandler;
 
 public class ArkyneMain extends JavaPlugin
 {
@@ -23,10 +24,10 @@ public class ArkyneMain extends JavaPlugin
 	
 	private List<Loader<?>> loaders = new ArrayList<Loader<?>>();
 	
-	private Lobbys lobbys;
-	private Minigames miniGames;
+	private LobbyHandler lobbyHandler;
+	private MinigameHandler minigameHandler;
 	
-	private ArkynePlayers arkynePlayers;
+	private ArkynePlayerHandler arkynePlayerHandler;
 	
 	private CommandHandler commandHandler;
 	private EventListener eventListener;
@@ -36,12 +37,12 @@ public class ArkyneMain extends JavaPlugin
 		instance = this;
 		
 		//Sets up the lobbys and minigames loaders
-		setupLobbys();
-		setupMiniGames();
+		setupLobbyHandler();
+		setupMiniGameHandler();
 		
 		loadAll();
 		
-		arkynePlayers = new ArkynePlayers();
+		arkynePlayerHandler = new ArkynePlayerHandler();
 		commandHandler = new CommandHandler();
 		eventListener = new EventListener();
 		
@@ -54,7 +55,7 @@ public class ArkyneMain extends JavaPlugin
 	{
 		unloadAll();
 		
-		arkynePlayers.saveAll();
+		arkynePlayerHandler.saveAll();
 		
 		getLogger().info("Unloaded all lobby's and minigames!");
 	}
@@ -75,16 +76,16 @@ public class ArkyneMain extends JavaPlugin
 		}
 	}
 	
-	private void setupLobbys()
+	private void setupLobbyHandler()
 	{
-		lobbys = new Lobbys(this);
-		loaders.add(lobbys);
+		lobbyHandler = new LobbyHandler(this);
+		loaders.add(lobbyHandler);
 	}
 	
-	private void setupMiniGames()
+	private void setupMiniGameHandler()
 	{
-		miniGames = new Minigames(this);
-		loaders.add(miniGames);
+		minigameHandler = new MinigameHandler(this);
+		loaders.add(minigameHandler);
 	}
 	
 	private void registerCommands()
@@ -95,19 +96,24 @@ public class ArkyneMain extends JavaPlugin
 		commandHandler.registerCommand(LobbyCommand.class);
 	}
 	
-	public ArkynePlayers getArkynePlayers()
+	public ArkynePlayerHandler getArkynePlayerHandler()
 	{
-		return arkynePlayers;
+		return arkynePlayerHandler;
 	}
 	
-	public Lobbys getLobbys()
+	public LobbyHandler getLobbyHandler()
 	{
-		return lobbys;
+		return lobbyHandler;
 	}
 	
-	public Minigames getMiniGames()
+	public MinigameHandler getMinigameHandler()
 	{
-		return miniGames;
+		return minigameHandler;
+	}
+	
+	public CommandHandler getCommandHandler()
+	{
+		return commandHandler;
 	}
 	
 	public List<Loader<?>> getLoaders()

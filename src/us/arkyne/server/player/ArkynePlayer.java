@@ -184,14 +184,14 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public void save()
 	{
-		ArkyneMain.getInstance().getArkynePlayers().save(this);
+		ArkyneMain.getInstance().getArkynePlayerHandler().save(this);
 	}
 	
 	public ArkynePlayer(Map<String, Object> map)
 	{
 		if (map.containsKey("lobby"))
 		{
-			lobby = ArkyneMain.getInstance().getLobbys().getLobby(map.get("lobby").toString());
+			lobby = ArkyneMain.getInstance().getLobbyHandler().getLobby(map.get("lobby").toString());
 			
 			lobby.addPlayer(this);
 		}

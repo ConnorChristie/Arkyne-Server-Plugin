@@ -11,20 +11,24 @@ import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.util.Cuboid;
 
-public class Lobbys extends Loader<Lobby>
+public class LobbyHandler extends Loader<Lobby>
 {
 	private Lobby mainLobby;
 	private LobbysConfig lobbysConfig;
 	
 	private Map<String, Lobby> lobbys = new HashMap<String, Lobby>();
 	
-	public Lobbys(ArkyneMain main)
+	public LobbyHandler(ArkyneMain main)
 	{
 		super(main);
-		
+	}
+	
+	@Override
+	public void onLoad()
+	{
 		lobbysConfig = new LobbysConfig();
 		
-		//Load all lobby's from the config file
+		// Load all lobby's from the config file
 		lobbys = lobbysConfig.getLobbys();
 		mainLobby = lobbysConfig.getMainLobby();
 		
@@ -32,7 +36,7 @@ public class Lobbys extends Loader<Lobby>
 		{
 			lobbys.put(mainLobby.getId(), mainLobby);
 		}
-
+		
 		addLoadable(mainLobby);
 		
 		for (Lobby lobby : lobbys.values())
@@ -42,17 +46,8 @@ public class Lobbys extends Loader<Lobby>
 	}
 	
 	@Override
-	public void onLoad()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void onUnload()
 	{
-		// TODO Auto-generated method stub
-		
 		saveAll();
 	}
 	
