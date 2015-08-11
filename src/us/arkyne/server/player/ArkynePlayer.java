@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -16,6 +17,7 @@ import org.bukkit.util.Vector;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.lobby.Lobby;
+import us.arkyne.server.util.Util;
 
 public class ArkynePlayer implements ConfigurationSerializable
 {
@@ -82,7 +84,7 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return null;
 	}
 	
-	public void teleportRaw(Location loc)
+	public void teleport(Location loc)
 	{
 		if (isOnline())
 		{
@@ -96,6 +98,7 @@ public class ArkynePlayer implements ConfigurationSerializable
 		}
 	}
 	
+	/*
 	public void teleport(final Location loc)
 	{
 		if (isOnline())
@@ -115,6 +118,7 @@ public class ArkynePlayer implements ConfigurationSerializable
 			}.runTaskAsynchronously(ArkyneMain.getInstance());
 		}
 	}
+	*/
 	
 	@SuppressWarnings("deprecation")
 	public void pushTowards(Location loc)
@@ -130,6 +134,19 @@ public class ArkynePlayer implements ConfigurationSerializable
 			}
 			
 			getOnlinePlayer().playEffect(getLocation().clone().add(0.5, 1, 0.5), Effect.POTION_BREAK, 5);
+		}
+	}
+	
+	public void sendMessage(String message)
+	{
+		sendMessage(message, ChatColor.AQUA);
+	}
+	
+	public void sendMessage(String message, ChatColor msgColor)
+	{
+		if (isOnline())
+		{
+			getOnlinePlayer().sendMessage(Util.PREFIX + msgColor + message);
 		}
 	}
 	

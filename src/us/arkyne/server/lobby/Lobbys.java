@@ -16,6 +16,8 @@ public class Lobbys extends Loader<Lobby>
 	
 	private Map<String, Lobby> lobbys = new HashMap<String, Lobby>();
 	
+	//TODO: Add main lobby!
+	
 	public Lobbys(ArkyneMain main)
 	{
 		super(main);

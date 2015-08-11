@@ -160,9 +160,10 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		id = map.get("id").toString();
 		
 		UUID world = UUID.fromString(map.get("world").toString());
+		UUID signWorld = map.get("sign_world") != null ? UUID.fromString(map.get("sign_world").toString()) : null;
 		
 		spawn = ((Vector) map.get("spawn")).toLocation(Bukkit.getWorld(world));
-		sign = map.get("sign") != null ? ((Vector) map.get("sign")).toLocation(Bukkit.getWorld(world)) : null;
+		sign = map.get("sign") != null ? ((Vector) map.get("sign")).toLocation(Bukkit.getWorld(signWorld)) : null;
 		
 		Location min = ((Vector) map.get("boundry_min")).toLocation(Bukkit.getWorld(world));
 		Location max = ((Vector) map.get("boundry_max")).toLocation(Bukkit.getWorld(world));
@@ -178,6 +179,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		map.put("id", id);
 		
 		map.put("world", spawn.getWorld().getUID().toString());
+		map.put("sign_world", sign != null ? sign.getWorld().getUID().toString() : null);
 		
 		map.put("spawn", spawn.toVector());
 		map.put("sign", sign != null ? sign.toVector() : null);

@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.player.ArkynePlayer;
-import us.arkyne.server.util.Util;
 
 public class Command
 {
@@ -43,16 +42,22 @@ public class Command
 		return argLengthError;
 	}
 	
-	public void sendSenderMessage(String msg)
+	public void sendSenderMessage(String message)
 	{
-		sendSenderMessage(msg, ChatColor.AQUA);
+		sendSenderMessage(message, ChatColor.AQUA);
 	}
 	
-	public void sendSenderMessage(String msg, ChatColor color)
+	public void sendSenderMessage(String message, ChatColor msgColor)
 	{
-		msg = msg.replace("{cmd}", label);
+		message = message.replace("{cmd}", label);
 		
-		Util.sendMessage(sender, msg, color);
+		if (isSenderPlayer())
+		{
+			getPlayer().sendMessage(message, msgColor);
+		} else
+		{
+			ArkyneMain.getInstance().getLogger().info(ChatColor.stripColor(message));
+		}
 		
 		sentMessage = true;
 	}
