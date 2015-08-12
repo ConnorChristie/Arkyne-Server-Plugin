@@ -8,5 +8,7 @@ public interface Inventory
 	
 	public Item getItem(int index);
 	
+	public Item[] getItems();
+	
 	public String name();
 }

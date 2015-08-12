@@ -15,7 +15,7 @@ import us.arkyne.server.util.Util;
 
 public class MinigameHandler extends Loader
 {
-	private Map<String, Minigame<?>> minigames = new HashMap<String, Minigame<?>>();
+	private Map<String, Minigame> minigames = new HashMap<String, Minigame>();
 	
 	private Map<String, File> unloadedMinigames = new HashMap<String, File>();
 	
@@ -33,23 +33,23 @@ public class MinigameHandler extends Loader
 		
 	}
 	
-	public void registerMinigame(Minigame<?> minigame)
+	public void registerMinigame(Minigame minigame)
 	{
 		minigames.put(minigame.getId(), minigame);
 		
 		addLoadable(minigame);
-		minigame.onLoad();
+		minigame.loadAll();
 	}
 	
-	public void unRegisterMinigame(Minigame<?> minigame)
+	public void unRegisterMinigame(Minigame minigame)
 	{
 		minigames.remove(minigame.getId());
 		
-		minigame.onUnload();
+		minigame.unloadAll();
 		removeLoadable(minigame);
 	}
 	
-	public void unloadMinigamePlugin(Minigame<?> minigame)
+	public void unloadMinigamePlugin(Minigame minigame)
 	{
 		if (minigame != null)
 		{
@@ -95,7 +95,7 @@ public class MinigameHandler extends Loader
 		}
 	}
 	
-	public void reloadMinigamePlugin(Minigame<?> minigame)
+	public void reloadMinigamePlugin(Minigame minigame)
 	{
 		if (minigame != null)
 		{
@@ -106,9 +106,9 @@ public class MinigameHandler extends Loader
 		}
 	}
 	
-	public Minigame<?> getMinigame(String check)
+	public Minigame getMinigame(String check)
 	{
-		for (Minigame<?> minigame : minigames.values())
+		for (Minigame minigame : minigames.values())
 		{
 			if (minigame.getName().equalsIgnoreCase(check) || minigame.getId().equalsIgnoreCase(check))
 			{

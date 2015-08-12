@@ -11,7 +11,7 @@ import us.arkyne.server.loader.Loader;
 import us.arkyne.server.plugin.MinigamePlugin;
 
 //Add generics, just to make our life easier!
-public abstract class Minigame<T extends Game> extends Loader implements Loadable
+public abstract class Minigame extends Loader implements Loadable
 {
 	// Minigame variables like a timer, field location
 	
@@ -21,9 +21,9 @@ public abstract class Minigame<T extends Game> extends Loader implements Loadabl
 	private String name;
 	private String id;
 	
-	private GamesConfig<T> gamesConfig;
+	private GamesConfig gamesConfig;
 	
-	private Map<Integer, T> games = new HashMap<Integer, T>();
+	private Map<Integer, Game> games = new HashMap<Integer, Game>();
 	
 	public Minigame(MinigamePlugin plugin, String name, String id)
 	{
@@ -37,10 +37,10 @@ public abstract class Minigame<T extends Game> extends Loader implements Loadabl
 	
 	public void onLoad()
 	{
-		gamesConfig = new GamesConfig<T>(plugin.getDataFolder());
+		gamesConfig = new GamesConfig(plugin.getDataFolder());
 		games = gamesConfig.getGames();
 		
-		for (T game : games.values())
+		for (Game game : games.values())
 		{
 			addLoadable(game);
 		}
@@ -75,14 +75,14 @@ public abstract class Minigame<T extends Game> extends Loader implements Loadabl
 		return main;
 	}
 	
-	protected GamesConfig<T> getGamesConfig()
+	protected GamesConfig getGamesConfig()
 	{
 		return gamesConfig;
 	}
 	
 	public abstract int createGame();
 	
-	protected void addGame(T game)
+	protected void addGame(Game game)
 	{
 		games.put(game.getId(), game);
 		addLoadable(game);
@@ -108,7 +108,7 @@ public abstract class Minigame<T extends Game> extends Loader implements Loadabl
 		return games.size() + 1;
 	}
 	
-	public T getGame(int id)
+	public Game getGame(int id)
 	{
 		return games.get(id);
 	}
@@ -118,7 +118,7 @@ public abstract class Minigame<T extends Game> extends Loader implements Loadabl
 		return games.containsKey(id);
 	}
 	
-	public void save(T game)
+	public void save(Game game)
 	{
 		gamesConfig.set("games." + game.getId(), game);
 		gamesConfig.saveConfig();
@@ -126,7 +126,7 @@ public abstract class Minigame<T extends Game> extends Loader implements Loadabl
 	
 	public void saveAll()
 	{
-		for (Map.Entry<Integer, T> game : games.entrySet())
+		for (Map.Entry<Integer, Game> game : games.entrySet())
 		{
 			gamesConfig.set("games." + game.getKey(), game.getValue());
 		}

@@ -6,7 +6,7 @@ import java.util.Map;
 
 import us.arkyne.server.game.Game;
 
-public class GamesConfig<T extends Game> extends Config
+public class GamesConfig extends Config
 {
 	public GamesConfig(File dataFolder)
 	{
@@ -15,8 +15,8 @@ public class GamesConfig<T extends Game> extends Config
 		loadConfig();
 	}
 	
-	public Map<Integer, T> getGames()
+	public Map<Integer, Game> getGames()
 	{
-		return getInstanceMapInt("games", new HashMap<Integer, T>());
+		return getInstanceMapInt("games", new HashMap<Integer, Game>());
 	}
 }

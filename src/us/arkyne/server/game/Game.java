@@ -10,11 +10,14 @@ import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.lobby.Lobby;
+import us.arkyne.server.minigame.Minigame;
 import us.arkyne.server.util.Cuboid;
 
 public abstract class Game extends Loader implements Loadable, ConfigurationSerializable
 {
 	protected int id;
+	
+	protected Minigame minigame;
 	
 	protected Arena arena;
 	protected Lobby pregameLobby;
@@ -28,13 +31,11 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 	{
 		if (arena != null) addLoadable(arena);
 		if (pregameLobby != null) addLoadable(pregameLobby);
-		
-		loadAll();
 	}
 	
 	public void onUnload()
 	{
-		unloadAll();
+		
 	}
 	
 	public int getId()
@@ -52,9 +53,27 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 		return pregameLobby;
 	}
 	
-	public abstract boolean createPregameLobby(Location spawn, Cuboid cuboid, Inventory inventory);
+	public boolean createPregameLobby(Location spawn, Cuboid cuboid, Inventory inventory)
+	{
+		if (pregameLobby == null)
+		{
+			pregameLobby = new Lobby(minigame.getName(), minigame.getId() + "-" + id, spawn, cuboid, inventory);
+			
+			addLoadable(pregameLobby);
+			pregameLobby.onLoad();
+			
+			save();
+			
+			return true;
+		}
+		
+		return false;
+	}
 	
-	public abstract void save();
+	public void save()
+	{
+		minigame.save(this);
+	}
 	
 	public Game(Map<String, Object> map)
 	{

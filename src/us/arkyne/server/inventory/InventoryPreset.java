@@ -1,6 +1,7 @@
 package us.arkyne.server.inventory;
 
 import static org.bukkit.Material.*;
+
 import static org.bukkit.ChatColor.*;
 
 import us.arkyne.server.ArkyneMain;
@@ -8,7 +9,7 @@ import us.arkyne.server.player.ArkynePlayer;
 
 public enum InventoryPreset implements Inventory
 {
-	//Arrays have to be exactly 36 deep
+	// Arrays have to be exactly 36 deep
 	
 	MAIN_LOBBY(new Item[] {
 			/* Hotbar */ Item.i(NETHER_STAR, AQUA + "Pick a Class"), null, null, null, null, null, null, null, null,
@@ -22,7 +23,7 @@ public enum InventoryPreset implements Inventory
 			/* Row 2 */ null, null, null, null, null, null, null, null, null,
 			/* Row 3 */ null, null, null, null, null, null, null, null, null,
 	});
-	
+							
 	private Item[] items;
 	
 	private InventoryPreset(Item[] items)
@@ -38,5 +39,12 @@ public enum InventoryPreset implements Inventory
 	public Item getItem(int index)
 	{
 		return items[index];
+	}
+
+	@Override
+	public Item[] getItems()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
