@@ -21,7 +21,7 @@ public class ArkyneMain extends JavaPlugin
 {
 	private static ArkyneMain instance;
 	
-	private List<Loader<?>> loaders = new ArrayList<Loader<?>>();
+	private List<Loader> loaders = new ArrayList<Loader>();
 	
 	private LobbyHandler lobbyHandler;
 	private MinigameHandler minigameHandler;
@@ -61,7 +61,7 @@ public class ArkyneMain extends JavaPlugin
 	
 	private void loadAll()
 	{
-		for (Loader<?> loader : loaders)
+		for (Loader loader : loaders)
 		{
 			loader.loadAll();
 		}
@@ -69,7 +69,7 @@ public class ArkyneMain extends JavaPlugin
 	
 	private void unloadAll()
 	{
-		for (Loader<?> loader : loaders)
+		for (Loader loader : loaders)
 		{
 			loader.unloadAll();
 		}
@@ -115,7 +115,7 @@ public class ArkyneMain extends JavaPlugin
 		return commandHandler;
 	}
 	
-	public List<Loader<?>> getLoaders()
+	public List<Loader> getLoaders()
 	{
 		return loaders;
 	}

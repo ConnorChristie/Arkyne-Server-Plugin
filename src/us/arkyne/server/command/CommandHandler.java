@@ -3,6 +3,7 @@ package us.arkyne.server.command;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +48,32 @@ public class CommandHandler implements org.bukkit.command.CommandExecutor
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | InstantiationException e)
 		{
 			//Could not instantiate command class
+		}
+	}
+	
+	public void unregisterCommand(Class<? extends CommandExecutor> commandClass)
+	{
+		Iterator<Map.Entry<String[], Class<? extends CommandExecutor>>> classIterator = mappedCommandClasses.entrySet().iterator();
+		Iterator<CommandExecutor> executorIterator = registeredExecutors.iterator();
+		
+		while (classIterator.hasNext())
+		{
+			Map.Entry<String[], Class<? extends CommandExecutor>> clazz = classIterator.next();
+			
+			if (clazz.getValue().equals(commandClass))
+			{
+				classIterator.remove();
+			}
+		}
+		
+		while (executorIterator.hasNext())
+		{
+			CommandExecutor executor = executorIterator.next();
+			
+			if (commandClass.isInstance(executor))
+			{
+				executorIterator.remove();
+			}
 		}
 	}
 	

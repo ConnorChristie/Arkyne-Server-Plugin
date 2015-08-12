@@ -13,9 +13,9 @@ import org.bukkit.plugin.UnknownDependencyException;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.util.Util;
 
-public class MinigameHandler extends Loader<Minigame>
+public class MinigameHandler extends Loader
 {
-	private Map<String, Minigame> minigames = new HashMap<String, Minigame>();
+	private Map<String, Minigame<?>> minigames = new HashMap<String, Minigame<?>>();
 	
 	private Map<String, File> unloadedMinigames = new HashMap<String, File>();
 	
@@ -33,7 +33,7 @@ public class MinigameHandler extends Loader<Minigame>
 		
 	}
 	
-	public void registerMinigame(Minigame minigame)
+	public void registerMinigame(Minigame<?> minigame)
 	{
 		minigames.put(minigame.getId(), minigame);
 		
@@ -41,7 +41,7 @@ public class MinigameHandler extends Loader<Minigame>
 		minigame.onLoad();
 	}
 	
-	public void unRegisterMinigame(Minigame minigame)
+	public void unRegisterMinigame(Minigame<?> minigame)
 	{
 		minigames.remove(minigame.getId());
 		
@@ -49,22 +49,25 @@ public class MinigameHandler extends Loader<Minigame>
 		removeLoadable(minigame);
 	}
 	
-	public void unloadMinigamePlugin(Minigame minigame)
+	public void unloadMinigamePlugin(Minigame<?> minigame)
 	{
 		if (minigame != null)
 		{
-			unloadedMinigames.put(minigame.getName(), minigame.getPlugin().getFile());
+			String name = minigame.getName();
 			
+			unloadedMinigames.put(name, minigame.getPlugin().getFile());
 			unRegisterMinigame(minigame);
 			
 			try
 			{
 				Util.unloadPlugin(minigame.getPlugin());
+				
+				getMain().getLogger().info("Fully unloaded and disabled " + name + "!");
 			} catch (Exception e)
 			{
 				e.printStackTrace();
 				
-				Util.noticeableConsoleMessage("Error unloading " + minigame.getName() + "'s minigame plugin");
+				Util.noticeableConsoleMessage("Error unloading " + name + "'s minigame plugin");
 			}
 		}
 	}
@@ -92,7 +95,7 @@ public class MinigameHandler extends Loader<Minigame>
 		}
 	}
 	
-	public void reloadMinigamePlugin(Minigame minigame)
+	public void reloadMinigamePlugin(Minigame<?> minigame)
 	{
 		if (minigame != null)
 		{
@@ -103,9 +106,9 @@ public class MinigameHandler extends Loader<Minigame>
 		}
 	}
 	
-	public Minigame getMinigame(String check)
+	public Minigame<?> getMinigame(String check)
 	{
-		for (Minigame minigame : minigames.values())
+		for (Minigame<?> minigame : minigames.values())
 		{
 			if (minigame.getName().equalsIgnoreCase(check) || minigame.getId().equalsIgnoreCase(check))
 			{

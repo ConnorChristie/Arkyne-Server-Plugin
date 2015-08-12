@@ -8,18 +8,18 @@ import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import us.arkyne.server.ArkyneMain;
 
-public abstract class Loader<T extends Loadable> implements Loadable
+public abstract class Loader implements Loadable
 {
 	private ArkyneMain main;
 	
-	private List<T> loadables = new ArrayList<T>();
+	private List<Loadable> loadables = new ArrayList<Loadable>();
 	
 	public Loader()
 	{
 		this.main = ArkyneMain.getInstance();
 	}
 	
-	public void addLoadable(T loadable)
+	public void addLoadable(Loadable loadable)
 	{
 		if (loadable != null)
 		{
@@ -32,7 +32,7 @@ public abstract class Loader<T extends Loadable> implements Loadable
 		}
 	}
 	
-	public void removeLoadable(T loadable)
+	public void removeLoadable(Loadable loadable)
 	{
 		if (loadable != null)
 		{
@@ -44,7 +44,7 @@ public abstract class Loader<T extends Loadable> implements Loadable
 	{
 		onLoad();
 		
-		for (T loadable : loadables)
+		for (Loadable loadable : loadables)
 		{
 			loadable.onLoad();
 		}
@@ -54,7 +54,7 @@ public abstract class Loader<T extends Loadable> implements Loadable
 	{
 		onUnload();
 		
-		for (T loadable : loadables)
+		for (Loadable loadable : loadables)
 		{
 			loadable.onUnload();
 		}

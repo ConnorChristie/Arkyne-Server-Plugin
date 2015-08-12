@@ -15,12 +15,20 @@ import us.arkyne.server.ArkyneMain;
 public abstract class Config extends YamlConfiguration
 {
 	private String fileName;
+	
+	private File dataFolder;
 	private File configFile;
 	
 	private ArkyneMain main;
 	
 	public Config(String fileName)
 	{
+		this(ArkyneMain.getInstance().getDataFolder(), fileName);
+	}
+	
+	public Config(File dataFolder, String fileName)
+	{
+		this.dataFolder = dataFolder;
 		this.fileName = fileName;
 		
 		main = ArkyneMain.getInstance();
@@ -36,6 +44,22 @@ public abstract class Config extends YamlConfiguration
 			for (String id : section.getKeys(false))
 			{
 				def.put(id, (T) section.get(id));
+			}
+		}
+		
+		return def;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> Map<Integer, T> getInstanceMapInt(String path, Map<Integer, T> def)
+	{
+		ConfigurationSection section = getConfigurationSection(path);
+		
+		if (section != null)
+		{
+			for (String id : section.getKeys(false))
+			{
+				def.put(Integer.parseInt(id), (T) section.get(id));
 			}
 		}
 		
@@ -61,7 +85,7 @@ public abstract class Config extends YamlConfiguration
 		try
 		{
 			if (configFile == null)
-				configFile = new File(main.getDataFolder(), fileName + ".yml");
+				configFile = new File(dataFolder, fileName + ".yml");
 			
 			if (!configFile.exists())
 			{

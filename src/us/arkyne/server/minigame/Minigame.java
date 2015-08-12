@@ -4,20 +4,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 import us.arkyne.server.ArkyneMain;
+import us.arkyne.server.config.GamesConfig;
 import us.arkyne.server.game.Game;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.plugin.MinigamePlugin;
 
-public abstract class Minigame extends Loader<Game> implements Loadable
+//Add generics, just to make our life easier!
+public abstract class Minigame<T extends Game> extends Loader implements Loadable
 {
-	//Minigame variables like a timer, field location
+	// Minigame variables like a timer, field location
 	
 	private ArkyneMain main;
 	private MinigamePlugin plugin;
 	
 	private String name;
 	private String id;
+	
+	private GamesConfig<T> gamesConfig;
+	
+	private Map<Integer, T> games = new HashMap<Integer, T>();
 	
 	public Minigame(MinigamePlugin plugin, String name, String id)
 	{
@@ -31,12 +37,22 @@ public abstract class Minigame extends Loader<Game> implements Loadable
 	
 	public void onLoad()
 	{
-		plugin.getLogger().info("Loaded the " + name + " minigame!");
+		gamesConfig = new GamesConfig<T>(plugin.getDataFolder());
+		games = gamesConfig.getGames();
+		
+		for (T game : games.values())
+		{
+			addLoadable(game);
+		}
+		
+		plugin.getLogger().info("Loaded " + name + " and " + games.size() + " games!");
 	}
 	
 	public void onUnload()
 	{
-		plugin.getLogger().info("Unloaded the " + name + " minigame!");
+		saveAll();
+		
+		plugin.getLogger().info("Unloaded " + name + " and " + games.size() + " games!");
 	}
 	
 	public String getName()
@@ -59,15 +75,62 @@ public abstract class Minigame extends Loader<Game> implements Loadable
 		return main;
 	}
 	
-	public Minigame(Map<String, Object> map)
+	protected GamesConfig<T> getGamesConfig()
 	{
-		//Make a minigames config, load the lobby from it
+		return gamesConfig;
 	}
 	
-	public Map<String, Object> serialize()
+	public abstract int createGame();
+	
+	protected void addGame(T game)
 	{
-		Map<String, Object> map = new HashMap<String, Object>();
+		games.put(game.getId(), game);
+		addLoadable(game);
 		
-		return map;
+		game.onLoad();
+	}
+	
+	protected int getNextId()
+	{
+		//Just make sure we never get a duplicate key
+		if (games.containsKey(games.size() + 1))
+		{
+			int highest = 0;
+			
+			for (Integer key : games.keySet())
+			{
+				highest = key > highest ? key : highest;
+			}
+			
+			return highest + 1;
+		}
+		
+		return games.size() + 1;
+	}
+	
+	public T getGame(int id)
+	{
+		return games.get(id);
+	}
+	
+	public boolean containsGame(int id)
+	{
+		return games.containsKey(id);
+	}
+	
+	public void save(T game)
+	{
+		gamesConfig.set("games." + game.getId(), game);
+		gamesConfig.saveConfig();
+	}
+	
+	public void saveAll()
+	{
+		for (Map.Entry<Integer, T> game : games.entrySet())
+		{
+			gamesConfig.set("games." + game.getKey(), game.getValue());
+		}
+		
+		gamesConfig.saveConfig();
 	}
 }

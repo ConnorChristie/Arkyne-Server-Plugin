@@ -17,6 +17,7 @@ import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 
 import us.arkyne.server.inventory.Inventory;
+import us.arkyne.server.inventory.InventoryPreset;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.message.SignMessage;
 import us.arkyne.server.player.ArkynePlayer;
@@ -183,7 +184,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		Location max = ((Vector) map.get("boundry_max")).toLocation(Bukkit.getWorld(world));
 		
 		cuboid = new Cuboid(min.getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
-		inventory = Inventory.valueOf(map.get("inventory").toString());
+		inventory = InventoryPreset.valueOf(map.get("inventory").toString());
 	}
 	
 	public Map<String, Object> serialize()
