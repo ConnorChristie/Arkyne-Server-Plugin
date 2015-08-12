@@ -27,6 +27,7 @@ import sun.reflect.FieldAccessor;
 import sun.reflect.ReflectionFactory;
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.inventory.InventoryPreset;
+import us.arkyne.server.message.SignMessagePreset;
 
 public class Util
 {
@@ -162,6 +163,11 @@ public class Util
 		addEnum(InventoryPreset.class, enumName, types, params);
 	}
 	
+	public static void addSignMessage(String enumName, Class<?>[] types, Object[] params)
+	{
+		addEnum(SignMessagePreset.class, enumName, types, params);
+	}
+	
 	@SuppressWarnings("unchecked")
 	private static <T extends Enum<?>> void addEnum(Class<T> enumType, String enumName, Class<?>[] types, Object[] params)
 	{
@@ -181,6 +187,7 @@ public class Util
 			if (field.getName().contains("$VALUES"))
 			{
 				valuesField = field;
+				
 				break;
 			}
 		}
@@ -192,6 +199,19 @@ public class Util
 			// 2. Copy it
 			T[] previousValues = (T[]) valuesField.get(enumType);
 			List<T> values = new ArrayList<T>(Arrays.asList(previousValues));
+			
+			//2.5. Remove enum if already exists
+			Iterator<T> valueIterator = values.iterator();
+			
+			while (valueIterator.hasNext())
+			{
+				T value = valueIterator.next();
+				
+				if (value.name().equalsIgnoreCase(enumName))
+				{
+					valueIterator.remove();
+				}
+			}
 			
 			// 3. build new enum
 			T newValue = (T) makeEnum(enumType, // The target enum class

@@ -20,6 +20,7 @@ import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.inventory.InventoryPreset;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.message.SignMessage;
+import us.arkyne.server.message.SignMessagePreset;
 import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.util.Cuboid;
 
@@ -32,11 +33,13 @@ public class Lobby implements Loadable, ConfigurationSerializable
 	private Location sign;
 	
 	private Cuboid cuboid;
+	
 	private Inventory inventory;
+	private SignMessage signMessage;
 	
 	private List<ArkynePlayer> currentPlayers = new ArrayList<ArkynePlayer>();
 	
-	public Lobby(String name, String id, Location spawn, Cuboid cuboid, Inventory inventory)
+	public Lobby(String name, String id, Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
 	{
 		this.name = name;
 		this.id = id;
@@ -45,6 +48,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		this.cuboid = cuboid;
 		
 		this.inventory = inventory;
+		this.signMessage = signMessage;
 	}
 	
 	@Override
@@ -95,7 +99,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 			
 			for (int i = 0; i < 4; i++)
 			{
-				sign.setLine(i, SignMessage.LOBBY
+				sign.setLine(i, signMessage
 						.replace(i, "{lobby}", getName())
 						.replace("{lobby-id}", getId())
 						.replace("{count}", getPlayerCount() + ""));
@@ -109,7 +113,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			event.setLine(i, SignMessage.LOBBY
+			event.setLine(i, signMessage
 					.replace(i, "{lobby}", getName())
 					.replace("{lobby-id}", getId())
 					.replace("{count}", getPlayerCount() + ""));
@@ -184,7 +188,9 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		Location max = ((Vector) map.get("boundry_max")).toLocation(Bukkit.getWorld(world));
 		
 		cuboid = new Cuboid(min.getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
+		
 		inventory = InventoryPreset.valueOf(map.get("inventory").toString());
+		signMessage = SignMessagePreset.valueOf(map.get("sign_message").toString());
 	}
 	
 	public Map<String, Object> serialize()
@@ -204,6 +210,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		map.put("boundry_max", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMaximumPoint()).toVector());
 		
 		map.put("inventory", inventory.name());
+		map.put("sign_message", signMessage.name());
 		
 		return map;
 	}

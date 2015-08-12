@@ -2,7 +2,7 @@ name: ArkyneServerPlugin
 version: 1.0.0
 main: us.arkyne.server.ArkyneMain
 authors: [Chiller]
-depend: [WorldEdit, Multiverse-Core]
+depend: [WorldEdit, Multiverse-Core, PermissionsEx, Vault]
 load: POSTWORLD
 commands:
     arkyne:

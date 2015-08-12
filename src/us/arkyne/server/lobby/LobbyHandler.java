@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import us.arkyne.server.config.LobbysConfig;
 import us.arkyne.server.inventory.InventoryPreset;
 import us.arkyne.server.loader.Loader;
+import us.arkyne.server.message.SignMessagePreset;
 import us.arkyne.server.util.Cuboid;
 
 public class LobbyHandler extends Loader
@@ -93,7 +94,7 @@ public class LobbyHandler extends Loader
 	{
 		if (mainLobby == null)
 		{
-			mainLobby = new Lobby("MainLobby", "ML-1", spawn, cuboid, InventoryPreset.MAIN_LOBBY);
+			mainLobby = new Lobby("MainLobby", "ML-1", spawn, cuboid, InventoryPreset.MAIN_LOBBY, SignMessagePreset.MAIN_LOBBY);
 			
 			addLobby(mainLobby);
 			save(mainLobby);
@@ -108,7 +109,7 @@ public class LobbyHandler extends Loader
 	{
 		if (!containsLobby(id))
 		{
-			Lobby lobby = new Lobby(name, id, spawn, cuboid, InventoryPreset.LOBBY);
+			Lobby lobby = new Lobby(name, id, spawn, cuboid, InventoryPreset.LOBBY, SignMessagePreset.LOBBY);
 			
 			addLobby(lobby);
 			save(lobby);

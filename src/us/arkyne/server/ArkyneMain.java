@@ -27,9 +27,7 @@ public class ArkyneMain extends JavaPlugin
 	private MinigameHandler minigameHandler;
 	
 	private ArkynePlayerHandler arkynePlayerHandler;
-	
 	private CommandHandler commandHandler;
-	private EventListener eventListener;
 	
 	public void onEnable()
 	{
@@ -43,7 +41,8 @@ public class ArkyneMain extends JavaPlugin
 		
 		arkynePlayerHandler = new ArkynePlayerHandler();
 		commandHandler = new CommandHandler();
-		eventListener = new EventListener();
+
+		new EventListener();
 		
 		registerCommands();
 		

@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_51"/>
 	<classpathentry kind="lib" path="D:/Users/Connor/Desktop/Bukkit/craftbukkit.jar"/>
 	<classpathentry kind="lib" path="D:/Users/Connor/Desktop/Arkyne Network/plugins/worldedit-bukkit-6.1.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Connor/Desktop/Arkyne Network/plugins/PermissionsEx-1.23.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

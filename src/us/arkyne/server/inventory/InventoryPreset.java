@@ -44,7 +44,6 @@ public enum InventoryPreset implements Inventory
 	@Override
 	public Item[] getItems()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return items;
 	}
 }

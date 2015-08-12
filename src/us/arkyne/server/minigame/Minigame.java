@@ -10,11 +10,8 @@ import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.plugin.MinigamePlugin;
 
-//Add generics, just to make our life easier!
 public abstract class Minigame extends Loader implements Loadable
 {
-	// Minigame variables like a timer, field location
-	
 	private ArkyneMain main;
 	private MinigamePlugin plugin;
 	

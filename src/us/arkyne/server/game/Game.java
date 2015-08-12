@@ -10,6 +10,7 @@ import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.lobby.Lobby;
+import us.arkyne.server.message.SignMessage;
 import us.arkyne.server.minigame.Minigame;
 import us.arkyne.server.util.Cuboid;
 
@@ -21,6 +22,8 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 	
 	protected Arena arena;
 	protected Lobby pregameLobby;
+	
+	//Add player limit and signs should display: #/total Players
 	
 	public Game(int id)
 	{
@@ -53,11 +56,11 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 		return pregameLobby;
 	}
 	
-	public boolean createPregameLobby(Location spawn, Cuboid cuboid, Inventory inventory)
+	public boolean createPregameLobby(Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
 	{
 		if (pregameLobby == null)
 		{
-			pregameLobby = new Lobby(minigame.getName(), minigame.getId() + "-" + id, spawn, cuboid, inventory);
+			pregameLobby = new Lobby(minigame.getName(), minigame.getId() + "-" + id, spawn, cuboid, inventory, signMessage);
 			
 			addLoadable(pregameLobby);
 			pregameLobby.onLoad();
