@@ -4,12 +4,6 @@ import org.bukkit.ChatColor;
 
 public enum SignMessagePreset implements SignMessage
 {
-	LOBBY(
-		ChatColor.DARK_BLUE +   "{lobby}",
-		ChatColor.DARK_PURPLE + "{lobby-id}",
-		ChatColor.DARK_GREEN +  "{count} Players",
-		ChatColor.BLUE +   "Minigame Lobby"
-	),
 	MAIN_LOBBY(
 		ChatColor.DARK_BLUE +   "{lobby}",
 		ChatColor.DARK_PURPLE + "{lobby-id}",

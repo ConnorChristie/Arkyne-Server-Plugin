@@ -35,23 +35,7 @@ public abstract class Config extends YamlConfiguration
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> Map<String, T> getInstanceMap(String path, Map<String, T> def)
-	{
-		ConfigurationSection section = getConfigurationSection(path);
-		
-		if (section != null)
-		{
-			for (String id : section.getKeys(false))
-			{
-				def.put(id, (T) section.get(id));
-			}
-		}
-		
-		return def;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T> Map<Integer, T> getInstanceMapInt(String path, Map<Integer, T> def)
+	public <T> Map<Integer, T> getInstanceMap(String path, Map<Integer, T> def)
 	{
 		ConfigurationSection section = getConfigurationSection(path);
 		
@@ -60,6 +44,22 @@ public abstract class Config extends YamlConfiguration
 			for (String id : section.getKeys(false))
 			{
 				def.put(Integer.parseInt(id), (T) section.get(id));
+			}
+		}
+		
+		return def;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> Map<String, T> getInstanceMapStr(String path, Map<String, T> def)
+	{
+		ConfigurationSection section = getConfigurationSection(path);
+		
+		if (section != null)
+		{
+			for (String id : section.getKeys(false))
+			{
+				def.put(id, (T) section.get(id));
 			}
 		}
 		

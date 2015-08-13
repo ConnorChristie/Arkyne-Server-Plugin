@@ -6,6 +6,7 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
@@ -25,8 +26,9 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 	
 	//TODO: Add player limit and signs should display: #/total Players
 	
-	public Game(int id)
+	public Game(Minigame minigame, int id)
 	{
+		this.minigame = minigame;
 		this.id = id;
 	}
 	
@@ -60,7 +62,7 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 	{
 		if (pregameLobby == null)
 		{
-			pregameLobby = new Lobby(minigame.getName(), minigame.getId() + "-" + id, spawn, cuboid, inventory, signMessage);
+			pregameLobby = new Lobby(minigame.getName(), id, spawn, cuboid, inventory, signMessage);
 			
 			addLoadable(pregameLobby);
 			pregameLobby.onLoad();
@@ -75,11 +77,12 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 	
 	public void save()
 	{
-		minigame.save(this);
+		minigame.getGameHandler().save(this);
 	}
 	
 	public Game(Map<String, Object> map)
 	{
+		minigame = ArkyneMain.getInstance().getMinigameHandler().getMinigame(map.get("minigame").toString());
 		id = (Integer) map.get("id");
 		
 		arena = (Arena) map.get("arena");
@@ -90,6 +93,7 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 	{
 		Map<String, Object> map = new HashMap<String, Object>();
 		
+		map.put("minigame", minigame.getId());
 		map.put("id", id);
 		
 		map.put("arena", arena);

@@ -1,14 +1,23 @@
 package us.arkyne.server.minigame;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 
 import us.arkyne.server.ArkyneMain;
-import us.arkyne.server.config.GamesConfig;
-import us.arkyne.server.game.Game;
+import us.arkyne.server.config.LobbysConfig;
+import us.arkyne.server.event.customevents.MinigameJoinEvent;
+import us.arkyne.server.game.GameHandler;
+import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
+import us.arkyne.server.lobby.Lobby;
+import us.arkyne.server.message.SignMessage;
+import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.plugin.MinigamePlugin;
+import us.arkyne.server.util.Cuboid;
 
 public abstract class Minigame extends Loader implements Loadable
 {
@@ -18,9 +27,14 @@ public abstract class Minigame extends Loader implements Loadable
 	private String name;
 	private String id;
 	
-	private GamesConfig gamesConfig;
+	private LobbysConfig lobbysConfig;
 	
-	private Map<Integer, Game> games = new HashMap<Integer, Game>();
+	private Lobby lobby;
+	private GameHandler gameHandler;
+	
+	private List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
+	
+	//TODO: Add signs! Click sign to goto minigame lobby, sign to goto pregame lobby
 	
 	public Minigame(MinigamePlugin plugin, String name, String id)
 	{
@@ -34,22 +48,22 @@ public abstract class Minigame extends Loader implements Loadable
 	
 	public void onLoad()
 	{
-		gamesConfig = new GamesConfig(plugin.getDataFolder());
-		games = gamesConfig.getGames();
+		lobbysConfig = new LobbysConfig(plugin.getDataFolder());
+		lobby = lobbysConfig.getLobby();
 		
-		for (Game game : games.values())
-		{
-			addLoadable(game);
-		}
+		gameHandler = new GameHandler(this);
 		
-		plugin.getLogger().info("Loaded " + name + " and " + games.size() + " games!");
+		addLoadable(lobby);
+		addLoadable(gameHandler);
+		
+		plugin.getLogger().info("Loaded " + name + " and " + gameHandler.getGameCount() + " games!");
 	}
 	
 	public void onUnload()
 	{
 		saveAll();
 		
-		plugin.getLogger().info("Unloaded " + name + " and " + games.size() + " games!");
+		plugin.getLogger().info("Unloaded " + name + " and " + gameHandler.getGameCount() + " games!");
 	}
 	
 	public String getName()
@@ -67,67 +81,80 @@ public abstract class Minigame extends Loader implements Loadable
 		return plugin;
 	}
 	
-	protected ArkyneMain getMain()
+	public ArkyneMain getMain()
 	{
 		return main;
 	}
 	
-	protected GamesConfig getGamesConfig()
+	public GameHandler getGameHandler()
 	{
-		return gamesConfig;
+		return gameHandler;
+	}
+	
+	public List<ArkynePlayer> getPlayers()
+	{
+		return players;
+	}
+	
+	public void addPlayer(ArkynePlayer player)
+	{
+		player.setMinigame(this);
+		players.add(player);
+	}
+	
+	public boolean joinMinigame(ArkynePlayer player)
+	{
+		//Just in case a minigame ever wants to cancel the join event??? Future proofing!
+		MinigameJoinEvent event = new MinigameJoinEvent(this, player);
+		Bukkit.getServer().getPluginManager().callEvent(event);
+		
+		if (!event.isCancelled())
+		{
+			addPlayer(player);
+			
+			if (lobby != null)
+			{
+				//Teleport to minigame lobby
+				
+				lobby.joinLobby(player);
+				
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public abstract int createGame();
 	
-	protected void addGame(Game game)
+	public boolean setLobby(Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
 	{
-		games.put(game.getId(), game);
-		addLoadable(game);
-		
-		game.onLoad();
-	}
-	
-	protected int getNextId()
-	{
-		//Just make sure we never get a duplicate key
-		if (games.containsKey(games.size() + 1))
+		if (lobby == null)
 		{
-			int highest = 0;
+			lobby = new Lobby(getName(), 1, spawn, cuboid, inventory, signMessage);
 			
-			for (Integer key : games.keySet())
-			{
-				highest = key > highest ? key : highest;
-			}
+			addLoadable(lobby);
+			lobby.onLoad();
 			
-			return highest + 1;
+			saveLobby();
+			
+			return true;
 		}
 		
-		return games.size() + 1;
+		return false;
 	}
 	
-	public Game getGame(int id)
+	public void saveLobby()
 	{
-		return games.get(id);
-	}
-	
-	public boolean containsGame(int id)
-	{
-		return games.containsKey(id);
-	}
-	
-	public void save(Game game)
-	{
-		gamesConfig.set("games." + game.getId(), game);
-		gamesConfig.saveConfig();
+		lobbysConfig.set("lobby", lobby);
+		lobbysConfig.saveConfig();
 	}
 	
 	public void saveAll()
 	{
-		for (Map.Entry<Integer, Game> game : games.entrySet())
-		{
-			gamesConfig.set("games." + game.getKey(), game.getValue());
-		}
+		lobbysConfig.set("lobby", lobby);
+		lobbysConfig.saveConfig();
 		
-		gamesConfig.saveConfig();
+		gameHandler.saveAll();
 	}
 }

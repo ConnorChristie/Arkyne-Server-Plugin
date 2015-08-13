@@ -17,6 +17,6 @@ public class GamesConfig extends Config
 	
 	public Map<Integer, Game> getGames()
 	{
-		return getInstanceMapInt("games", new HashMap<Integer, Game>());
+		return getInstanceMap("games", new HashMap<Integer, Game>());
 	}
 }

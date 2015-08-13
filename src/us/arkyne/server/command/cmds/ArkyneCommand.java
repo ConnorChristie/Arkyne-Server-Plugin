@@ -26,21 +26,31 @@ public class ArkyneCommand implements CommandExecutor
 	{
 		// TODO: Make it so the player can change a lobby later on
 		
-		if (command.isSubCommandMessageIfError("createlobby", 2, false, "First select the boundry's with worldedit", "Then stand where you you want the spawn point to be", "Then execute: /{cmd} createlobby <name> <id>"))
-		{
-			// Create a lobby based on the region the player selected
-			
-			if (command.isSenderPlayer(true))
-			{
-				createLobby(command, false);
-			}
-			
-			return true;
-		} else if (command.isSubCommandMessageIfError("mainlobby", 0, false, "First select the boundry's with worldedit", "Then stand where you you want the spawn point to be", "Then execute: /{cmd} mainlobby"))
+		if (command.isSubCommandMessageIfError("mainlobby", 0, false, "First select the boundry's with worldedit", "Then stand where you you want the spawn point to be", "Then execute: /{cmd} mainlobby"))
 		{
 			if (command.isSenderPlayer(true))
 			{
-				createLobby(command, true);
+				Selection selection = main.getWorldEdit().getSelection(command.getPlayer().getOnlinePlayer());
+				
+				if (selection != null && selection instanceof CuboidSelection)
+				{
+					// Create lobby with name, id and selected region
+					
+					Cuboid cuboid = new Cuboid((World) selection.getWorld(), selection.getNativeMinimumPoint(), selection.getNativeMaximumPoint());
+					
+					boolean created = main.getMainLobbyHandler().createMainLobby(command.getPlayer().getLocation(), cuboid);
+					
+					if (created)
+					{
+						command.sendSenderMessage("Successfully created the main lobby!", ChatColor.GREEN);
+					} else
+					{
+						command.sendSenderMessage("There is already a main lobby set!", ChatColor.RED);
+					}
+				} else
+				{
+					command.sendSenderMessage("Please select a region with worldedit first!", ChatColor.RED);
+				}
 			}
 			
 			return true;
@@ -63,38 +73,5 @@ public class ArkyneCommand implements CommandExecutor
 		
 		// Returns true if it was the correct sub command but incorrect amount of args
 		return command.wasArgLengthError();
-	}
-	
-	private void createLobby(Command command, boolean mainLobby)
-	{
-		Selection selection = main.getWorldEdit().getSelection(command.getPlayer().getOnlinePlayer());
-		
-		if (selection != null && selection instanceof CuboidSelection)
-		{
-			// Create lobby with name, id and selected region
-			
-			Cuboid cuboid = new Cuboid((World) selection.getWorld(), selection.getNativeMinimumPoint(), selection.getNativeMaximumPoint());
-			
-			boolean created = false;
-			
-			if (mainLobby)
-			{
-				created = main.getLobbyHandler().createMainLobby(command.getPlayer().getLocation(), cuboid);
-			} else
-			{
-				created = main.getLobbyHandler().createLobby(command.getArg(0), command.getArg(1), command.getPlayer().getLocation(), cuboid);
-			}
-			
-			if (created)
-			{
-				command.sendSenderMessage("Successfully created a lobby!", ChatColor.GREEN);
-			} else
-			{
-				command.sendSenderMessage("That lobby id is already in use!", ChatColor.RED);
-			}
-		} else
-		{
-			command.sendSenderMessage("Please select a region with worldedit first!", ChatColor.RED);
-		}
 	}
 }

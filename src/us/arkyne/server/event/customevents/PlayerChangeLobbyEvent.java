@@ -1,15 +1,10 @@
 package us.arkyne.server.event.customevents;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-
 import us.arkyne.server.lobby.Lobby;
 import us.arkyne.server.player.ArkynePlayer;
 
-public final class PlayerChangeLobbyEvent extends Event
+public final class PlayerChangeLobbyEvent extends MinigameEvent
 {
-	private static final HandlerList handlers = new HandlerList();
-	
 	private ArkynePlayer player;
 	
 	private Lobby fromLobby;
@@ -36,16 +31,5 @@ public final class PlayerChangeLobbyEvent extends Event
 	public Lobby getToLobby()
 	{
 		return toLobby;
-	}
-
-	@Override
-	public HandlerList getHandlers()
-	{
-		return handlers;
-	}
-	
-	public static HandlerList getHandlerList()
-	{
-		return handlers;
 	}
 }

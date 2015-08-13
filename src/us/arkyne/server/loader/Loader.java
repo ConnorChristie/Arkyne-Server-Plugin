@@ -19,7 +19,7 @@ public abstract class Loader implements Loadable
 		this.main = ArkyneMain.getInstance();
 	}
 	
-	public void addLoadable(Loadable loadable)
+	protected void addLoadable(Loadable loadable)
 	{
 		if (loadable != null)
 		{
@@ -32,7 +32,7 @@ public abstract class Loader implements Loadable
 		}
 	}
 	
-	public void removeLoadable(Loadable loadable)
+	protected void removeLoadable(Loadable loadable)
 	{
 		if (loadable != null)
 		{

@@ -44,6 +44,7 @@ public class EventListener implements Listener
 		main.getServer().getPluginManager().registerEvents(this, main);
 	}
 	
+	/*
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event)
 	{
@@ -273,4 +274,5 @@ public class EventListener implements Listener
 			cancel.setCancelled(true);
 		}
 	}
+	*/
 }

@@ -27,7 +27,7 @@ import us.arkyne.server.util.Cuboid;
 public class Lobby implements Loadable, ConfigurationSerializable
 {
 	private String name;
-	private String id;
+	private Integer id;
 	
 	private Location spawn;
 	private Location sign;
@@ -39,7 +39,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 	
 	private List<ArkynePlayer> currentPlayers = new ArrayList<ArkynePlayer>();
 	
-	public Lobby(String name, String id, Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
+	public Lobby(String name, Integer id, Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
 	{
 		this.name = name;
 		this.id = id;
@@ -101,7 +101,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 			{
 				sign.setLine(i, signMessage
 						.replace(i, "{lobby}", getName())
-						.replace("{lobby-id}", getId())
+						.replace("{lobby-id}", getId() + "")
 						.replace("{count}", getPlayerCount() + ""));
 			}
 			
@@ -115,7 +115,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		{
 			event.setLine(i, signMessage
 					.replace(i, "{lobby}", getName())
-					.replace("{lobby-id}", getId())
+					.replace("{lobby-id}", getId() + "")
 					.replace("{count}", getPlayerCount() + ""));
 		}
 	}
@@ -125,7 +125,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		return name;
 	}
 
-	public String getId()
+	public Integer getId()
 	{
 		return id;
 	}
@@ -176,7 +176,7 @@ public class Lobby implements Loadable, ConfigurationSerializable
 	public Lobby(Map<String, Object> map)
 	{
 		name = map.get("name").toString();
-		id = map.get("id").toString();
+		id = Integer.parseInt(map.get("id").toString());
 		
 		UUID world = UUID.fromString(map.get("world").toString());
 		UUID signWorld = map.get("sign_world") != null ? UUID.fromString(map.get("sign_world").toString()) : null;

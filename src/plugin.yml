@@ -10,10 +10,6 @@ commands:
         permission: arkyne.manage
         usage: /arkyne <subcommand>
         aliases: [ark]
-    lobby:
-        description: Lobby manage command
-        permission: arkyne.manage
-        usage: /lobby <subcommand>
 permissions:
     arkyne.manage:
         description: Allows admins to manage the server

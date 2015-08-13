@@ -4,26 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import us.arkyne.server.command.CommandHandler;
 import us.arkyne.server.command.cmds.ArkyneCommand;
-import us.arkyne.server.command.cmds.LobbyCommand;
 import us.arkyne.server.event.EventListener;
 import us.arkyne.server.loader.Loader;
-import us.arkyne.server.lobby.LobbyHandler;
+import us.arkyne.server.lobby.MainLobby;
 import us.arkyne.server.minigame.MinigameHandler;
 import us.arkyne.server.player.ArkynePlayerHandler;
+import us.arkyne.server.plugin.MinigamePlugin;
 
-public class ArkyneMain extends JavaPlugin
+public class ArkyneMain extends MinigamePlugin
 {
 	private static ArkyneMain instance;
 	
 	private List<Loader> loaders = new ArrayList<Loader>();
 	
-	private LobbyHandler lobbyHandler;
+	private MainLobby mainLobby;
 	private MinigameHandler minigameHandler;
 	
 	private ArkynePlayerHandler arkynePlayerHandler;
@@ -34,7 +33,7 @@ public class ArkyneMain extends JavaPlugin
 		instance = this;
 		
 		//Sets up the lobbys and minigames loaders
-		setupLobbyHandler();
+		setupMainLobby();
 		setupMiniGameHandler();
 		
 		loadAll();
@@ -74,10 +73,10 @@ public class ArkyneMain extends JavaPlugin
 		}
 	}
 	
-	private void setupLobbyHandler()
+	private void setupMainLobby()
 	{
-		lobbyHandler = new LobbyHandler();
-		loaders.add(lobbyHandler);
+		mainLobby = new MainLobby();
+		loaders.add(mainLobby);
 	}
 	
 	private void setupMiniGameHandler()
@@ -91,7 +90,6 @@ public class ArkyneMain extends JavaPlugin
 		//When adding commands, make sure you register them in the plugin.yml!
 		
 		commandHandler.registerCommand(ArkyneCommand.class);
-		commandHandler.registerCommand(LobbyCommand.class);
 	}
 	
 	public ArkynePlayerHandler getArkynePlayerHandler()
@@ -99,9 +97,9 @@ public class ArkyneMain extends JavaPlugin
 		return arkynePlayerHandler;
 	}
 	
-	public LobbyHandler getLobbyHandler()
+	public MainLobby getMainLobbyHandler()
 	{
-		return lobbyHandler;
+		return mainLobby;
 	}
 	
 	public MinigameHandler getMinigameHandler()
