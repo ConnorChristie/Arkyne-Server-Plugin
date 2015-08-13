@@ -23,7 +23,7 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 	protected Arena arena;
 	protected Lobby pregameLobby;
 	
-	//Add player limit and signs should display: #/total Players
+	//TODO: Add player limit and signs should display: #/total Players
 	
 	public Game(int id)
 	{

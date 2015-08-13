@@ -35,6 +35,8 @@ public class ArkynePlayer implements ConfigurationSerializable
 		this.player = Bukkit.getOfflinePlayer(uuid);
 	}
 	
+	//TODO: On player join and server reload, update inventory and gamemode
+	
 	public boolean isOnline()
 	{
 		return player.isOnline();

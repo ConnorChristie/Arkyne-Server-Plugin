@@ -98,9 +98,7 @@ public class EventListener implements Listener
 		String prefix = ChatColor.translateAlternateColorCodes('&', PermissionsEx.getUser(event.getPlayer()).getPrefix());
 		String message = ChatColor.translateAlternateColorCodes('&', event.getMessage());
 		
-		//event.setFormat(ChatColor.RED + "[" + ChatColor.BLUE + "1" + ChatColor.RED + "] " + prefix + event.getPlayer().getName() + ": " + ChatColor.WHITE + "%2$s");
-		
-		//TODO: Check in the player is in a game, else do this
+		//TODO: Check if the player is in a game, else do this
 		{
 			if (player.isInLobby())
 			{

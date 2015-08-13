@@ -163,7 +163,7 @@ public class Util
 		addEnum(InventoryPreset.class, enumName, types, params);
 	}
 	
-	public static void addSignMessage(String enumName, Class<?>[] types, Object[] params)
+	public static void addSignMessagePreset(String enumName, Class<?>[] types, Object[] params)
 	{
 		addEnum(SignMessagePreset.class, enumName, types, params);
 	}

@@ -8,7 +8,7 @@ public class SignMessageHandler
 	{
 		for (SignMessage preset : signs)
 		{
-			Util.addInventoryPreset(preset.name(), new Class<?>[] { String[].class }, new Object[] { preset.getLines() });
+			Util.addSignMessagePreset(preset.name(), new Class<?>[] { String[].class }, new Object[] { preset.getLines() });
 		}
 	}
 }
