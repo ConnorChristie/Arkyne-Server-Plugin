@@ -77,6 +77,7 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 		addPlayer(player);
 		
 		player.teleport(spawn);
+		player.setJoinable(this);
 		player.setInventory(getInventory());
 		
 		updateSign();
@@ -137,7 +138,7 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 		return spawn;
 	}
 
-	public Cuboid getCuboid()
+	public Cuboid getBounds()
 	{
 		return cuboid;
 	}

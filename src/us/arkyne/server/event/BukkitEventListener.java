@@ -1,18 +1,30 @@
 package us.arkyne.server.event;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.event.customevents.ArkynePlayerChatEvent;
+import us.arkyne.server.event.customevents.InventoryItemClickEvent;
 import us.arkyne.server.event.customevents.JoinSignClickEvent;
 import us.arkyne.server.event.customevents.JoinSignCreateEvent;
 import us.arkyne.server.inventory.item.InventoryItem;
@@ -23,7 +35,7 @@ public class BukkitEventListener implements Listener
 {
 	private ArkyneMain main;
 	
-	//private Map<Block, Long> adminBlocks = new HashMap<Block, Long>();
+	private Map<Block, Long> adminBlocks = new HashMap<Block, Long>();
 	
 	public BukkitEventListener()
 	{
@@ -31,7 +43,7 @@ public class BukkitEventListener implements Listener
 		
 		main.getServer().getPluginManager().registerEvents(this, main);
 	}
-
+	
 	@EventHandler
 	public void onSignChange(SignChangeEvent event)
 	{
@@ -67,6 +79,14 @@ public class BukkitEventListener implements Listener
 				{
 					JoinSignClickEvent clickEvent = new JoinSignClickEvent(player, joinable);
 					Bukkit.getServer().getPluginManager().callEvent(clickEvent);
+					
+					if (!clickEvent.isCancelled())
+					{
+						if (clickEvent.getJoinable() != null)
+						{
+							clickEvent.getJoinable().join(player);
+						}
+					}
 				}
 			}
 		} else if (event.getAction() == Action.RIGHT_CLICK_AIR)
@@ -75,12 +95,18 @@ public class BukkitEventListener implements Listener
 			{
 				InventoryItem item = player.getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
 				
-				System.out.println("Item: " + item);
-				System.out.println("ItemClick: " + item.getInventoryClick());
-				
-				if (item != null && item.getInventoryClick() != null)
+				if (item != null)
 				{
-					item.getInventoryClick().onClick(player);
+					InventoryItemClickEvent clickEvent = new InventoryItemClickEvent(player, item);
+					Bukkit.getServer().getPluginManager().callEvent(clickEvent);
+					
+					if (!clickEvent.isCancelled())
+					{
+						if (clickEvent.getItem() != null && clickEvent.getItem().getInventoryClick() != null)
+						{
+							clickEvent.getItem().getInventoryClick().onClick(player);
+						}
+					}
 				}
 			}
 		}
@@ -103,24 +129,60 @@ public class BukkitEventListener implements Listener
 				recipient.sendMessageRaw(chatEvent.getMessage());
 			}
 		}
+	}
+	
+	// Minigames can un-cancel the event if the player is allowed to place/break the block
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onBlockBreak(BlockBreakEvent event)
+	{
+		handleAdminBlocks(event.getPlayer(), event, event);
+	}
+	
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onBlockPlace(BlockPlaceEvent event)
+	{
+		handleAdminBlocks(event.getPlayer(), event, event);
+	}
+	
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event)
+	{
+		handleAdminBlocks(event.getPlayer(), new BlockPlaceEvent(event.getBlockClicked(), null, null, null, null, false), event);
+	}
+	
+	private void handleAdminBlocks(Player bukkitPlayer, BlockEvent block, Cancellable cancel)
+	{
+		//Ask if they really want to break or place the block
 		
-		/*
-		//TODO: Remove chat colors in messages
+		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(bukkitPlayer);
 		
-		String prefix = ChatColor.translateAlternateColorCodes('&', PermissionsEx.getUser(event.getPlayer()).getPrefix());
-		String message = ChatColor.translateAlternateColorCodes('&', event.getMessage());
-		
-		//TODO: Check if the player is in a game, else do this
+		if (bukkitPlayer.hasPermission("arkyne.manage"))
 		{
-			if (player.isInLobby())
+			if (adminBlocks.containsKey(block.getBlock()))
 			{
-				for (ArkynePlayer p : player.getLobby().getPlayers())
+				if (System.currentTimeMillis() < adminBlocks.get(block.getBlock()))
 				{
-					p.sendMessageRaw(ChatColor.RED + ".:" + ChatColor.BLUE + "1" + ChatColor.RED + ":. " + ChatColor.GRAY + prefix + event.getPlayer().getName() + ": " + ChatColor.GRAY + message);
+					adminBlocks.remove(block.getBlock());
+				} else
+				{
+					player.sendMessage("Do that again if you really want to", ChatColor.RED);
+					
+					adminBlocks.put(block.getBlock(), System.currentTimeMillis() + 8 * 1000);
+					
+					cancel.setCancelled(true);
 				}
+			} else
+			{
+				player.sendMessage("Do that again if you really want to", ChatColor.RED);
+				
+				adminBlocks.put(block.getBlock(), System.currentTimeMillis() + 8 * 1000);
+				
+				cancel.setCancelled(true);
 			}
+		} else
+		{
+			cancel.setCancelled(true);
 		}
-		*/
 	}
 	
 	/*

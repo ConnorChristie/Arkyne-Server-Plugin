@@ -16,15 +16,33 @@ public class Cuboid extends CuboidRegion
 		super((com.sk89q.worldedit.world.World) new BukkitWorld(world), min, max);
 	}
 	
+	public boolean contains(ArkynePlayer player)
+	{
+		Location pLoc = player.getLocation();
+		
+		if (((BukkitWorld) getWorld()).getWorld() == pLoc.getWorld())
+		{
+			if (containsWithoutY(player))
+			{
+				if (pLoc.getY() <= getMaximumPoint().getY() && pLoc.getY() >= getMinimumPoint().getY())
+				{
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 	public boolean containsWithoutY(ArkynePlayer player)
 	{
 		Location pLoc = player.getLocation();
 		
 		if (((BukkitWorld) getWorld()).getWorld() == pLoc.getWorld())
 		{
-			if (pLoc.getX() <= getMaximumPoint().getX() && pLoc.getZ() <= getMaximumPoint().getZ())
+			if (pLoc.getX() <= getMaximumPoint().getX() && pLoc.getX() >= getMinimumPoint().getX())
 			{
-				if (pLoc.getX() >= getMinimumPoint().getX() && pLoc.getZ() >= getMinimumPoint().getZ())
+				if (pLoc.getZ() <= getMaximumPoint().getZ() && pLoc.getZ() >= getMinimumPoint().getZ())
 				{
 					return true;
 				}

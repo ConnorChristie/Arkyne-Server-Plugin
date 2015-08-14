@@ -104,11 +104,10 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 	
 	public void addPlayer(ArkynePlayer player)
 	{
-		player.setMinigame(this);
 		players.add(player);
 	}
 	
-	//TODO: Join and leaving lobbys and games
+	//TODO: Keep track of the player, save what joinable they are in in the config
 	
 	public void join(ArkynePlayer player)
 	{
@@ -125,6 +124,8 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 				//Teleport to minigame lobby
 				
 				lobby.join(player);
+				
+				System.out.println("Bounds: " + getBounds());
 			}
 		}
 	}
@@ -142,6 +143,16 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		}
 		
 		return null;
+	}
+	
+	public Cuboid getBounds()
+	{
+		return lobby.getBounds();
+	}
+	
+	public Location getSpawn()
+	{
+		return lobby.getSpawn();
 	}
 	
 	public abstract int createGame();

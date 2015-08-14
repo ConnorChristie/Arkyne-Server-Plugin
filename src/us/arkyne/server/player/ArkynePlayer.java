@@ -17,7 +17,7 @@ import org.bukkit.util.Vector;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.inventory.Inventory;
-import us.arkyne.server.minigame.Minigame;
+import us.arkyne.server.minigame.Joinable;
 import us.arkyne.server.util.Util;
 
 public class ArkynePlayer implements ConfigurationSerializable
@@ -25,7 +25,7 @@ public class ArkynePlayer implements ConfigurationSerializable
 	private UUID uuid;
 	private OfflinePlayer player;
 	
-	private Minigame minigame;
+	private Joinable joinable;
 	private Inventory inventory;
 	
 	public ArkynePlayer(UUID uuid)
@@ -46,11 +46,6 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return Bukkit.getPlayer(uuid);
 	}
 	
-	public boolean isMinigame()
-	{
-		return minigame != null;
-	}
-	
 	public void setUUID(UUID uuid)
 	{
 		this.uuid = uuid;
@@ -62,14 +57,14 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return uuid;
 	}
 	
-	public void setMinigame(Minigame minigame)
+	public void setJoinable(Joinable joinable)
 	{
-		this.minigame = minigame;
+		this.joinable = joinable;
 	}
 	
-	public Minigame getMinigame()
+	public Joinable getJoinable()
 	{
-		return minigame;
+		return joinable;
 	}
 	
 	public void setInventory(Inventory inventory)
@@ -211,9 +206,9 @@ public class ArkynePlayer implements ConfigurationSerializable
 	{
 		if (map.containsKey("lobby"))
 		{
-			minigame = ArkyneMain.getInstance().getMinigameHandler().getMinigame(map.get("minigame").toString());
+			//minigame = ArkyneMain.getInstance().getMinigameHandler().getMinigame(map.get("minigame").toString());
 			
-			minigame.addPlayer(this);
+			//minigame.addPlayer(this);
 		}
 	}
 
@@ -222,10 +217,12 @@ public class ArkynePlayer implements ConfigurationSerializable
 	{
 		Map<String, Object> map = new HashMap<String, Object>();
 		
+		/*
 		if (minigame != null)
 		{
 			map.put("minigame", minigame.getId());
 		}
+		*/
 		
 		return map;
 	}

@@ -1,5 +1,7 @@
 package us.arkyne.server.lobby;
 
+import java.util.Map;
+
 import org.bukkit.Location;
 
 import us.arkyne.server.inventory.InventoryPreset;
@@ -18,5 +20,17 @@ public class MainLobby extends Lobby
 	public Type getType()
 	{
 		return Joinable.Type.MAINLOBBY;
+	}
+	
+	public MainLobby(Map<String, Object> map)
+	{
+		super(map);
+	}
+	
+	public Map<String, Object> serialize()
+	{
+		Map<String, Object> map = super.serialize();
+		
+		return map;
 	}
 }

@@ -70,6 +70,10 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		//Join the pregame lobby
 	}
 	
+	
+	
+	//Return different values based on whether players are in arena or lobby
+	
 	public Type getType()
 	{
 		return Joinable.Type.GAME;
@@ -78,13 +82,22 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	//TODO: Check if in game or not, then return either lobby inv or game inv
 	public Inventory getInventory()
 	{
-		if (pregameLobby != null)
-		{
-			return pregameLobby.getInventory();
-		}
-		
-		return null;
+		return pregameLobby.getInventory();
 	}
+	
+	public Cuboid getBounds()
+	{
+		return pregameLobby.getBounds();
+	}
+	
+	public Location getSpawn()
+	{
+		return pregameLobby.getSpawn();
+	}
+	
+	
+	
+	
 	
 	public List<ArkynePlayer> getPlayers()
 	{
