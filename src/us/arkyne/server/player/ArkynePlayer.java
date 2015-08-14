@@ -84,14 +84,17 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return inventory;
 	}
 	
-	//TODO: This will have to be more sophisticated
-	public void gotoMainLobby()
+	/*
+	public void join(Joinable joinable)
 	{
 		if (isOnline())
 		{
-			ArkyneMain.getInstance().getMainLobbyHandler().getMainLobby().joinLobby(this);
+			//TODO: Leave the previous area
+			
+			joinable.join(this);
 		}
 	}
+	*/
 	
 	/*
 	public void changeLobby(Lobby newLobby)

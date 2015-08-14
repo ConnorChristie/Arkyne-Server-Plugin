@@ -7,6 +7,9 @@ import java.util.Map;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import us.arkyne.server.lobby.Lobby;
+import us.arkyne.server.lobby.MainLobby;
+import us.arkyne.server.lobby.MinigameLobby;
+import us.arkyne.server.lobby.PregameLobby;
 
 public class LobbysConfig extends Config
 {
@@ -14,7 +17,9 @@ public class LobbysConfig extends Config
 	{
 		super(dataFolder, "lobbys");
 		
-		ConfigurationSerialization.registerClass(Lobby.class);
+		ConfigurationSerialization.registerClass(MainLobby.class);
+		ConfigurationSerialization.registerClass(MinigameLobby.class);
+		ConfigurationSerialization.registerClass(PregameLobby.class);
 		
 		loadConfig();
 	}
@@ -25,9 +30,9 @@ public class LobbysConfig extends Config
 		return getInstanceMap("lobbys", new HashMap<Integer, Lobby>());
 	}
 	
-	public Lobby getMainLobby()
+	public MainLobby getMainLobby()
 	{
-		return (Lobby) get("mainlobby");
+		return (MainLobby) get("mainlobby");
 	}
 	
 	public Lobby getLobby()

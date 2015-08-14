@@ -2,28 +2,28 @@ package us.arkyne.server.event.customevents;
 
 import org.bukkit.event.Cancellable;
 
-import us.arkyne.server.minigame.Minigame;
+import us.arkyne.server.inventory.item.InventoryItem;
 import us.arkyne.server.player.ArkynePlayer;
 
-public class MinigameJoinEvent extends ArkyneEvent implements Cancellable
+public class InventoryItemClickEvent extends ArkyneEvent implements Cancellable
 {
-	private Minigame minigame;
 	private ArkynePlayer player;
+	private InventoryItem item;
 	
-	public MinigameJoinEvent(Minigame minigame, ArkynePlayer player)
+	public InventoryItemClickEvent(ArkynePlayer player, InventoryItem item)
 	{
-		this.minigame = minigame;
 		this.player = player;
-	}
-	
-	public Minigame getMinigame()
-	{
-		return minigame;
+		this.item = item;
 	}
 	
 	public ArkynePlayer getPlayer()
 	{
 		return player;
+	}
+
+	public InventoryItem getItem()
+	{
+		return item;
 	}
 
 	@Override

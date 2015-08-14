@@ -17,17 +17,19 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
+import net.minecraft.server.v1_8_R3.IChatBaseComponent;
+import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
 import sun.reflect.ConstructorAccessor;
 import sun.reflect.FieldAccessor;
 import sun.reflect.ReflectionFactory;
 import us.arkyne.server.ArkyneMain;
-import us.arkyne.server.inventory.InventoryPreset;
-import us.arkyne.server.message.SignMessagePreset;
 
 public class Util
 {
@@ -46,7 +48,7 @@ public class Util
 		ArkyneMain.getInstance().getLogger().severe("------------------------------------------------------------");
 	}
 	
-	//Load plugin jar and unload it with this
+	// Load plugin jar and unload it with this
 	
 	@SuppressWarnings("unchecked")
 	public static void unloadPlugin(Plugin plugin) throws Exception
@@ -158,18 +160,8 @@ public class Util
 		}
 	}
 	
-	public static void addInventoryPreset(String enumName, Class<?>[] types, Object[] params)
-	{
-		addEnum(InventoryPreset.class, enumName, types, params);
-	}
-	
-	public static void addSignMessagePreset(String enumName, Class<?>[] types, Object[] params)
-	{
-		addEnum(SignMessagePreset.class, enumName, types, params);
-	}
-	
 	@SuppressWarnings("unchecked")
-	private static <T extends Enum<?>> void addEnum(Class<T> enumType, String enumName, Class<?>[] types, Object[] params)
+	public static <T extends Enum<?>> void addEnum(Class<T> enumType, String enumName, Class<?>[] types, Object[] params)
 	{
 		// 0. Sanity checks
 		if (!Enum.class.isAssignableFrom(enumType))
@@ -200,7 +192,7 @@ public class Util
 			T[] previousValues = (T[]) valuesField.get(enumType);
 			List<T> values = new ArrayList<T>(Arrays.asList(previousValues));
 			
-			//2.5. Remove enum if already exists
+			// 2.5. Remove enum if already exists
 			Iterator<T> valueIterator = values.iterator();
 			
 			while (valueIterator.hasNext())
@@ -216,9 +208,10 @@ public class Util
 			// 3. build new enum
 			T newValue = (T) makeEnum(enumType, // The target enum class
 					enumName, // THE NEW ENUM INSTANCE TO BE DYNAMICALLY ADDED
-					values.size(),
-					types, // can be used to pass values to the enum constuctor
-					params); // can be used to pass values to the enum constuctor
+					values.size(), types, // can be used to pass values to the
+											// enum constuctor
+					params); // can be used to pass values to the enum
+								// constuctor
 					
 			// 4. add new value
 			values.add(newValue);
@@ -281,7 +274,8 @@ public class Util
 	
 	private static void cleanEnumCache(Class<?> enumClass) throws NoSuchFieldException, IllegalAccessException
 	{
-		blankField(enumClass, "enumConstantDirectory"); // Sun (Oracle?!?) JDK 1.5/6
+		blankField(enumClass, "enumConstantDirectory"); // Sun (Oracle?!?) JDK
+														// 1.5/6
 		blankField(enumClass, "enumConstants"); // IBM JDK
 	}
 	
@@ -296,6 +290,41 @@ public class Util
 				
 				break;
 			}
+		}
+	}
+	
+	public static void sendTitle(Player player, PacketPlayOutTitle.EnumTitleAction titleType, String text, int fadeInTime, int showTime, int fadeOutTime, ChatColor color)
+	{
+		IChatBaseComponent chatTitle = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + text + "\",color:" + color.name().toLowerCase() + "}");
+		
+		if (titleType == PacketPlayOutTitle.EnumTitleAction.TITLE || titleType == PacketPlayOutTitle.EnumTitleAction.SUBTITLE)
+		{
+			PacketPlayOutTitle title = new PacketPlayOutTitle(titleType, chatTitle);
+			PacketPlayOutTitle length = new PacketPlayOutTitle(fadeInTime, showTime, fadeOutTime);
+			
+			((CraftPlayer) player).getHandle().playerConnection.sendPacket(title);
+			((CraftPlayer) player).getHandle().playerConnection.sendPacket(length);
+		}
+	}
+	
+	public static void sendMsgToPlayer(Player p, String msg)
+	{
+		p.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+	}
+	
+	public static void sendMsgToAllPlayers(String msg)
+	{
+		for (Player p : Bukkit.getOnlinePlayers())
+		{
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+		}
+	}
+	
+	public static void sendTitleToAllPlayers(PacketPlayOutTitle.EnumTitleAction titleType, String msg, int fadeInTime, int showTime, int fadeOutTime, ChatColor color)
+	{
+		for (Player p : Bukkit.getOnlinePlayers())
+		{
+			sendTitle(p, titleType, msg, fadeInTime, showTime, fadeOutTime, color);
 		}
 	}
 }

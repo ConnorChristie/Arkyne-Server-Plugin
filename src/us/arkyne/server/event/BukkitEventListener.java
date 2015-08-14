@@ -1,47 +1,126 @@
 package us.arkyne.server.event;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import ru.tehkode.permissions.bukkit.PermissionsEx;
 import us.arkyne.server.ArkyneMain;
-import us.arkyne.server.event.customevents.PlayerChangeLobbyEvent;
-import us.arkyne.server.inventory.Item;
-import us.arkyne.server.lobby.Lobby;
+import us.arkyne.server.event.customevents.ArkynePlayerChatEvent;
+import us.arkyne.server.event.customevents.JoinSignClickEvent;
+import us.arkyne.server.event.customevents.JoinSignCreateEvent;
+import us.arkyne.server.inventory.item.InventoryItem;
+import us.arkyne.server.minigame.Joinable;
 import us.arkyne.server.player.ArkynePlayer;
 
-public class EventListener implements Listener
+public class BukkitEventListener implements Listener
 {
 	private ArkyneMain main;
 	
-	private Map<Block, Long> adminBlocks = new HashMap<Block, Long>();
+	//private Map<Block, Long> adminBlocks = new HashMap<Block, Long>();
 	
-	public EventListener()
+	public BukkitEventListener()
 	{
 		main = ArkyneMain.getInstance();
 		
 		main.getServer().getPluginManager().registerEvents(this, main);
+	}
+
+	@EventHandler
+	public void onSignChange(SignChangeEvent event)
+	{
+		if (event.getLine(0).equalsIgnoreCase("[minigame]") || event.getLine(0).equalsIgnoreCase("[game]"))
+		{
+			String idName = event.getLine(1);
+			Joinable.Type signType = event.getLine(0).equalsIgnoreCase("[minigame]") ? Joinable.Type.MINIGAME : Joinable.Type.GAME;
+			
+			new BukkitRunnable()
+			{
+				public void run()
+				{
+					Bukkit.getServer().getPluginManager().callEvent(new JoinSignCreateEvent(signType, idName, event.getBlock().getLocation()));
+				}
+			}.runTaskLater(main, 2);
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event)
+	{
+		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(event.getPlayer());
+		
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
+		{
+			Block block = event.getClickedBlock();
+			
+			if (block.getState() instanceof Sign)
+			{
+				Joinable joinable = main.getMinigameHandler().getJoinable(block.getLocation());
+				
+				if (joinable != null)
+				{
+					JoinSignClickEvent clickEvent = new JoinSignClickEvent(player, joinable);
+					Bukkit.getServer().getPluginManager().callEvent(clickEvent);
+				}
+			}
+		} else if (event.getAction() == Action.RIGHT_CLICK_AIR)
+		{
+			if (player.getInventory() != null)
+			{
+				InventoryItem item = player.getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+				
+				System.out.println("Item: " + item);
+				System.out.println("ItemClick: " + item.getInventoryClick());
+				
+				if (item != null && item.getInventoryClick() != null)
+				{
+					item.getInventoryClick().onClick(player);
+				}
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerChat(AsyncPlayerChatEvent event)
+	{
+		event.setCancelled(true);
+		
+		ArkynePlayer player = main.getArkynePlayerHandler().addPlayer(event.getPlayer());
+		
+		ArkynePlayerChatEvent chatEvent = new ArkynePlayerChatEvent(player, event.getMessage(), main.getArkynePlayerHandler().getPlayers());
+		Bukkit.getServer().getPluginManager().callEvent(chatEvent);
+		
+		if (!chatEvent.isCancelled())
+		{
+			for (ArkynePlayer recipient : chatEvent.getRecipients())
+			{
+				recipient.sendMessageRaw(chatEvent.getMessage());
+			}
+		}
+		
+		/*
+		//TODO: Remove chat colors in messages
+		
+		String prefix = ChatColor.translateAlternateColorCodes('&', PermissionsEx.getUser(event.getPlayer()).getPrefix());
+		String message = ChatColor.translateAlternateColorCodes('&', event.getMessage());
+		
+		//TODO: Check if the player is in a game, else do this
+		{
+			if (player.isInLobby())
+			{
+				for (ArkynePlayer p : player.getLobby().getPlayers())
+				{
+					p.sendMessageRaw(ChatColor.RED + ".:" + ChatColor.BLUE + "1" + ChatColor.RED + ":. " + ChatColor.GRAY + prefix + event.getPlayer().getName() + ": " + ChatColor.GRAY + message);
+				}
+			}
+		}
+		*/
 	}
 	
 	/*

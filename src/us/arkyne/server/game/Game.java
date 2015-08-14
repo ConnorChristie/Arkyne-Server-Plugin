@@ -1,6 +1,8 @@
 package us.arkyne.server.game;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Location;
@@ -11,11 +13,14 @@ import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.lobby.Lobby;
+import us.arkyne.server.lobby.PregameLobby;
 import us.arkyne.server.message.SignMessage;
+import us.arkyne.server.minigame.Joinable;
 import us.arkyne.server.minigame.Minigame;
+import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.util.Cuboid;
 
-public abstract class Game extends Loader implements Loadable, ConfigurationSerializable
+public abstract class Game extends Loader implements Loadable, Joinable, ConfigurationSerializable
 {
 	protected int id;
 	
@@ -23,6 +28,8 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 	
 	protected Arena arena;
 	protected Lobby pregameLobby;
+	
+	protected List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
 	
 	//TODO: Add player limit and signs should display: #/total Players
 	
@@ -58,11 +65,37 @@ public abstract class Game extends Loader implements Loadable, ConfigurationSeri
 		return pregameLobby;
 	}
 	
+	public void join(ArkynePlayer player)
+	{
+		//Join the pregame lobby
+	}
+	
+	public Type getType()
+	{
+		return Joinable.Type.GAME;
+	}
+	
+	//TODO: Check if in game or not, then return either lobby inv or game inv
+	public Inventory getInventory()
+	{
+		if (pregameLobby != null)
+		{
+			return pregameLobby.getInventory();
+		}
+		
+		return null;
+	}
+	
+	public List<ArkynePlayer> getPlayers()
+	{
+		return players;
+	}
+	
 	public boolean createPregameLobby(Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
 	{
 		if (pregameLobby == null)
 		{
-			pregameLobby = new Lobby(minigame.getName(), id, spawn, cuboid, inventory, signMessage);
+			pregameLobby = new PregameLobby(minigame, minigame.getName() + "-G", id, spawn, cuboid, inventory, signMessage);
 			
 			addLoadable(pregameLobby);
 			pregameLobby.onLoad();

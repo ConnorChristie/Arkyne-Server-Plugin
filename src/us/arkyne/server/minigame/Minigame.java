@@ -14,12 +14,13 @@ import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
 import us.arkyne.server.lobby.Lobby;
+import us.arkyne.server.lobby.MinigameLobby;
 import us.arkyne.server.message.SignMessage;
 import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.plugin.MinigamePlugin;
 import us.arkyne.server.util.Cuboid;
 
-public abstract class Minigame extends Loader implements Loadable
+public abstract class Minigame extends Loader implements Loadable, Joinable
 {
 	private ArkyneMain main;
 	private MinigamePlugin plugin;
@@ -29,7 +30,7 @@ public abstract class Minigame extends Loader implements Loadable
 	
 	private LobbysConfig lobbysConfig;
 	
-	private Lobby lobby;
+	private MinigameLobby lobby;
 	private GameHandler gameHandler;
 	
 	private List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
@@ -49,7 +50,7 @@ public abstract class Minigame extends Loader implements Loadable
 	public void onLoad()
 	{
 		lobbysConfig = new LobbysConfig(plugin.getDataFolder());
-		lobby = lobbysConfig.getLobby();
+		lobby = (MinigameLobby) lobbysConfig.getLobby();
 		
 		gameHandler = new GameHandler(this);
 		
@@ -74,6 +75,11 @@ public abstract class Minigame extends Loader implements Loadable
 	public String getId()
 	{
 		return id;
+	}
+	
+	public Lobby getLobby()
+	{
+		return lobby;
 	}
 	
 	public MinigamePlugin getPlugin()
@@ -102,7 +108,9 @@ public abstract class Minigame extends Loader implements Loadable
 		players.add(player);
 	}
 	
-	public boolean joinMinigame(ArkynePlayer player)
+	//TODO: Join and leaving lobbys and games
+	
+	public void join(ArkynePlayer player)
 	{
 		//Just in case a minigame ever wants to cancel the join event??? Future proofing!
 		MinigameJoinEvent event = new MinigameJoinEvent(this, player);
@@ -116,13 +124,24 @@ public abstract class Minigame extends Loader implements Loadable
 			{
 				//Teleport to minigame lobby
 				
-				lobby.joinLobby(player);
-				
-				return true;
+				lobby.join(player);
 			}
 		}
+	}
+	
+	public Type getType()
+	{
+		return Joinable.Type.MINIGAME;
+	}
+	
+	public Inventory getInventory()
+	{
+		if (lobby != null)
+		{
+			return lobby.getInventory();
+		}
 		
-		return false;
+		return null;
 	}
 	
 	public abstract int createGame();
@@ -131,9 +150,11 @@ public abstract class Minigame extends Loader implements Loadable
 	{
 		if (lobby == null)
 		{
-			lobby = new Lobby(getName(), 1, spawn, cuboid, inventory, signMessage);
+			lobby = new MinigameLobby(this, getName(), 1, spawn, cuboid, inventory, signMessage);
 			
 			addLoadable(lobby);
+			
+			lobby.setIdPrefix(id);
 			lobby.onLoad();
 			
 			saveLobby();

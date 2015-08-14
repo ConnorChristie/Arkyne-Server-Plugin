@@ -1,6 +1,8 @@
 package us.arkyne.server.player;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -58,6 +60,11 @@ public class ArkynePlayerHandler
 			players.put(uuid, new ArkynePlayer(uuid));
 		
 		return players.get(uuid);
+	}
+	
+	public List<ArkynePlayer> getPlayers()
+	{
+		return new ArrayList<ArkynePlayer>(players.values());
 	}
 	
 	public void save(ArkynePlayer player)

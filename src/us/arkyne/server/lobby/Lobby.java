@@ -10,7 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.util.Vector;
 
 import com.sk89q.worldedit.bukkit.BukkitUtil;
@@ -21,13 +20,16 @@ import us.arkyne.server.inventory.InventoryPreset;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.message.SignMessage;
 import us.arkyne.server.message.SignMessagePreset;
+import us.arkyne.server.minigame.Joinable;
 import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.util.Cuboid;
 
-public class Lobby implements Loadable, ConfigurationSerializable
+public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializable
 {
 	private String name;
 	private Integer id;
+	
+	private String idPrefix;
 	
 	private Location spawn;
 	private Location sign;
@@ -65,11 +67,17 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		
 	}
 	
-	public void joinLobby(ArkynePlayer player)
+	public void setIdPrefix(String idPrefix)
+	{
+		this.idPrefix = idPrefix;
+	}
+	
+	public void join(ArkynePlayer player)
 	{
 		addPlayer(player);
 		
 		player.teleport(spawn);
+		player.setInventory(getInventory());
 		
 		updateSign();
 	}
@@ -91,6 +99,11 @@ public class Lobby implements Loadable, ConfigurationSerializable
 		currentPlayers.add(player);
 	}
 	
+	public boolean isSign(Location signLocation)
+	{
+		return sign.distance(signLocation) < 1;
+	}
+	
 	public void updateSign()
 	{
 		if (this.sign != null && this.sign.getBlock().getState() instanceof Sign)
@@ -101,22 +114,11 @@ public class Lobby implements Loadable, ConfigurationSerializable
 			{
 				sign.setLine(i, signMessage
 						.replace(i, "{lobby}", getName())
-						.replace("{lobby-id}", getId() + "")
+						.replace("{lobby-id}", idPrefix + "-" + getId())
 						.replace("{count}", getPlayerCount() + ""));
 			}
 			
 			sign.update(true);
-		}
-	}
-	
-	public void updateSign(SignChangeEvent event)
-	{
-		for (int i = 0; i < 4; i++)
-		{
-			event.setLine(i, signMessage
-					.replace(i, "{lobby}", getName())
-					.replace("{lobby-id}", getId() + "")
-					.replace("{count}", getPlayerCount() + ""));
 		}
 	}
 	

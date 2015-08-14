@@ -9,9 +9,10 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import us.arkyne.server.command.CommandHandler;
 import us.arkyne.server.command.cmds.ArkyneCommand;
-import us.arkyne.server.event.EventListener;
+import us.arkyne.server.event.ArkyneEventListener;
+import us.arkyne.server.event.BukkitEventListener;
 import us.arkyne.server.loader.Loader;
-import us.arkyne.server.lobby.MainLobby;
+import us.arkyne.server.lobby.MainLobbyHandler;
 import us.arkyne.server.minigame.MinigameHandler;
 import us.arkyne.server.player.ArkynePlayerHandler;
 import us.arkyne.server.plugin.MinigamePlugin;
@@ -22,7 +23,7 @@ public class ArkyneMain extends MinigamePlugin
 	
 	private List<Loader> loaders = new ArrayList<Loader>();
 	
-	private MainLobby mainLobby;
+	private MainLobbyHandler mainLobbyHandler;
 	private MinigameHandler minigameHandler;
 	
 	private ArkynePlayerHandler arkynePlayerHandler;
@@ -41,8 +42,7 @@ public class ArkyneMain extends MinigamePlugin
 		arkynePlayerHandler = new ArkynePlayerHandler();
 		commandHandler = new CommandHandler();
 
-		new EventListener();
-		
+		registerListeners();
 		registerCommands();
 		
 		getLogger().info("Loaded all lobby's and minigames!");
@@ -75,14 +75,20 @@ public class ArkyneMain extends MinigamePlugin
 	
 	private void setupMainLobby()
 	{
-		mainLobby = new MainLobby();
-		loaders.add(mainLobby);
+		mainLobbyHandler = new MainLobbyHandler();
+		loaders.add(mainLobbyHandler);
 	}
 	
 	private void setupMiniGameHandler()
 	{
 		minigameHandler = new MinigameHandler();
 		loaders.add(minigameHandler);
+	}
+	
+	private void registerListeners()
+	{
+		new BukkitEventListener();
+		new ArkyneEventListener();
 	}
 	
 	private void registerCommands()
@@ -97,9 +103,9 @@ public class ArkyneMain extends MinigamePlugin
 		return arkynePlayerHandler;
 	}
 	
-	public MainLobby getMainLobbyHandler()
+	public MainLobbyHandler getMainLobbyHandler()
 	{
-		return mainLobby;
+		return mainLobbyHandler;
 	}
 	
 	public MinigameHandler getMinigameHandler()

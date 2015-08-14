@@ -3,7 +3,7 @@ package us.arkyne.server.event.customevents;
 import us.arkyne.server.lobby.Lobby;
 import us.arkyne.server.player.ArkynePlayer;
 
-public final class PlayerChangeLobbyEvent extends MinigameEvent
+public final class PlayerChangeLobbyEvent extends ArkyneEvent
 {
 	private ArkynePlayer player;
 	

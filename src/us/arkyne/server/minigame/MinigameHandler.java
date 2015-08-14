@@ -5,19 +5,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.UnknownDependencyException;
 
+import us.arkyne.server.game.Game;
 import us.arkyne.server.loader.Loader;
+import us.arkyne.server.plugin.MinigamePlugin;
 import us.arkyne.server.util.Util;
 
 public class MinigameHandler extends Loader
 {
 	private Map<String, Minigame> minigames = new HashMap<String, Minigame>();
 	
-	private Map<String, File> unloadedMinigames = new HashMap<String, File>();
+	private Map<String, File> unloadedPlugins = new HashMap<String, File>();
 	
 	@Override
 	public void onLoad()
@@ -49,20 +52,26 @@ public class MinigameHandler extends Loader
 		removeLoadable(minigame);
 	}
 	
-	public void unloadMinigamePlugin(Minigame minigame)
+	public boolean unloadPlugin(String pluginName)
 	{
-		if (minigame != null)
+		Minigame minigame = getMain().getMinigameHandler().getMinigame(pluginName);
+		Plugin plugin = minigame != null ? minigame.getPlugin() : Bukkit.getServer().getPluginManager().getPlugin(pluginName);
+		
+		if (plugin != null && plugin instanceof MinigamePlugin)
 		{
-			String name = minigame.getName();
+			String name = plugin.getName();
 			
-			unloadedMinigames.put(name, minigame.getPlugin().getFile());
-			unRegisterMinigame(minigame);
+			unloadedPlugins.put(name, ((MinigamePlugin) plugin).getFile());
+			
+			if (minigame != null) unRegisterMinigame(minigame);
 			
 			try
 			{
 				Util.unloadPlugin(minigame.getPlugin());
 				
 				getMain().getLogger().info("Fully unloaded and disabled " + name + "!");
+				
+				return true;
 			} catch (Exception e)
 			{
 				e.printStackTrace();
@@ -70,11 +79,13 @@ public class MinigameHandler extends Loader
 				Util.noticeableConsoleMessage("Error unloading " + name + "'s minigame plugin");
 			}
 		}
+		
+		return false;
 	}
 	
-	public void loadMinigamePlugin(String minigameName)
+	public void loadPlugin(String minigameName)
 	{
-		for (Map.Entry<String, File> minigame : unloadedMinigames.entrySet())
+		for (Map.Entry<String, File> minigame : unloadedPlugins.entrySet())
 		{
 			if (minigame.getKey().toLowerCase().contains(minigameName.toLowerCase()))
 			{
@@ -95,15 +106,10 @@ public class MinigameHandler extends Loader
 		}
 	}
 	
-	public void reloadMinigamePlugin(Minigame minigame)
+	public void reloadPlugin(String pluginName)
 	{
-		if (minigame != null)
-		{
-			String minigameName = minigame.getName();
-			
-			unloadMinigamePlugin(minigame);
-			loadMinigamePlugin(minigameName);
-		}
+		unloadPlugin(pluginName);
+		loadPlugin(pluginName);
 	}
 	
 	public Minigame getMinigame(String check)
@@ -113,6 +119,28 @@ public class MinigameHandler extends Loader
 			if (minigame.getName().equalsIgnoreCase(check) || minigame.getId().equalsIgnoreCase(check))
 			{
 				return minigame;
+			}
+		}
+		
+		return null;
+	}
+
+	public Joinable getJoinable(Location signLocation)
+	{
+		for (Minigame minigame : minigames.values())
+		{
+			if (minigame.getLobby() != null && minigame.getLobby().isSign(signLocation))
+			{
+				return minigame;
+			} else
+			{
+				for (Game game : minigame.getGameHandler().getGames().values())
+				{
+					if (game.getPregameLobby().isSign(signLocation))
+					{
+						return game;
+					}
+				}
 			}
 		}
 		

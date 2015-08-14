@@ -56,17 +56,17 @@ public class ArkyneCommand implements CommandExecutor
 			return true;
 		} else if (command.isSubCommandMessageIfError("unload", 1, false, "Usage: /{cmd} unload <name|id>"))
 		{
-			main.getMinigameHandler().unloadMinigamePlugin(main.getMinigameHandler().getMinigame(command.getArg(0)));
+			main.getMinigameHandler().unloadPlugin(command.getArg(0));
 			
 			return true;
 		} else if (command.isSubCommandMessageIfError("load", 1, false, "Usage: /{cmd} load <name|id>"))
 		{
-			main.getMinigameHandler().loadMinigamePlugin(command.getArg(0));
+			main.getMinigameHandler().loadPlugin(command.getArg(0));
 			
 			return true;
 		} else if (command.isSubCommandMessageIfError("reload", 1, false, "Usage: /{cmd} reload <name|id>"))
 		{
-			main.getMinigameHandler().reloadMinigamePlugin(main.getMinigameHandler().getMinigame(command.getArg(0)));
+			main.getMinigameHandler().reloadPlugin(command.getArg(0));
 			
 			return true;
 		}

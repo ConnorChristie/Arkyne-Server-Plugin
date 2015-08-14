@@ -1,41 +1,50 @@
 package us.arkyne.server.inventory;
 
-import static org.bukkit.Material.*;
+import org.bukkit.inventory.ItemStack;
 
-import static org.bukkit.ChatColor.*;
-
+import us.arkyne.server.inventory.item.InventoryItem;
+import us.arkyne.server.inventory.item.InventoryItemPreset;
 import us.arkyne.server.player.ArkynePlayer;
 
 public enum InventoryPreset implements Inventory
 {
-	// Arrays have to be exactly 36 deep
+	//Arrays have to be exactly 36 deep
 	
-	MAIN_LOBBY(new Item[] {
-			/* Hotbar */ Item.i(NETHER_STAR, AQUA + "Pick a Class"), null, null, null, null, null, null, null, null,
+	//TODO: Change item[] to InventoryItem[], have to create an interface for the enum as well
+	
+	MAIN_LOBBY(new InventoryItem[] {
+			/* Hotbar */ InventoryItemPreset.DUMMY_ITEM, null, null, null, null, null, null, null, null,
 			/* Row 1 */ null, null, null, null, null, null, null, null, null,
 			/* Row 2 */ null, null, null, null, null, null, null, null, null,
 			/* Row 3 */ null, null, null, null, null, null, null, null, null
 	});
-							
-	private Item[] items;
 	
-	private InventoryPreset(Item[] items)
+	private InventoryItem[] items;
+	
+	private InventoryPreset(InventoryItem[] items)
 	{
 		this.items = items;
 	}
 	
 	public void updateInventory(ArkynePlayer player)
 	{
-		player.getOnlinePlayer().getInventory().setContents(items);
+		ItemStack[] itemStacks = new ItemStack[items.length];
+		
+		for (int i = 0; i < items.length; i++)
+		{
+			itemStacks[i] = items[i] != null ? items[i].getItem() : null;
+		}
+		
+		player.getOnlinePlayer().getInventory().setContents(itemStacks);
 	}
 	
-	public Item getItem(int index)
+	public InventoryItem getItem(int index)
 	{
 		return items[index];
 	}
 
 	@Override
-	public Item[] getItems()
+	public InventoryItem[] getItems()
 	{
 		return items;
 	}
