@@ -13,6 +13,7 @@ import org.bukkit.plugin.UnknownDependencyException;
 
 import us.arkyne.server.game.Game;
 import us.arkyne.server.loader.Loader;
+import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.plugin.MinigamePlugin;
 import us.arkyne.server.util.Util;
 
@@ -42,10 +43,14 @@ public class MinigameHandler extends Loader
 		
 		addLoadable(minigame);
 		minigame.loadAll();
+		
+		checkAwaitingPlayers(minigame);
 	}
 	
 	public void unRegisterMinigame(Minigame minigame)
 	{
+		//If player is in this minigame, TP them to main lobby
+		
 		minigames.remove(minigame.getId());
 		
 		minigame.unloadAll();
@@ -145,5 +150,34 @@ public class MinigameHandler extends Loader
 		}
 		
 		return null;
+	}
+	
+	private void checkAwaitingPlayers(Minigame minigame)
+	{
+		for (ArkynePlayer player : getMain().getArkynePlayerHandler().getPlayers())
+		{
+			if (player.isAwaitingMinigameLoad())
+			{
+				if (player.getAwaitingType() == Joinable.Type.MINIGAME)
+				{
+					if (minigame.getId().equalsIgnoreCase(player.getAwaitingId()))
+					{
+						player.setJoinable(minigame);
+						
+						player.setAwaitingMinigameLoad(false);
+					}
+				} else if (player.getAwaitingType() == Joinable.Type.GAME)
+				{
+					String[] ids = player.getAwaitingId().split("-");
+					
+					if (minigame.getId().equalsIgnoreCase(ids[0]))
+					{
+						player.setJoinable(minigame.getGameHandler().getGame(Integer.parseInt(ids[1])));
+						
+						player.setAwaitingMinigameLoad(false);
+					}
+				}
+			}
+		}
 	}
 }

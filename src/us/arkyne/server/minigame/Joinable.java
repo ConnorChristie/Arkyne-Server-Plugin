@@ -10,7 +10,10 @@ import us.arkyne.server.util.Cuboid;
 
 public interface Joinable
 {
+	public String getIdString();
+	
 	public void join(ArkynePlayer player);
+	public void leave(ArkynePlayer player);
 	
 	public List<ArkynePlayer> getPlayers();
 	
@@ -22,6 +25,6 @@ public interface Joinable
 	
 	public static enum Type
 	{
-		MINIGAME, GAME, MAINLOBBY;
+		MAINLOBBY, MINIGAME, GAME;
 	}
 }

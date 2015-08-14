@@ -10,8 +10,6 @@ public enum InventoryPreset implements Inventory
 {
 	//Arrays have to be exactly 36 deep
 	
-	//TODO: Change item[] to InventoryItem[], have to create an interface for the enum as well
-	
 	MAIN_LOBBY(new InventoryItem[] {
 			/* Hotbar */ InventoryItemPreset.DUMMY_ITEM, null, null, null, null, null, null, null, null,
 			/* Row 1 */ null, null, null, null, null, null, null, null, null,
@@ -28,14 +26,17 @@ public enum InventoryPreset implements Inventory
 	
 	public void updateInventory(ArkynePlayer player)
 	{
-		ItemStack[] itemStacks = new ItemStack[items.length];
-		
-		for (int i = 0; i < items.length; i++)
+		if (player.isOnline())
 		{
-			itemStacks[i] = items[i] != null ? items[i].getItem() : null;
+			ItemStack[] itemStacks = new ItemStack[items.length];
+			
+			for (int i = 0; i < items.length; i++)
+			{
+				itemStacks[i] = items[i] != null ? items[i].getItem() : null;
+			}
+			
+			player.getOnlinePlayer().getInventory().setContents(itemStacks);
 		}
-		
-		player.getOnlinePlayer().getInventory().setContents(itemStacks);
 	}
 	
 	public InventoryItem getItem(int index)

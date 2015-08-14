@@ -8,14 +8,14 @@ public class JoinSignCreateEvent extends ArkyneEvent
 {
 	private Joinable.Type signType;
 	
-	private String idName;
+	private String[] lines;
 	private Location signLocation;
 	
-	public JoinSignCreateEvent(Joinable.Type signType, String idName, Location signLocation)
+	public JoinSignCreateEvent(Joinable.Type signType, String[] lines, Location signLocation)
 	{
 		this.signType = signType;
 		
-		this.idName = idName;
+		this.lines = lines;
 		this.signLocation = signLocation;
 	}
 
@@ -24,9 +24,14 @@ public class JoinSignCreateEvent extends ArkyneEvent
 		return signType;
 	}
 
-	public String getIdName()
+	public String[] getLines()
 	{
-		return idName;
+		return lines;
+	}
+	
+	public String getLine(int index)
+	{
+		return lines[index];
 	}
 
 	public Location getSignLocation()

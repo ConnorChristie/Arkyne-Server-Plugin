@@ -77,6 +77,11 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		return id;
 	}
 	
+	public String getIdString()
+	{
+		return id;
+	}
+	
 	public Lobby getLobby()
 	{
 		return lobby;
@@ -102,31 +107,34 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		return players;
 	}
 	
-	public void addPlayer(ArkynePlayer player)
-	{
-		players.add(player);
-	}
-	
-	//TODO: Keep track of the player, save what joinable they are in in the config
-	
 	public void join(ArkynePlayer player)
 	{
 		//Just in case a minigame ever wants to cancel the join event??? Future proofing!
+		
 		MinigameJoinEvent event = new MinigameJoinEvent(this, player);
 		Bukkit.getServer().getPluginManager().callEvent(event);
 		
 		if (!event.isCancelled())
 		{
-			addPlayer(player);
+			players.add(player);
 			
 			if (lobby != null)
 			{
 				//Teleport to minigame lobby
 				
 				lobby.join(player);
-				
-				System.out.println("Bounds: " + getBounds());
+				player.setJoinable(this);
 			}
+		}
+	}
+	
+	public void leave(ArkynePlayer player)
+	{
+		players.remove(player);
+		
+		if (lobby != null)
+		{
+			lobby.leave(player);
 		}
 	}
 	

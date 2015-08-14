@@ -18,6 +18,7 @@ import org.bukkit.util.Vector;
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.minigame.Joinable;
+import us.arkyne.server.minigame.Minigame;
 import us.arkyne.server.util.Util;
 
 public class ArkynePlayer implements ConfigurationSerializable
@@ -26,7 +27,11 @@ public class ArkynePlayer implements ConfigurationSerializable
 	private OfflinePlayer player;
 	
 	private Joinable joinable;
-	private Inventory inventory;
+	
+	private boolean awaitingMinigameLoad;
+	
+	private String awaitingId;
+	private Joinable.Type awaitingType;
 	
 	public ArkynePlayer(UUID uuid)
 	{
@@ -59,7 +64,15 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public void setJoinable(Joinable joinable)
 	{
+		if (this.joinable != null)
+		{
+			this.joinable.leave(this);
+		}
+
 		this.joinable = joinable;
+		
+		updateInventory();
+		save();
 	}
 	
 	public Joinable getJoinable()
@@ -67,16 +80,17 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return joinable;
 	}
 	
-	public void setInventory(Inventory inventory)
+	public void updateInventory()
 	{
-		this.inventory = inventory;
-		
-		inventory.updateInventory(this);
+		if (joinable != null && joinable.getInventory() != null)
+		{
+			joinable.getInventory().updateInventory(this);
+		}
 	}
 	
 	public Inventory getInventory()
 	{
-		return inventory;
+		return joinable.getInventory();
 	}
 	
 	/*
@@ -197,6 +211,26 @@ public class ArkynePlayer implements ConfigurationSerializable
 		}
 	}
 	
+	public void setAwaitingMinigameLoad(boolean awaiting)
+	{
+		this.awaitingMinigameLoad = awaiting;
+	}
+	
+	public boolean isAwaitingMinigameLoad()
+	{
+		return awaitingMinigameLoad;
+	}
+	
+	public String getAwaitingId()
+	{
+		return awaitingId;
+	}
+	
+	public Joinable.Type getAwaitingType()
+	{
+		return awaitingType;
+	}
+	
 	public void save()
 	{
 		ArkyneMain.getInstance().getArkynePlayerHandler().save(this);
@@ -204,18 +238,53 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public ArkynePlayer(Map<String, Object> map)
 	{
+		if (map.containsKey("joinable_type") && map.containsKey("joinable_id"))
+		{
+			Joinable.Type type = Joinable.Type.valueOf(map.get("joinable_type").toString());
+			String id = map.get("joinable_id").toString();
+			
+			if (type == Joinable.Type.MAINLOBBY)
+			{
+				this.joinable = ArkyneMain.getInstance().getMainLobbyHandler().getMainLobby();
+			} else if (type == Joinable.Type.MINIGAME || type == Joinable.Type.GAME)
+			{
+				Minigame minigame = ArkyneMain.getInstance().getMinigameHandler().getMinigame(id);
+				
+				if (minigame != null)
+				{
+					String[] ids = id.split("-");
+					
+					this.joinable = type == Joinable.Type.GAME ? minigame.getGameHandler().getGame(Integer.parseInt(ids[1])) : minigame;
+				} else
+				{
+					awaitingMinigameLoad = true;
+					
+					awaitingId = id;
+					awaitingType = type;
+				}
+			}
+		}
+		
+		/*
 		if (map.containsKey("lobby"))
 		{
-			//minigame = ArkyneMain.getInstance().getMinigameHandler().getMinigame(map.get("minigame").toString());
+			minigame = ArkyneMain.getInstance().getMinigameHandler().getMinigame(map.get("minigame").toString());
 			
-			//minigame.addPlayer(this);
+			minigame.addPlayer(this);
 		}
+		*/
 	}
 
 	@Override
 	public Map<String, Object> serialize()
 	{
 		Map<String, Object> map = new HashMap<String, Object>();
+		
+		if (joinable != null)
+		{
+			map.put("joinable_id", joinable.getIdString());
+			map.put("joinable_type", joinable.getType().name());
+		}
 		
 		/*
 		if (minigame != null)

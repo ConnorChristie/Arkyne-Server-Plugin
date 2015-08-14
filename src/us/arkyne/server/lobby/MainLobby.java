@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import us.arkyne.server.inventory.InventoryPreset;
 import us.arkyne.server.message.SignMessagePreset;
 import us.arkyne.server.minigame.Joinable;
+import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.util.Cuboid;
 
 public class MainLobby extends Lobby
@@ -16,7 +17,13 @@ public class MainLobby extends Lobby
 		super("MainLobby", 1, spawn, cuboid, InventoryPreset.MAIN_LOBBY, SignMessagePreset.MAIN_LOBBY);
 	}
 	
-	@Override
+	public void join(ArkynePlayer player)
+	{
+		super.join(player);
+		
+		player.setJoinable(this);
+	}
+	
 	public Type getType()
 	{
 		return Joinable.Type.MAINLOBBY;

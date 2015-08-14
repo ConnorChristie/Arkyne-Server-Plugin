@@ -49,14 +49,13 @@ public class BukkitEventListener implements Listener
 	{
 		if (event.getLine(0).equalsIgnoreCase("[minigame]") || event.getLine(0).equalsIgnoreCase("[game]"))
 		{
-			String idName = event.getLine(1);
 			Joinable.Type signType = event.getLine(0).equalsIgnoreCase("[minigame]") ? Joinable.Type.MINIGAME : Joinable.Type.GAME;
 			
 			new BukkitRunnable()
 			{
 				public void run()
 				{
-					Bukkit.getServer().getPluginManager().callEvent(new JoinSignCreateEvent(signType, idName, event.getBlock().getLocation()));
+					Bukkit.getServer().getPluginManager().callEvent(new JoinSignCreateEvent(signType, event.getLines(), event.getBlock().getLocation()));
 				}
 			}.runTaskLater(main, 2);
 		}

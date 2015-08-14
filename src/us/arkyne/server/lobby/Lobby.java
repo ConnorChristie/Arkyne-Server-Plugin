@@ -77,13 +77,11 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 		addPlayer(player);
 		
 		player.teleport(spawn);
-		player.setJoinable(this);
-		player.setInventory(getInventory());
 		
 		updateSign();
 	}
 	
-	public void leaveLobby(ArkynePlayer player)
+	public void leave(ArkynePlayer player)
 	{
 		currentPlayers.remove(player);
 		
@@ -102,7 +100,7 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 	
 	public boolean isSign(Location signLocation)
 	{
-		return sign.distance(signLocation) < 1;
+		return sign != null && sign.getWorld().equals(signLocation.getWorld()) && sign.distance(signLocation) < 1;
 	}
 	
 	public void updateSign()
@@ -131,6 +129,11 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 	public Integer getId()
 	{
 		return id;
+	}
+	
+	public String getIdString()
+	{
+		return id + "";
 	}
 	
 	public Location getSpawn()

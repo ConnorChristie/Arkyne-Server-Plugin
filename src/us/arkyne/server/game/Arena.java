@@ -8,6 +8,8 @@ import us.arkyne.server.loader.Loadable;
 
 public class Arena implements Loadable, ConfigurationSerializable
 {
+	protected String mapName = "Heaven & Hell";
+	
 	@Override
 	public void onLoad()
 	{
@@ -20,6 +22,11 @@ public class Arena implements Loadable, ConfigurationSerializable
 	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public String getMapName()
+	{
+		return mapName;
 	}
 	
 	public Arena(Map<String, Object> map)
