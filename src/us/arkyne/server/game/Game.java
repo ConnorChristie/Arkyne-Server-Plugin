@@ -224,13 +224,26 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 			{
 				if (timer <= 0)
 				{
+					//Add methods for all these!
+					
 					switch (gameSubStatus)
 					{
 						case PREGAME_COUNTDOWN:
 							spawnPlayers();
+							setGameSubStatus(GameSubStatus.GAME_COUNTDOWN);
 							
 							break;
 						case GAME_COUNTDOWN:
+							sendPlayersMessage("The game has started!", ChatColor.GREEN);
+							setGameSubStatus(GameSubStatus.GAME_PLAYING);
+							
+							break;
+						case GAME_PLAYING:
+							sendPlayersMessage("The game has ended!", ChatColor.GREEN);
+							setGameSubStatus(GameSubStatus.GAME_END);
+							
+							break;
+						case GAME_END:
 							
 							
 							break;
