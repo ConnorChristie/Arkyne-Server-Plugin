@@ -2,11 +2,13 @@ package us.arkyne.server.game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -166,10 +168,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		
 		updateSign();
 		
-		if (getPlayerCount() >= startPlayers)
+		if (gameSubStatus == GameSubStatus.PREGAME_STANDBY && getPlayerCount() >= startPlayers)
 		{
 			//Start game countdown
 			
+			filterOffline();
 			setGameSubStatus(GameSubStatus.PREGAME_COUNTDOWN);
 		}
 	}
@@ -186,11 +189,28 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		updateSign();
 	}
 	
-	public void teleportAll(Location loc)
+	private void filterOffline()
+	{
+		Iterator<ArkynePlayer> playerIterator = players.iterator();
+		
+		while (playerIterator.hasNext())
+		{
+			ArkynePlayer player = playerIterator.next();
+			
+			if (!player.isOnline())
+			{
+				player.setJoinable(null);
+				
+				playerIterator.remove();
+			}
+		}
+	}
+	
+	public void sendPlayersMessage(String message, ChatColor color)
 	{
 		for (ArkynePlayer player : players)
 		{
-			player.teleport(loc);
+			player.sendMessage(message, color);
 		}
 	}
 	
@@ -207,6 +227,10 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 					switch (gameSubStatus)
 					{
 						case PREGAME_COUNTDOWN:
+							spawnPlayers();
+							
+							break;
+						case GAME_COUNTDOWN:
 							
 							
 							break;
@@ -222,6 +246,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		
 		countdownTask.runTaskTimer(getMain(), 0, 20);
 	}
+	
+	protected abstract void spawnPlayers();
 	
 	public boolean isJoinable(ArkynePlayer player)
 	{
