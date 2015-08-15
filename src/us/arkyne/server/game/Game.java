@@ -186,6 +186,14 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		updateSign();
 	}
 	
+	public void teleportAll(Location loc)
+	{
+		for (ArkynePlayer player : players)
+		{
+			player.teleport(loc);
+		}
+	}
+	
 	protected void startCountdown()
 	{
 		timer = gameSubStatus.getDuration();
@@ -194,14 +202,20 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		{
 			public void run()
 			{
-				if (timer > 0)
+				if (timer <= 0)
 				{
+					switch (gameSubStatus)
+					{
+						case PREGAME_COUNTDOWN:
+							
+							
+							break;
+					}
 					
-					
-					timer--;
+					countdownTask.cancel();
 				} else
 				{
-					countdownTask.cancel();
+					timer--;
 				}
 			}
 		};
