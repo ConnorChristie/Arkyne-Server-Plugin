@@ -76,6 +76,7 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 	{
 		addPlayer(player);
 		
+		player.setJoinable(this);
 		player.teleport(spawn);
 		
 		updateSign();
@@ -86,6 +87,11 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 		currentPlayers.remove(player);
 		
 		updateSign();
+	}
+	
+	public boolean isJoinable(ArkynePlayer player)
+	{
+		return true;
 	}
 	
 	public boolean isInLobby(ArkynePlayer player)

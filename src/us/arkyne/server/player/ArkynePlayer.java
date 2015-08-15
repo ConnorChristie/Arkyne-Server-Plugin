@@ -69,6 +69,11 @@ public class ArkynePlayer implements ConfigurationSerializable
 			this.joinable.leave(this);
 		}
 
+		setJoinableNoLeave(joinable);
+	}
+	
+	public void setJoinableNoLeave(Joinable joinable)
+	{
 		this.joinable = joinable;
 		
 		updateInventory();
@@ -90,7 +95,7 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public Inventory getInventory()
 	{
-		return joinable.getInventory();
+		return joinable != null ? joinable.getInventory() : null;
 	}
 	
 	/*

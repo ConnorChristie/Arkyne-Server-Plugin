@@ -138,6 +138,11 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		}
 	}
 	
+	public boolean isJoinable(ArkynePlayer player)
+	{
+		return lobby != null;
+	}
+	
 	public Type getType()
 	{
 		return Joinable.Type.MINIGAME;
@@ -163,7 +168,7 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		return lobby.getSpawn();
 	}
 	
-	public abstract int createGame();
+	public abstract int createGame(String mapName);
 	
 	public boolean setLobby(Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
 	{

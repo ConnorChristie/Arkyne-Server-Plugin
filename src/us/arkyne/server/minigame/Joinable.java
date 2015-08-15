@@ -15,6 +15,7 @@ public interface Joinable
 	public void join(ArkynePlayer player);
 	public void leave(ArkynePlayer player);
 	
+	public boolean isJoinable(ArkynePlayer player);
 	public List<ArkynePlayer> getPlayers();
 	
 	public Type getType();

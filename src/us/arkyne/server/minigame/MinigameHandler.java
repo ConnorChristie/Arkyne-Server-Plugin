@@ -141,7 +141,7 @@ public class MinigameHandler extends Loader
 			{
 				for (Game game : minigame.getGameHandler().getGames().values())
 				{
-					if (game.getPregameLobby().isSign(signLocation))
+					if (game.isSign(signLocation))
 					{
 						return game;
 					}

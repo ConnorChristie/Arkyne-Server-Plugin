@@ -32,29 +32,53 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	protected Minigame minigame;
 	protected Location sign;
 	
+	protected String mapName;
+	
+	protected GameStatus gameStatus;
+	protected GameSubStatus gameSubStatus;
+	
 	protected Arena arena;
 	protected Lobby pregameLobby;
 	
-	protected int maxPlayers;
 	protected SignMessage signMessage;
+	
+	protected int maxPlayers;
+	protected int startPlayers;
+	
+	
+	/* Game variables */
+	protected int timer = 0;
+	
 	
 	protected List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
 	
 	//TODO: Add player limit and signs should display: #/total Players
 	
-	public Game(Minigame minigame, int id, int maxPlayers, SignMessage signMessage)
+	public Game(Minigame minigame, int id, int maxPlayers, int startPlayers, String mapName, SignMessage signMessage)
 	{
 		this.minigame = minigame;
 		this.id = id;
 		
 		this.maxPlayers = maxPlayers;
+		this.startPlayers = startPlayers;
+		
+		this.mapName = mapName;
 		this.signMessage = signMessage;
 	}
 	
 	public void onLoad()
 	{
-		if (arena != null) addLoadable(arena);
+		if (arena != null)
+		{
+			arena.setGame(this);
+			
+			addLoadable(arena);
+		}
+		
 		if (pregameLobby != null) addLoadable(pregameLobby);
+		
+		gameStatus = GameStatus.PREGAME;
+		gameSubStatus = GameSubStatus.PREGAME_STANDBY;
 	}
 	
 	public void onUnload()
@@ -92,19 +116,74 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		return sign;
 	}
 	
+	public String getMapName()
+	{
+		return mapName;
+	}
+	
+	protected void setGameSubStatus(GameSubStatus subStatus)
+	{
+		this.gameSubStatus = subStatus;
+		
+		switch (subStatus)
+		{
+			case PREGAME_STANDBY:
+			case PREGAME_COUNTDOWN:
+				gameStatus = GameStatus.PREGAME;
+				
+				return;
+			case GAME_COUNTDOWN:
+			case GAME_PLAYING:
+			case GAME_END:
+				gameStatus = GameStatus.GAME;
+				
+				return;
+		}
+	}
+	
 	public void join(ArkynePlayer player)
 	{
 		//TODO: Join the pregame lobby
+		
+		players.add(player);
+		
+		player.setJoinable(this);
+		player.teleport(pregameLobby.getSpawn());
+		
+		updateSign();
+		
+		if (getPlayerCount() >= startPlayers)
+		{
+			//Start game countdown
+			
+			startCountdown();
+			
+			gameSubStatus = GameSubStatus.PREGAME_COUNTDOWN;
+		}
 	}
 	
 	public void leave(ArkynePlayer player)
 	{
 		//TODO: Update the game sign
+		
+		players.remove(player);
+		
+		player.setJoinableNoLeave(minigame);
+		player.teleport(minigame.getSpawn());
+		
+		updateSign();
+	}
+	
+	public boolean isJoinable(ArkynePlayer player)
+	{
+		//TODO: Check if player is high enough rank to join past player limit!
+		
+		return (pregameLobby != null && arena != null) && (gameStatus == GameStatus.PREGAME && players.size() < maxPlayers);
 	}
 	
 	public boolean isSign(Location signLocation)
 	{
-		return sign.getWorld().equals(signLocation.getWorld()) && sign.distance(signLocation) < 1;
+		return sign != null && sign.getWorld().equals(signLocation.getWorld()) && sign.distance(signLocation) < 1;
 	}
 	
 	public void updateSign()
@@ -120,36 +199,41 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 						.replace("{game-id}", minigame.getId() + "-G-" + getId())
 						.replace("{count}",   getPlayerCount() + "")
 						.replace("{max}",     maxPlayers + "")
-						.replace("{map}",     (arena != null ? arena.getMapName() : "")));
+						.replace("{map}",     (arena != null ? mapName : "")));
 			}
 			
 			sign.update(true);
 		}
 	}
 	
-	
-	
-	//Return different values based on whether players are in arena or lobby
-	
 	public Type getType()
 	{
 		return Joinable.Type.GAME;
 	}
 	
+	
+	
+	//Return different values based on whether players are in arena or lobby
+	
 	//TODO: Check if in game or not, then return either lobby inv or game inv
 	public Inventory getInventory()
 	{
-		return pregameLobby.getInventory();
+		return gameStatus == GameStatus.PREGAME ? pregameLobby.getInventory() : arena.getInventory();
 	}
 	
 	public Cuboid getBounds()
 	{
-		return pregameLobby.getBounds();
+		return gameStatus == GameStatus.PREGAME ? pregameLobby.getBounds() : arena.getBounds();
 	}
 	
 	public Location getSpawn()
 	{
-		return pregameLobby.getSpawn();
+		return getSpawn(null);
+	}
+	
+	public Location getSpawn(String team)
+	{
+		return gameStatus == GameStatus.PREGAME ? pregameLobby.getSpawn() : arena.getSpawn(team);
 	}
 	
 	
@@ -183,6 +267,23 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		return false;
 	}
 	
+	public boolean createArena(Arena arena)
+	{
+		if (this.arena == null)
+		{
+			this.arena = arena;
+			
+			addLoadable(this.arena);
+			this.arena.onLoad();
+			
+			save();
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public void save()
 	{
 		minigame.getGameHandler().save(this);
@@ -196,7 +297,10 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		arena = (Arena) map.get("arena");
 		pregameLobby = (Lobby) map.get("pregame_lobby");
 		
+		mapName = map.get("map_name").toString();
+		
 		maxPlayers = Integer.parseInt(map.get("max_players").toString());
+		startPlayers = Integer.parseInt(map.get("start_players").toString());
 		
 		UUID signWorld = map.get("sign_world") != null ? UUID.fromString(map.get("sign_world").toString()) : null;
 		
@@ -211,10 +315,13 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		map.put("minigame", minigame.getId());
 		map.put("id", id);
 		
+		map.put("max_players", maxPlayers);
+		map.put("start_players", startPlayers);
+		
 		map.put("arena", arena);
 		map.put("pregame_lobby", pregameLobby);
 		
-		map.put("max_players", maxPlayers);
+		map.put("map_name", mapName);
 		map.put("sign_world", sign != null ? sign.getWorld().getUID().toString() : null);
 		
 		map.put("sign", sign != null ? sign.toVector() : null);

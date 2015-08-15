@@ -83,7 +83,13 @@ public class BukkitEventListener implements Listener
 					{
 						if (clickEvent.getJoinable() != null)
 						{
-							clickEvent.getJoinable().join(player);
+							if (clickEvent.getJoinable().isJoinable(player))
+							{
+								clickEvent.getJoinable().join(player);
+							} else
+							{
+								player.sendMessage("Sorry, but you are not able to join this game", ChatColor.RED);
+							}
 						}
 					}
 				}

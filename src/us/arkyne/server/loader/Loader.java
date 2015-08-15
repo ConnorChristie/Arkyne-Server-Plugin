@@ -44,16 +44,29 @@ public abstract class Loader implements Loadable
 	{
 		onLoad();
 		
-		for (Loadable loadable : loadables)
-		{
-			loadable.onLoad();
-		}
+		loadLoadables();
 	}
 	
 	public void unloadAll()
 	{
 		onUnload();
 		
+		for (Loadable loadable : loadables)
+		{
+			loadable.onUnload();
+		}
+	}
+	
+	protected void loadLoadables()
+	{
+		for (Loadable loadable : loadables)
+		{
+			loadable.onLoad();
+		}
+	}
+	
+	protected void unloadLoadables()
+	{
 		for (Loadable loadable : loadables)
 		{
 			loadable.onUnload();
