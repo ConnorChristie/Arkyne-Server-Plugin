@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import us.arkyne.server.ArkyneMain;
@@ -48,6 +49,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	/* Game variables */
 	protected int timer = 0;
+	protected BukkitRunnable countdownTask;
 	
 	
 	protected List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
@@ -131,13 +133,25 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 			case PREGAME_COUNTDOWN:
 				gameStatus = GameStatus.PREGAME;
 				
-				return;
+				break;
 			case GAME_COUNTDOWN:
 			case GAME_PLAYING:
 			case GAME_END:
 				gameStatus = GameStatus.GAME;
 				
-				return;
+				break;
+		}
+		
+		switch (subStatus)
+		{
+			case PREGAME_COUNTDOWN:
+			case GAME_COUNTDOWN:
+			case GAME_PLAYING:
+			case GAME_END:
+				startCountdown();
+				
+				break;
+			default: break;
 		}
 	}
 	
@@ -156,9 +170,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		{
 			//Start game countdown
 			
-			startCountdown();
-			
-			gameSubStatus = GameSubStatus.PREGAME_COUNTDOWN;
+			setGameSubStatus(GameSubStatus.PREGAME_COUNTDOWN);
 		}
 	}
 	
@@ -172,6 +184,29 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		player.teleport(minigame.getSpawn());
 		
 		updateSign();
+	}
+	
+	protected void startCountdown()
+	{
+		timer = gameSubStatus.getDuration();
+		
+		countdownTask = new BukkitRunnable()
+		{
+			public void run()
+			{
+				if (timer > 0)
+				{
+					
+					
+					timer--;
+				} else
+				{
+					countdownTask.cancel();
+				}
+			}
+		};
+		
+		countdownTask.runTaskTimer(getMain(), 0, 20);
 	}
 	
 	public boolean isJoinable(ArkynePlayer player)
