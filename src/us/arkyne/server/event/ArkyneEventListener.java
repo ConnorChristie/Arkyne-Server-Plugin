@@ -13,6 +13,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.sk89q.worldedit.Vector;
+
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.event.customevents.ArkynePlayerChatEvent;
@@ -25,6 +27,7 @@ import us.arkyne.server.lobby.Lobby;
 import us.arkyne.server.minigame.Joinable;
 import us.arkyne.server.minigame.Minigame;
 import us.arkyne.server.player.ArkynePlayer;
+import us.arkyne.server.util.Cuboid;
 
 public class ArkyneEventListener implements Listener
 {
@@ -61,14 +64,27 @@ public class ArkyneEventListener implements Listener
 	public void onPlayerFly(PlayerFlyEvent event)
 	{
 		ArkynePlayer player = event.getPlayer();
+		Joinable joinable = player.getJoinable();
 		
 		if (player.getOnlinePlayer().getGameMode() == GameMode.SPECTATOR)
 		{
-			if (player.getJoinable() != null)
+			if (joinable != null && joinable.getBounds() != null)
 			{
-				if (!player.getJoinable().getBounds().contains(player))
+				Cuboid cuboid = joinable.getBounds();
+				
+				if (cuboid != null)
 				{
-					player.pushTowards(player.getJoinable().getSpawn());
+					if (!cuboid.containsWithoutY(player))
+					{
+						//Bounce them back into the cuboid region
+						
+						Vector vector = cuboid.getCenter();
+						
+						player.pushTowards(new org.bukkit.util.Vector(vector.getX(), vector.getY(), vector.getZ()));
+					} else if (player.getLocation().getY() < cuboid.getMinimumY())
+					{
+						player.teleportRaw(joinable.getSpawn());
+					}
 				}
 			}
 		}

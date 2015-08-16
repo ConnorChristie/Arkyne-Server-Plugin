@@ -10,12 +10,17 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
 
 import us.arkyne.server.ArkyneMain;
+import us.arkyne.server.game.arena.Arena;
+import us.arkyne.server.game.status.GameStatus;
+import us.arkyne.server.game.status.GameSubStatus;
+import us.arkyne.server.game.status.IGameSubStatus;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
@@ -36,9 +41,10 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	protected Location sign;
 	
 	protected String mapName;
-	
 	protected GameStatus gameStatus;
+	
 	protected GameSubStatus gameSubStatus;
+	protected IGameSubStatus igameSubStatus;
 	
 	protected Arena arena;
 	protected Lobby pregameLobby;
@@ -51,7 +57,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	/* Game variables */
 	protected int timer = 0;
-	protected BukkitRunnable countdownTask;
+	protected Runnable countdownRunnable;
 	
 	
 	protected List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
@@ -82,7 +88,9 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		if (pregameLobby != null) addLoadable(pregameLobby);
 		
 		gameStatus = GameStatus.PREGAME;
-		gameSubStatus = GameSubStatus.PREGAME_STANDBY;
+		setGameSubStatus(GameSubStatus.PREGAME_STANDBY);
+		
+		loadLoadables();
 	}
 	
 	public void onUnload()
@@ -125,14 +133,16 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		return mapName;
 	}
 	
-	protected void setGameSubStatus(GameSubStatus subStatus)
+	public void setGameSubStatus(GameSubStatus subStatus)
 	{
 		this.gameSubStatus = subStatus;
+		this.igameSubStatus = getGameSubStatus(subStatus);
 		
 		switch (subStatus)
 		{
 			case PREGAME_STANDBY:
 			case PREGAME_COUNTDOWN:
+			case GAME_REGEN:
 				gameStatus = GameStatus.PREGAME;
 				
 				break;
@@ -155,6 +165,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 				break;
 			default: break;
 		}
+		
+		updateSign();
 	}
 	
 	public void join(ArkynePlayer player)
@@ -210,26 +222,43 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	{
 		for (ArkynePlayer player : players)
 		{
-			player.sendMessage(message, color);
+			player.sendMessageRaw(color + message);
 		}
 	}
 	
 	protected void startCountdown()
 	{
-		timer = gameSubStatus.getDuration();
+		int updateRate = 5;
+		int secondsConversion = 20 / updateRate;
 		
-		countdownTask = new BukkitRunnable()
+		timer = igameSubStatus.getDuration() * secondsConversion;
+		
+		countdownRunnable = new Runnable()
 		{
 			public void run()
 			{
+				int seconds = timer / secondsConversion;
+				
 				if (timer <= 0)
 				{
 					//Add methods for all these!
 					
+					for (ArkynePlayer player : players)
+					{
+						player.getOnlinePlayer().setExp(0);
+						player.getOnlinePlayer().setLevel(0);
+						
+						player.getOnlinePlayer().playSound(player.getLocation(), Sound.LEVEL_UP, 10, 1);
+					}
+					
+					//TODO: Make these call the methods in the game class, so BFGame can implement them
+					
 					switch (gameSubStatus)
 					{
 						case PREGAME_COUNTDOWN:
-							spawnPlayers();
+							onGameStart();
+							
+							sendPlayersMessage("Teleported to game arena!", ChatColor.GREEN);
 							setGameSubStatus(GameSubStatus.GAME_COUNTDOWN);
 							
 							break;
@@ -239,34 +268,110 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 							
 							break;
 						case GAME_PLAYING:
+							onGameEnd();
+							
 							sendPlayersMessage("The game has ended!", ChatColor.GREEN);
 							setGameSubStatus(GameSubStatus.GAME_END);
 							
 							break;
 						case GAME_END:
+							setGameSubStatus(GameSubStatus.GAME_REGEN);
 							
+							for (ArkynePlayer player : players)
+							{
+								player.setJoinableNoLeave(minigame);
+								player.teleport(minigame.getSpawn());
+							}
+							
+							players.clear();
+							
+							updateSign();
+							regenArena();
 							
 							break;
+						default: break;
 					}
 					
-					countdownTask.cancel();
+					onStatusChange(gameSubStatus);
 				} else
 				{
+					boolean alertSound = false;
+					boolean alertMessage = false;
+					
+					if (timer != igameSubStatus.getDuration())
+					{
+						if ((timer + 1) % secondsConversion == 0) //One second
+						{
+							if (igameSubStatus.getTimeString() != null && (seconds <= 30 || seconds == 60))
+							{
+								if ((seconds + 1) % 10 == 0 || seconds <= 4)
+								{
+									alertMessage = true;
+								}
+								
+								if (seconds <= 4)
+								{
+									alertSound = true;
+								}
+							}
+						}
+					}
+					
+					float percent = ((float) timer) / ((float) igameSubStatus.getDuration() * secondsConversion);
+					
+					for (ArkynePlayer player : players)
+					{
+						player.getOnlinePlayer().setExp(percent);
+						player.getOnlinePlayer().setLevel(seconds + 1);
+						
+						if (alertMessage)
+						{
+							player.sendMessage(igameSubStatus.getTimeString().replace("{time}", (seconds + 1) + ""), ChatColor.AQUA);
+						}
+						
+						if (alertSound)
+						{
+							player.getOnlinePlayer().playSound(player.getLocation(), Sound.ORB_PICKUP, 10, 1);
+						}
+					}
+					
 					timer--;
+					
+					Bukkit.getScheduler().runTaskLater(getMain(), countdownRunnable, updateRate);
 				}
 			}
 		};
 		
-		countdownTask.runTaskTimer(getMain(), 0, 20);
+		Bukkit.getScheduler().runTask(getMain(), countdownRunnable);
 	}
 	
-	protected abstract void spawnPlayers();
+	protected abstract void onGameStart();
+	protected abstract void onGameEnd();
+	
+	public abstract void onPlayerDeath(ArkynePlayer player, DamageCause cause);
+	
+	protected abstract IGameSubStatus getGameSubStatus(GameSubStatus status);
+	protected abstract void onStatusChange(GameSubStatus status);
+	
+	public boolean allowPlayerMovement()
+	{
+		return gameSubStatus != GameSubStatus.GAME_COUNTDOWN;
+	}
+	
+	public boolean allowEnvironmentChanges()
+	{
+		return gameSubStatus == GameSubStatus.GAME_PLAYING;
+	}
 	
 	public boolean isJoinable(ArkynePlayer player)
 	{
 		//TODO: Check if player is high enough rank to join past player limit!
 		
-		return (pregameLobby != null && arena != null) && (gameStatus == GameStatus.PREGAME && players.size() < maxPlayers);
+		return pregameLobby != null
+				&& arena != null
+				&& gameStatus == GameStatus.PREGAME
+				&& (gameSubStatus == GameSubStatus.PREGAME_STANDBY || gameSubStatus == GameSubStatus.PREGAME_COUNTDOWN)
+				&& players.size() < maxPlayers;
 	}
 	
 	public boolean isSign(Location signLocation)
@@ -280,13 +385,25 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		{
 			Sign sign = (Sign) this.sign.getBlock().getState();
 			
+			String status = getPlayerCount() + "/" + maxPlayers + " Players";
+			
+			if (isRegenerating())
+			{
+				status = ChatColor.RED + "Regenerating";
+			} else if (gameSubStatus != GameSubStatus.PREGAME_STANDBY && gameSubStatus != GameSubStatus.PREGAME_COUNTDOWN)
+			{
+				status = ChatColor.RED + "In Progress";
+			} else if (getPlayerCount() >= maxPlayers)
+			{
+				status = ChatColor.RED + "Game Full";
+			}
+			
 			for (int i = 0; i < 4; i++)
 			{
 				sign.setLine(i, signMessage
 						.replace(i, "{game}", minigame.getName())
 						.replace("{game-id}", minigame.getId() + "-G-" + getId())
-						.replace("{count}",   getPlayerCount() + "")
-						.replace("{max}",     maxPlayers + "")
+						.replace("{status}",  status)
 						.replace("{map}",     (arena != null ? mapName : "")));
 			}
 			
@@ -298,8 +415,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	{
 		return Joinable.Type.GAME;
 	}
-	
-	
 	
 	//Return different values based on whether players are in arena or lobby
 	
@@ -319,14 +434,10 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		return getSpawn(null);
 	}
 	
-	public Location getSpawn(String team)
+	public Location getSpawn(ArkynePlayer player)
 	{
-		return gameStatus == GameStatus.PREGAME ? pregameLobby.getSpawn() : arena.getSpawn(team);
+		return gameStatus == GameStatus.PREGAME ? pregameLobby.getSpawn() : arena.getSpawn(player);
 	}
-	
-	
-	
-	
 	
 	public List<ArkynePlayer> getPlayers()
 	{
@@ -336,6 +447,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	public int getPlayerCount()
 	{
 		return players.size();
+	}
+	
+	public boolean isRegenerating()
+	{
+		return gameSubStatus == GameSubStatus.GAME_REGEN;
 	}
 	
 	public boolean createPregameLobby(Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
@@ -370,6 +486,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		}
 		
 		return false;
+	}
+	
+	private void regenArena()
+	{
+		getArena().getArenaReset().resetBlocks();
 	}
 	
 	public void save()

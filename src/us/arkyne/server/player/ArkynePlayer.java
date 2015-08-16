@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -26,12 +26,10 @@ public class ArkynePlayer implements ConfigurationSerializable
 	private UUID uuid;
 	private OfflinePlayer player;
 	
+	private long lastPush = 0;
 	private Joinable joinable;
 	
-	private boolean awaitingMinigameLoad;
-	
-	private String awaitingId;
-	private Joinable.Type awaitingType;
+	private Map<String, Object> extras = new HashMap<String, Object>();
 	
 	public ArkynePlayer(UUID uuid)
 	{
@@ -98,6 +96,16 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return joinable != null ? joinable.getInventory() : null;
 	}
 	
+	public void setExtra(String key, Object val)
+	{
+		extras.put(key, val);
+	}
+	
+	public Object getExtra(String key)
+	{
+		return extras.get(key);
+	}
+	
 	/*
 	public void join(Joinable joinable)
 	{
@@ -157,7 +165,7 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public void teleport(final Location loc)
 	{
-		if (isOnline())
+		if (isOnline() && loc != null)
 		{
 			loc.getChunk().load(false);
 			
@@ -181,12 +189,11 @@ public class ArkynePlayer implements ConfigurationSerializable
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
-	public void pushTowards(Location loc)
+	public void pushTowards(Vector loc)
 	{
-		if (isOnline())
+		if (isOnline() && System.currentTimeMillis() - lastPush > 300)
 		{
-			Vector direction = loc.toVector().subtract(getLocation().toVector()).normalize();
+			Vector direction = loc.subtract(getLocation().toVector()).normalize();
 			getOnlinePlayer().setVelocity(direction);
 			
 			if (getOnlinePlayer().isInsideVehicle())
@@ -194,7 +201,11 @@ public class ArkynePlayer implements ConfigurationSerializable
 				getOnlinePlayer().getVehicle().setVelocity(direction.multiply(2D));
 			}
 			
-			getOnlinePlayer().playEffect(getLocation().clone().add(0.5, 1, 0.5), Effect.POTION_BREAK, 5);
+			//getOnlinePlayer().playEffect(getLocation().clone().add(0.5, 1, 0.5), Effect.POTION_BREAK, 5);
+			
+			getOnlinePlayer().playSound(getLocation(), Sound.ARROW_HIT, 10, 1);
+			
+			lastPush = System.currentTimeMillis();
 		}
 	}
 	
@@ -214,26 +225,6 @@ public class ArkynePlayer implements ConfigurationSerializable
 		{
 			getOnlinePlayer().sendMessage(message);
 		}
-	}
-	
-	public void setAwaitingMinigameLoad(boolean awaiting)
-	{
-		this.awaitingMinigameLoad = awaiting;
-	}
-	
-	public boolean isAwaitingMinigameLoad()
-	{
-		return awaitingMinigameLoad;
-	}
-	
-	public String getAwaitingId()
-	{
-		return awaitingId;
-	}
-	
-	public Joinable.Type getAwaitingType()
-	{
-		return awaitingType;
 	}
 	
 	public void save()
@@ -262,10 +253,13 @@ public class ArkynePlayer implements ConfigurationSerializable
 					this.joinable = type == Joinable.Type.GAME ? minigame.getGameHandler().getGame(Integer.parseInt(ids[1])) : minigame;
 				} else
 				{
-					awaitingMinigameLoad = true;
-					
-					awaitingId = id;
-					awaitingType = type;
+					ArkyneMain.getInstance().getMinigameHandler().waitForMinigame(id, () ->
+					{
+						String[] ids = id.split("-");
+						Minigame mg = ArkyneMain.getInstance().getMinigameHandler().getMinigame(id);
+						
+						this.joinable = type == Joinable.Type.GAME ? mg.getGameHandler().getGame(Integer.parseInt(ids[1])) : mg;
+					});
 				}
 			}
 		}

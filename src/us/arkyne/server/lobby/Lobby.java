@@ -76,7 +76,6 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 	{
 		addPlayer(player);
 		
-		player.setJoinable(this);
 		player.teleport(spawn);
 		
 		updateSign();

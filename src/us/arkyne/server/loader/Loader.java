@@ -51,10 +51,7 @@ public abstract class Loader implements Loadable
 	{
 		onUnload();
 		
-		for (Loadable loadable : loadables)
-		{
-			loadable.onUnload();
-		}
+		unloadLoadables();
 	}
 	
 	protected void loadLoadables()
