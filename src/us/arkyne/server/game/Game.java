@@ -16,6 +16,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
 
+import us.arkyne.nms.screenmessage.ScreenMessageAPI;
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.game.arena.Arena;
 import us.arkyne.server.game.status.GameStatus;
@@ -231,13 +232,13 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		int updateRate = 5;
 		int secondsConversion = 20 / updateRate;
 		
-		timer = igameSubStatus.getDuration() * secondsConversion;
+		timer = igameSubStatus.getDuration() * secondsConversion - 1;
 		
 		countdownRunnable = new Runnable()
 		{
 			public void run()
 			{
-				int seconds = timer / secondsConversion;
+				int seconds = timer / secondsConversion + 1;
 				
 				if (timer <= 0)
 				{
@@ -251,7 +252,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 						player.getOnlinePlayer().playSound(player.getLocation(), Sound.LEVEL_UP, 10, 1);
 					}
 					
-					//TODO: Make these call the methods in the game class, so BFGame can implement them
+					//TODO: Cant kill right after the game started
+					//TODO: Fix the glitchiness of the countdown
 					
 					switch (gameSubStatus)
 					{
@@ -279,6 +281,10 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 							
 							for (ArkynePlayer player : players)
 							{
+								player.getOnlinePlayer().setHealth(player.getOnlinePlayer().getMaxHealth());
+								player.getOnlinePlayer().setFoodLevel(20);
+								player.getOnlinePlayer().setSaturation(20);
+								
 								player.setJoinableNoLeave(minigame);
 								player.teleport(minigame.getSpawn());
 							}
@@ -296,22 +302,28 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 				} else
 				{
 					boolean alertSound = false;
+					boolean alertScreen = false;
 					boolean alertMessage = false;
 					
 					if (timer != igameSubStatus.getDuration())
 					{
 						if ((timer + 1) % secondsConversion == 0) //One second
 						{
-							if (igameSubStatus.getTimeString() != null && (seconds <= 30 || seconds == 60))
+							if (igameSubStatus.getTimeString() != null && (seconds == 30 || seconds == 60))
 							{
-								if ((seconds + 1) % 10 == 0 || seconds <= 4)
+								if (seconds % 10 == 0 || seconds <= 5)
 								{
 									alertMessage = true;
 								}
+							}
+							
+							if (seconds <= 5)
+							{
+								alertSound = true;
 								
-								if (seconds <= 4)
+								if (igameSubStatus.getScreenString() != null && seconds <= 3)
 								{
-									alertSound = true;
+									alertScreen = true;
 								}
 							}
 						}
@@ -322,16 +334,21 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 					for (ArkynePlayer player : players)
 					{
 						player.getOnlinePlayer().setExp(percent);
-						player.getOnlinePlayer().setLevel(seconds + 1);
+						player.getOnlinePlayer().setLevel(seconds);
 						
 						if (alertMessage)
 						{
-							player.sendMessage(igameSubStatus.getTimeString().replace("{time}", (seconds + 1) + ""), ChatColor.AQUA);
+							player.sendMessage(igameSubStatus.getTimeString().replace("{time}", seconds + ""), ChatColor.AQUA);
 						}
 						
 						if (alertSound)
 						{
 							player.getOnlinePlayer().playSound(player.getLocation(), Sound.ORB_PICKUP, 10, 1);
+						}
+						
+						if (alertScreen)
+						{
+							ScreenMessageAPI.sendTitle(player.getOnlinePlayer(), ChatColor.GREEN + "" + seconds, igameSubStatus.getScreenString(), 0, 20, 5);
 						}
 					}
 					
@@ -348,10 +365,12 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	protected abstract void onGameStart();
 	protected abstract void onGameEnd();
 	
-	public abstract void onPlayerDeath(ArkynePlayer player, DamageCause cause);
-	
 	protected abstract IGameSubStatus getGameSubStatus(GameSubStatus status);
 	protected abstract void onStatusChange(GameSubStatus status);
+	
+	protected abstract boolean canPvP();
+	
+	public abstract void onPlayerDeath(ArkynePlayer player, DamageCause cause);
 	
 	public boolean allowPlayerMovement()
 	{
@@ -361,6 +380,16 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	public boolean allowEnvironmentChanges()
 	{
 		return gameSubStatus == GameSubStatus.GAME_PLAYING;
+	}
+	
+	public boolean allowPvP()
+	{
+		if (gameSubStatus == GameSubStatus.GAME_PLAYING)
+		{
+			return canPvP();
+		}
+		
+		return false;
 	}
 	
 	public boolean isJoinable(ArkynePlayer player)

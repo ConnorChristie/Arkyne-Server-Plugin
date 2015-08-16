@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -33,6 +34,8 @@ import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -177,7 +180,7 @@ public class BukkitEventListener implements Listener
 			{
 				if (!((Game) joinable).allowPlayerMovement())
 				{
-					event.setCancelled(true);
+					event.setTo(event.getFrom());
 					
 					return;
 				}
@@ -204,6 +207,49 @@ public class BukkitEventListener implements Listener
 					}
 				}
 			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onEntityDamage(EntityDamageEvent event)
+	{
+		if (event.getEntityType() == EntityType.PLAYER)
+		{
+			ArkynePlayer player = main.getArkynePlayerHandler().getPlayer((Player) event.getEntity());
+			
+			if (player.getJoinable() instanceof Game)
+			{
+				if (((Game) player.getJoinable()).allowPvP())
+				{
+					event.setCancelled(false);
+					
+					return;
+				}
+			}
+			
+			event.setCancelled(true);
+		}
+	}
+	
+	@EventHandler
+	public void onFoodLevelChange(FoodLevelChangeEvent event)
+	{
+		if (event.getEntityType() == EntityType.PLAYER)
+		{
+			ArkynePlayer player = main.getArkynePlayerHandler().getPlayer((Player) event.getEntity());
+			
+			if (player.getJoinable() instanceof Game)
+			{
+				if (((Game) player.getJoinable()).allowPvP())
+				{
+					return;
+				}
+			}
+			
+			event.setCancelled(true);
+			
+			player.getOnlinePlayer().setFoodLevel(20);
+			player.getOnlinePlayer().setSaturation(20);
 		}
 	}
 	
@@ -344,8 +390,6 @@ public class BukkitEventListener implements Listener
 		if (arena != null && arena.getGame().allowEnvironmentChanges())
 		{
 			arena.getArenaReset().addBlock(location, blockState);
-			
-			System.out.println("Block state changed!");
 		} else if (onUnchangeable != null)
 		{
 			onUnchangeable.call();

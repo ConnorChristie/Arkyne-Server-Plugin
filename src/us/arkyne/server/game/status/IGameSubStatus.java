@@ -5,4 +5,5 @@ public interface IGameSubStatus
 	public int getDuration();
 	
 	public String getTimeString();
+	public String getScreenString();
 }
