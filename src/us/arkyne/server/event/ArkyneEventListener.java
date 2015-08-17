@@ -15,7 +15,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.sk89q.worldedit.Vector;
 
-import ru.tehkode.permissions.bukkit.PermissionsEx;
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.event.customevents.ArkynePlayerChatEvent;
 import us.arkyne.server.event.customevents.InventoryItemClickEvent;
@@ -161,10 +160,8 @@ public class ArkyneEventListener implements Listener
 			}
 		}
 		
-		String prefix = ChatColor.translateAlternateColorCodes('&', PermissionsEx.getUser(event.getSender().getOnlinePlayer()).getPrefix());
 		String message = ChatColor.translateAlternateColorCodes('&', event.getMessage());
-		
-		String formattedMessage = ChatColor.RED + ".:" + ChatColor.BLUE + "1" + ChatColor.RED + ":. " + ChatColor.GRAY + prefix + event.getSender().getOnlinePlayer().getName() + ": " + ChatColor.GRAY + message;
+		String formattedMessage = event.getSender().getChatName() + ": " + ChatColor.GRAY + message;
 		
 		event.setMessage(formattedMessage);
 		

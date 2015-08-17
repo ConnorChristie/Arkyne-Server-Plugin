@@ -57,9 +57,12 @@ public class MinigameHandler extends Loader
 		addLoadable(minigame);
 		minigame.loadAll();
 		
-		for (Runnable run : awaiting.get(minigame.getId()))
+		if (awaiting.containsKey(minigame.getId()))
 		{
-			Bukkit.getScheduler().runTask(getMain(), run);
+			for (Runnable run : awaiting.get(minigame.getId()))
+			{
+				Bukkit.getScheduler().runTask(getMain(), run);
+			}
 		}
 	}
 	

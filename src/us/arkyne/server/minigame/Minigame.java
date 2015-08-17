@@ -57,14 +57,14 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		addLoadable(lobby);
 		addLoadable(gameHandler);
 		
-		plugin.getLogger().info("Loaded " + name + " and " + gameHandler.getGameCount() + " games!");
+		plugin.getLogger().info("Loaded " + name + "!");
 	}
 	
 	public void onUnload()
 	{
 		saveAll();
 		
-		plugin.getLogger().info("Unloaded " + name + " and " + gameHandler.getGameCount() + " games!");
+		plugin.getLogger().info("Unloaded " + name + "!");
 	}
 	
 	public String getName()

@@ -13,7 +13,7 @@ public class InventoryItemHandler
 	{
 		for (InventoryItem preset : inventoryItems)
 		{
-			Util.addEnum(InventoryItemPreset.class, preset.name(), new Class<?>[] { ItemStack.class, InventoryClick.class }, new Object[] { preset.getItem(), preset.getInventoryClick() });
+			Util.addEnum(InventoryItemPreset.class, preset.name(), new Class<?>[] { ItemStack.class, double.class, double.class, InventoryClick.class }, new Object[] { preset.getItem(), preset.getAttack(), preset.getDefense(), preset.getInventoryClick() });
 		}
 	}
 }

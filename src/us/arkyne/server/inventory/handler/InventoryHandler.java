@@ -11,7 +11,7 @@ public class InventoryHandler
 	{
 		for (Inventory preset : inventorys)
 		{
-			Util.addEnum(InventoryPreset.class, preset.name(), new Class<?>[] { InventoryItem[].class }, new Object[] { preset.getItems() });
+			Util.addEnum(InventoryPreset.class, preset.name(), new Class<?>[] { InventoryItem[].class, InventoryItem[].class }, new Object[] { preset.getItems(), preset.getArmor() });
 		}
 	}
 }

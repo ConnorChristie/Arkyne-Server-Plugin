@@ -9,11 +9,13 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.util.Vector;
 
 import us.arkyne.nms.screenmessage.ScreenMessageAPI;
@@ -242,8 +244,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 				
 				if (timer <= 0)
 				{
-					//Add methods for all these!
-					
 					for (ArkynePlayer player : players)
 					{
 						player.getOnlinePlayer().setExp(0);
@@ -251,9 +251,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 						
 						player.getOnlinePlayer().playSound(player.getLocation(), Sound.LEVEL_UP, 10, 1);
 					}
-					
-					//TODO: Cant kill right after the game started
-					//TODO: Fix the glitchiness of the countdown
 					
 					switch (gameSubStatus)
 					{
@@ -284,6 +281,10 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 								player.getOnlinePlayer().setHealth(player.getOnlinePlayer().getMaxHealth());
 								player.getOnlinePlayer().setFoodLevel(20);
 								player.getOnlinePlayer().setSaturation(20);
+								
+								player.getOnlinePlayer().setGameMode(GameMode.SURVIVAL);
+								player.getOnlinePlayer().setAllowFlight(false);
+								player.getOnlinePlayer().setFlying(false);
 								
 								player.setJoinableNoLeave(minigame);
 								player.teleport(minigame.getSpawn());
@@ -369,8 +370,12 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	protected abstract void onStatusChange(GameSubStatus status);
 	
 	protected abstract boolean canPvP();
+	protected abstract Inventory getInventory(ArkynePlayer player);
 	
-	public abstract void onPlayerDeath(ArkynePlayer player, DamageCause cause);
+	public abstract void onPlayerDamage(ArkynePlayer player, EntityDamageEvent event);
+	public abstract void onPlayerDeath(ArkynePlayer player, ArkynePlayer killer);
+	
+	public abstract void onCloneTargetChange(ArkynePlayer player, EntityTargetLivingEntityEvent event);
 	
 	public boolean allowPlayerMovement()
 	{

@@ -10,5 +10,8 @@ public interface InventoryItem
 
 	public InventoryClick getInventoryClick();
 	
+	public double getAttack();
+	public double getDefense();
+	
 	public String name();
 }

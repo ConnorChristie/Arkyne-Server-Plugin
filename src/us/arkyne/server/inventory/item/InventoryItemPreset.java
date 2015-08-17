@@ -9,12 +9,15 @@ import us.arkyne.server.inventory.InventoryClick;
 
 public enum InventoryItemPreset implements InventoryItem
 {
-	DUMMY_ITEM(ChatColor.AQUA + "Click me to do Something!", Material.NETHER_STAR, null);
+	DUMMY_ITEM(ChatColor.AQUA + "Click me to do Something!", Material.NETHER_STAR, 0, 0, null);
 	
 	private ItemStack item;
 	private InventoryClick inventoryClick;
 	
-	private InventoryItemPreset(String displayName, Material material, InventoryClick inventoryClick)
+	private double attack;
+	private double defense;
+	
+	private InventoryItemPreset(String displayName, Material material, double attack, double defense, InventoryClick inventoryClick)
 	{
 		this.item = new ItemStack(material, 1);
 		this.inventoryClick = inventoryClick;
@@ -23,12 +26,18 @@ public enum InventoryItemPreset implements InventoryItem
 		
 		meta.setDisplayName(displayName);
 		item.setItemMeta(meta);
+		
+		this.attack = attack;
+		this.defense = defense;
 	}
 	
-	private InventoryItemPreset(ItemStack item, InventoryClick inventoryClick)
+	private InventoryItemPreset(ItemStack item, double attack, double defense, InventoryClick inventoryClick)
 	{
 		this.item = item;
 		this.inventoryClick = inventoryClick;
+		
+		this.attack = attack;
+		this.defense = defense;
 	}
 
 	public ItemStack getItem()
@@ -39,5 +48,17 @@ public enum InventoryItemPreset implements InventoryItem
 	public InventoryClick getInventoryClick()
 	{
 		return inventoryClick;
+	}
+
+	@Override
+	public double getAttack()
+	{
+		return attack;
+	}
+
+	@Override
+	public double getDefense()
+	{
+		return defense;
 	}
 }

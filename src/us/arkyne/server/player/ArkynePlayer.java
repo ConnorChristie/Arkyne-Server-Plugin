@@ -12,9 +12,11 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import ru.tehkode.permissions.bukkit.PermissionsEx;
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.minigame.Joinable;
@@ -60,6 +62,30 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return uuid;
 	}
 	
+	public String getChatName()
+	{
+		if (isOnline())
+		{
+			String points = ChatColor.RED + ".:" + ChatColor.BLUE + "1" + ChatColor.RED + ":. ";
+			
+			return points + getTitleName();
+		}
+		
+		return "";
+	}
+	
+	public String getTitleName()
+	{
+		if (isOnline())
+		{
+			String title = ChatColor.translateAlternateColorCodes('&', PermissionsEx.getUser(getOnlinePlayer()).getPrefix());
+			
+			return ChatColor.GRAY + title + getOnlinePlayer().getName();
+		}
+		
+		return "";
+	}
+	
 	public void setJoinable(Joinable joinable)
 	{
 		if (this.joinable != null)
@@ -85,9 +111,28 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public void updateInventory()
 	{
-		if (joinable != null && joinable.getInventory() != null)
+		updateInventory(joinable != null ? joinable.getInventory() : null);
+	}
+	
+	public void updateInventory(Inventory inv)
+	{
+		if (inv != null && isOnline())
 		{
-			joinable.getInventory().updateInventory(this);
+			ItemStack[] itemStacks = new ItemStack[inv.getItems().length];
+			ItemStack[] armorStacks = new ItemStack[4];
+			
+			for (int i = 0; i < itemStacks.length; i++)
+			{
+				itemStacks[i] = inv.getItem(i) != null ? inv.getItem(i).getItem() : null;
+			}
+			
+			for (int i = 0; i < inv.getArmor().length; i++)
+			{
+				armorStacks[armorStacks.length - i - 1] = inv.getArmor(i) != null ? inv.getArmor(i).getItem() : null;
+			}
+			
+			getOnlinePlayer().getInventory().setContents(itemStacks);
+			getOnlinePlayer().getInventory().setArmorContents(armorStacks);
 		}
 	}
 	
@@ -200,8 +245,6 @@ public class ArkynePlayer implements ConfigurationSerializable
 			{
 				getOnlinePlayer().getVehicle().setVelocity(direction.multiply(2D));
 			}
-			
-			//getOnlinePlayer().playEffect(getLocation().clone().add(0.5, 1, 0.5), Effect.POTION_BREAK, 5);
 			
 			getOnlinePlayer().playSound(getLocation(), Sound.ARROW_HIT, 10, 1);
 			
