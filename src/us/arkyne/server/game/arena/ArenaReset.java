@@ -9,6 +9,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+
+import com.sk89q.worldedit.entity.Entity;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.game.Game;
@@ -70,7 +74,19 @@ public class ArenaReset implements Runnable
 			Bukkit.getScheduler().runTaskLater(ArkyneMain.getInstance(), this, 2);
 		} else
 		{
-			//Yay all done!
+			//TODO: Fix clones chasing after spectators
+			//TODO: Fix removing all entities or just unload the world and reload it...
+			
+			for (Entity entity : game.getArena().getBounds().getWorld().getEntities(game.getArena().getBounds()))
+			{
+				if (entity instanceof Item)
+				{
+					entity.remove();
+				} else if (entity instanceof LivingEntity)
+				{
+					((LivingEntity) entity).setHealth(0);
+				}
+			}
 			
 			game.setGameSubStatus(GameSubStatus.PREGAME_STANDBY);
 		}

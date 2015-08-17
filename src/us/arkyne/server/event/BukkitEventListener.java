@@ -1,9 +1,7 @@
 package us.arkyne.server.event;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,7 +13,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -38,7 +35,6 @@ import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -46,7 +42,6 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.sk89q.worldedit.Vector;
@@ -209,7 +204,7 @@ public class BukkitEventListener implements Listener
 					
 					if (joinable.getType() != Joinable.Type.GAME && player.getOnlinePlayer().getHealth() > 0)
 					{
-						player.teleport(joinable.getSpawn());
+						player.teleport(joinable.getSpawn(player));
 					}
 				}
 			}
@@ -294,9 +289,9 @@ public class BukkitEventListener implements Listener
 			Game game = (Game) player.getJoinable();
 			
 			event.setRespawnLocation(game.getSpawn(player));
-		} else if (player.getJoinable() != null && player.getJoinable().getSpawn() != null)
+		} else if (player.getJoinable() != null && player.getJoinable().getSpawn(player) != null)
 		{
-			event.setRespawnLocation(player.getJoinable().getSpawn());
+			event.setRespawnLocation(player.getJoinable().getSpawn(player));
 		}
 	}
 	
@@ -472,42 +467,6 @@ public class BukkitEventListener implements Listener
 		} else
 		{
 			cancel.setCancelled(true);
-		}
-	}
-	
-	@EventHandler
-	public void onEntityTargetLivingEntity(EntityTargetLivingEntityEvent event)
-	{
-		if (event.getEntityType() == EntityType.ZOMBIE)
-		{
-			Zombie zombie = (Zombie) event.getEntity();
-			
-			List<MetadataValue> meta = zombie.getMetadata("ZombieClone");
-			List<MetadataValue> meta1 = zombie.getMetadata("CloneOwner");
-			
-			if (meta != null && meta1 != null && meta.size() > 0 && meta1.size() > 0)
-			{
-				MetadataValue val = meta.get(0);
-				MetadataValue val1 = meta1.get(0);
-				
-				if (val.value() instanceof Boolean && val1.value() instanceof String)
-				{
-					ArkynePlayer cloneOwner = ArkyneMain.getInstance().getArkynePlayerHandler().getPlayer(UUID.fromString(val1.asString()));
-					
-					if (val.asBoolean() && cloneOwner != null)
-					{
-						if (cloneOwner.getJoinable() instanceof Game)
-						{
-							((Game) cloneOwner.getJoinable()).onCloneTargetChange(cloneOwner, event);
-						} else
-						{
-							zombie.setHealth(0);
-						}
-						
-						System.out.println("We have a clone here!");
-					}
-				}
-			}
 		}
 	}
 	

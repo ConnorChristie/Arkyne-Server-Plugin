@@ -19,10 +19,10 @@ public interface Joinable
 	public List<ArkynePlayer> getPlayers();
 	
 	public Type getType();
-	public Inventory getInventory();
+	public Inventory getInventory(ArkynePlayer player);
 	
 	public Cuboid getBounds();
-	public Location getSpawn();
+	public Location getSpawn(ArkynePlayer player);
 	
 	public static enum Type
 	{

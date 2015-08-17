@@ -87,11 +87,6 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 		return cuboid;
 	}
 	
-	public Inventory getInventory()
-	{
-		return inventory;
-	}
-	
 	public ArenaReset getArenaReset()
 	{
 		return arenaReset;

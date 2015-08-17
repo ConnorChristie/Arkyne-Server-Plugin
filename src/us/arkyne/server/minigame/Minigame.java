@@ -148,11 +148,11 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		return Joinable.Type.MINIGAME;
 	}
 	
-	public Inventory getInventory()
+	public Inventory getInventory(ArkynePlayer player)
 	{
 		if (lobby != null)
 		{
-			return lobby.getInventory();
+			return lobby.getInventory(player);
 		}
 		
 		return null;
@@ -163,9 +163,9 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		return lobby.getBounds();
 	}
 	
-	public Location getSpawn()
+	public Location getSpawn(ArkynePlayer player)
 	{
-		return lobby.getSpawn();
+		return lobby.getSpawn(player);
 	}
 	
 	public abstract int createGame(String mapName);

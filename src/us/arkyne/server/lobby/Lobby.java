@@ -141,7 +141,7 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 		return id + "";
 	}
 	
-	public Location getSpawn()
+	public Location getSpawn(ArkynePlayer player)
 	{
 		return spawn;
 	}
@@ -179,7 +179,7 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 		return count;
 	}
 	
-	public Inventory getInventory()
+	public Inventory getInventory(ArkynePlayer player)
 	{
 		return inventory;
 	}

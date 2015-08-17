@@ -82,7 +82,7 @@ public class ArkyneEventListener implements Listener
 						player.pushTowards(new org.bukkit.util.Vector(vector.getX(), vector.getY(), vector.getZ()));
 					} else if (player.getLocation().getY() < cuboid.getMinimumY())
 					{
-						player.teleportRaw(joinable.getSpawn());
+						player.teleportRaw(joinable.getSpawn(player));
 					}
 				}
 			}

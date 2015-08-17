@@ -10,13 +10,17 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import ru.tehkode.permissions.bukkit.PermissionsEx;
+import us.arkyne.nms.zombie.ZombieClone;
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.minigame.Joinable;
@@ -111,34 +115,34 @@ public class ArkynePlayer implements ConfigurationSerializable
 	
 	public void updateInventory()
 	{
-		updateInventory(joinable != null ? joinable.getInventory() : null);
-	}
-	
-	public void updateInventory(Inventory inv)
-	{
-		if (inv != null && isOnline())
+		if (joinable != null && isOnline())
 		{
-			ItemStack[] itemStacks = new ItemStack[inv.getItems().length];
-			ItemStack[] armorStacks = new ItemStack[4];
+			Inventory inv = joinable.getInventory(this);
 			
-			for (int i = 0; i < itemStacks.length; i++)
+			if (inv != null)
 			{
-				itemStacks[i] = inv.getItem(i) != null ? inv.getItem(i).getItem() : null;
+				ItemStack[] itemStacks = new ItemStack[inv.getItems().length];
+				ItemStack[] armorStacks = new ItemStack[4];
+				
+				for (int i = 0; i < itemStacks.length; i++)
+				{
+					itemStacks[i] = inv.getItem(i) != null ? inv.getItem(i).getItem() : null;
+				}
+				
+				for (int i = 0; i < inv.getArmor().length; i++)
+				{
+					armorStacks[armorStacks.length - i - 1] = inv.getArmor(i) != null ? inv.getArmor(i).getItem() : null;
+				}
+				
+				getOnlinePlayer().getInventory().setContents(itemStacks);
+				getOnlinePlayer().getInventory().setArmorContents(armorStacks);
 			}
-			
-			for (int i = 0; i < inv.getArmor().length; i++)
-			{
-				armorStacks[armorStacks.length - i - 1] = inv.getArmor(i) != null ? inv.getArmor(i).getItem() : null;
-			}
-			
-			getOnlinePlayer().getInventory().setContents(itemStacks);
-			getOnlinePlayer().getInventory().setArmorContents(armorStacks);
 		}
 	}
 	
 	public Inventory getInventory()
 	{
-		return joinable != null ? joinable.getInventory() : null;
+		return joinable != null ? joinable.getInventory(this) : null;
 	}
 	
 	public void setExtra(String key, Object val)
@@ -151,38 +155,26 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return extras.get(key);
 	}
 	
-	/*
-	public void join(Joinable joinable)
+	public void spawnClone()
 	{
-		if (isOnline())
-		{
-			//TODO: Leave the previous area
-			
-			joinable.join(this);
-		}
+		Player player = getOnlinePlayer();
+		Zombie zombie = (Zombie) getLocation().getWorld().spawnEntity(getLocation(), EntityType.ZOMBIE);
+		
+		ZombieClone.setZombieEquipment(zombie, new ItemStack[] {
+				getInventory() != null ? getInventory().getItem(0).getItem() : null,
+				
+				player.getInventory().getBoots(),
+				player.getInventory().getLeggings(),
+				player.getInventory().getChestplate(),
+				player.getInventory().getHelmet()
+		});
+		
+		zombie.setCustomName(player.getName());
+		zombie.setCustomNameVisible(true);
+		
+		zombie.setMetadata("ZombieClone", new FixedMetadataValue(ArkyneMain.getInstance(), true));
+		zombie.setMetadata("CloneOwner", new FixedMetadataValue(ArkyneMain.getInstance(), player.getUniqueId().toString()));
 	}
-	*/
-	
-	/*
-	public void changeLobby(Lobby newLobby)
-	{
-		if (isOnline())
-		{
-			if (lobby != null)
-				lobby.leaveLobby(this);
-			
-			if (newLobby != null)
-				newLobby.joinLobby(this);
-			
-			PlayerChangeLobbyEvent event = new PlayerChangeLobbyEvent(this, lobby, newLobby);
-			Bukkit.getServer().getPluginManager().callEvent(event);
-			
-			this.lobby = newLobby;
-			
-			save();
-		}
-	}
-	*/
 	
 	public Location getLocation()
 	{

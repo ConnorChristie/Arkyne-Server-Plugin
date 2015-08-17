@@ -15,7 +15,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.util.Vector;
 
 import us.arkyne.nms.screenmessage.ScreenMessageAPI;
@@ -179,7 +178,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		players.add(player);
 		
 		player.setJoinable(this);
-		player.teleport(pregameLobby.getSpawn());
+		player.teleport(pregameLobby.getSpawn(player));
 		
 		updateSign();
 		
@@ -187,7 +186,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		{
 			//Start game countdown
 			
-			filterOffline();
 			setGameSubStatus(GameSubStatus.PREGAME_COUNTDOWN);
 		}
 	}
@@ -199,7 +197,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		players.remove(player);
 		
 		player.setJoinableNoLeave(minigame);
-		player.teleport(minigame.getSpawn());
+		player.teleport(minigame.getSpawn(player));
 		
 		updateSign();
 	}
@@ -255,10 +253,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 					switch (gameSubStatus)
 					{
 						case PREGAME_COUNTDOWN:
-							onGameStart();
-							
 							sendPlayersMessage("Teleported to game arena!", ChatColor.GREEN);
 							setGameSubStatus(GameSubStatus.GAME_COUNTDOWN);
+							
+							filterOffline();
+							onGameStart();
 							
 							break;
 						case GAME_COUNTDOWN:
@@ -287,7 +286,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 								player.getOnlinePlayer().setFlying(false);
 								
 								player.setJoinableNoLeave(minigame);
-								player.teleport(minigame.getSpawn());
+								player.teleport(minigame.getSpawn(player));
 							}
 							
 							players.clear();
@@ -370,12 +369,10 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	protected abstract void onStatusChange(GameSubStatus status);
 	
 	protected abstract boolean canPvP();
-	protected abstract Inventory getInventory(ArkynePlayer player);
+	protected abstract Inventory getPlayerInventory(ArkynePlayer player);
 	
 	public abstract void onPlayerDamage(ArkynePlayer player, EntityDamageEvent event);
 	public abstract void onPlayerDeath(ArkynePlayer player, ArkynePlayer killer);
-	
-	public abstract void onCloneTargetChange(ArkynePlayer player, EntityTargetLivingEntityEvent event);
 	
 	public boolean allowPlayerMovement()
 	{
@@ -453,9 +450,9 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	//Return different values based on whether players are in arena or lobby
 	
 	//TODO: Check if in game or not, then return either lobby inv or game inv
-	public Inventory getInventory()
+	public Inventory getInventory(ArkynePlayer player)
 	{
-		return gameStatus == GameStatus.PREGAME ? pregameLobby.getInventory() : arena.getInventory();
+		return gameStatus == GameStatus.PREGAME ? pregameLobby.getInventory(player) : getPlayerInventory(player);
 	}
 	
 	public Cuboid getBounds()
@@ -470,7 +467,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	public Location getSpawn(ArkynePlayer player)
 	{
-		return gameStatus == GameStatus.PREGAME ? pregameLobby.getSpawn() : arena.getSpawn(player);
+		return gameStatus == GameStatus.PREGAME ? pregameLobby.getSpawn(player) : arena.getSpawn(player);
 	}
 	
 	public List<ArkynePlayer> getPlayers()
