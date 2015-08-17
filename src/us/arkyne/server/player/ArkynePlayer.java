@@ -155,6 +155,11 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return extras.get(key);
 	}
 	
+	public boolean hasExtra(String key)
+	{
+		return extras.containsKey(key);
+	}
+	
 	public void spawnClone()
 	{
 		Player player = getOnlinePlayer();
