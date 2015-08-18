@@ -3,6 +3,7 @@ package us.arkyne.server.player;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -103,6 +104,8 @@ public class ArkynePlayer implements ConfigurationSerializable
 	public void setJoinableNoLeave(Joinable joinable)
 	{
 		this.joinable = joinable;
+		
+		ArkyneMain.getInstance().getArkynePlayerHandler().hideShowPlayers(this, joinable.getPlayers());
 		
 		updateInventory();
 		save();
@@ -205,7 +208,12 @@ public class ArkynePlayer implements ConfigurationSerializable
 		}
 	}
 	
-	public void teleport(final Location loc)
+	public void teleport(Location loc)
+	{
+		teleport(loc, null);
+	}
+	
+	public void teleport(Location loc, Callable<Void> call)
 	{
 		if (isOnline() && loc != null)
 		{
@@ -224,6 +232,11 @@ public class ArkynePlayer implements ConfigurationSerializable
 						public void run()
 						{
 							teleportRaw(loc);
+							
+							try
+							{
+								if (call != null) call.call();
+							} catch (Exception e) { }
 						}
 					}.runTask(ArkyneMain.getInstance());
 				}

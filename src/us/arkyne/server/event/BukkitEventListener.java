@@ -6,10 +6,7 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -19,20 +16,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockFadeEvent;
-import org.bukkit.event.block.BlockFormEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockGrowEvent;
-import org.bukkit.event.block.BlockMultiPlaceEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockSpreadEvent;
-import org.bukkit.event.block.EntityBlockFormEvent;
-import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
@@ -299,155 +284,46 @@ public class BukkitEventListener implements Listener
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBlockBreak(BlockBreakEvent event)
 	{
-		handleBlockChange(event.getBlock(), () -> handleAdminBlocks(event.getPlayer(), event, event));
+		handleAdminBlocks(event.getPlayer(), event, event);
 	}
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBlockPlace(BlockPlaceEvent event)
 	{
-		handleBlockChange(event.getBlock().getLocation(), event.getBlockReplacedState(), () -> handleAdminBlocks(event.getPlayer(), event, event));
+		handleAdminBlocks(event.getPlayer(), event, event);
 	}
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event)
 	{
-		handleBlockChange(event.getBlockClicked().getRelative(event.getBlockFace()).getLocation(), Material.AIR, () -> handleAdminBlocks(event.getPlayer(), new BlockPlaceEvent(event.getBlockClicked(), null, null, null, null, false), event));
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockBurn(BlockBurnEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockExplode(BlockExplodeEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-		
-		for (Block block : event.blockList())
-		{
-			handleBlockChange(block, null);
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockFade(BlockFadeEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockForm(BlockFormEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockFromTo(BlockFromToEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockGrow(BlockGrowEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockMultiPlace(BlockMultiPlaceEvent event)
-	{
-		for (BlockState state : event.getReplacedBlockStates())
-		{
-			handleBlockChange(state.getLocation(), Material.AIR, null);
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockPistonExtend(BlockPistonExtendEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-		
-		for (Block block : event.getBlocks())
-		{
-			handleBlockChange(block, null);
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockPistonRetract(BlockPistonRetractEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-		
-		for (Block block : event.getBlocks())
-		{
-			handleBlockChange(block, null);
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockSpread(BlockSpreadEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onEntityBlockForm(EntityBlockFormEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onLeavesDecay(LeavesDecayEvent event)
-	{
-		handleBlockChange(event.getBlock(), null);
-	}
-	
-	private void handleBlockChange(Block block, Callback onUnchangeable)
-	{
-		handleBlockChange(block.getLocation(), block.getState(), onUnchangeable);
-	}
-	
-	private void handleBlockChange(Location location, BlockState blockState, Callback onUnchangeable)
-	{
-		Arena arena = main.getMinigameHandler().getArena(location);
-		
-		if (arena != null && arena.getGame().allowEnvironmentChanges())
-		{
-			arena.getArenaReset().addBlock(location, blockState);
-		} else if (onUnchangeable != null)
-		{
-			onUnchangeable.call();
-		}
-	}
-	
-	private void handleBlockChange(Location location, Material material, Callback onUnchangeable)
-	{
-		Arena arena = main.getMinigameHandler().getArena(location);
-		
-		if (arena != null && arena.getGame().allowEnvironmentChanges())
-		{
-			arena.getArenaReset().addBlock(location, material);
-		} else if (onUnchangeable != null)
-		{
-			onUnchangeable.call();
-		}
+		handleAdminBlocks(event.getPlayer(), new BlockPlaceEvent(event.getBlockClicked(), null, null, null, null, false), event);
 	}
 	
 	private void handleAdminBlocks(Player bukkitPlayer, BlockEvent block, Cancellable cancel)
 	{
 		//Ask if they really want to break or place the block
 		
-		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(bukkitPlayer);
+		Arena arena = main.getMinigameHandler().getArena(block.getBlock().getLocation());
 		
-		if (bukkitPlayer.hasPermission("arkyne.manage"))
+		if (arena == null || (arena != null && !arena.getGame().allowEnvironmentChanges()))
 		{
-			if (adminBlocks.containsKey(block.getBlock()))
+			if (bukkitPlayer.hasPermission("arkyne.manage"))
 			{
-				if (System.currentTimeMillis() < adminBlocks.get(block.getBlock()))
+				ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(bukkitPlayer);
+				
+				if (adminBlocks.containsKey(block.getBlock()))
 				{
-					adminBlocks.remove(block.getBlock());
+					if (System.currentTimeMillis() < adminBlocks.get(block.getBlock()))
+					{
+						adminBlocks.remove(block.getBlock());
+					} else
+					{
+						player.sendMessage("Do that again if you really want to", ChatColor.RED);
+						
+						adminBlocks.put(block.getBlock(), System.currentTimeMillis() + 8 * 1000);
+						
+						cancel.setCancelled(true);
+					}
 				} else
 				{
 					player.sendMessage("Do that again if you really want to", ChatColor.RED);
@@ -458,15 +334,8 @@ public class BukkitEventListener implements Listener
 				}
 			} else
 			{
-				player.sendMessage("Do that again if you really want to", ChatColor.RED);
-				
-				adminBlocks.put(block.getBlock(), System.currentTimeMillis() + 8 * 1000);
-				
 				cancel.setCancelled(true);
 			}
-		} else
-		{
-			cancel.setCancelled(true);
 		}
 	}
 	
@@ -512,198 +381,5 @@ public class BukkitEventListener implements Listener
 			}
 		}.runTaskLater(main, 5);
 	}
-	
-	@EventHandler
-	public void onPlayerChat(AsyncPlayerChatEvent event)
-	{
-		event.setCancelled(true);
-		
-		ArkynePlayer player = main.getArkynePlayerHandler().addPlayer(event.getPlayer());
-		
-		//TODO: Remove chat colors in messages
-		
-		String prefix = ChatColor.translateAlternateColorCodes('&', PermissionsEx.getUser(event.getPlayer()).getPrefix());
-		String message = ChatColor.translateAlternateColorCodes('&', event.getMessage());
-		
-		//TODO: Check if the player is in a game, else do this
-		{
-			if (player.isInLobby())
-			{
-				for (ArkynePlayer p : player.getLobby().getPlayers())
-				{
-					p.sendMessageRaw(ChatColor.RED + ".:" + ChatColor.BLUE + "1" + ChatColor.RED + ":. " + ChatColor.GRAY + prefix + event.getPlayer().getName() + ": " + ChatColor.GRAY + message);
-				}
-			}
-		}
-	}
-	
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent event)
-	{
-		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(event.getPlayer());
-		Lobby lobby = player.getLobby();
-		
-		if (lobby != null)
-		{
-			if (!lobby.getCuboid().containsWithoutY(player))
-			{
-				//Bounce them back into the cuboid region
-				
-				player.pushTowards(lobby.getSpawn());
-			} else if (player.getLocation().getY() < lobby.getCuboid().getMinimumY())
-			{
-				//If player falls out of lobby, tp them back to spawn
-				
-				player.teleport(lobby.getSpawn());
-			}
-		}
-	}
-	
-	@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent event)
-	{
-		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(event.getPlayer());
-		
-		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
-		{
-			Block block = event.getClickedBlock();
-			
-			if (block.getState() instanceof Sign)
-			{
-				Lobby lobby = main.getLobbyHandler().getLobby(block.getLocation());
-				
-				if (lobby != null)
-				{
-					player.changeLobby(lobby);
-					
-					return;
-				}
-			}
-		} else if (event.getAction() == Action.RIGHT_CLICK_AIR)
-		{
-			if (player.getInventory() != null)
-			{
-				Item item = player.getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
-				
-				if (item != null)
-				{
-					item.clickItem(player);
-				}
-			}
-		}
-	}
-	
-	//Minigames can un-cancel the event if the player is allowed to place/break the block
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockBreak(BlockBreakEvent event)
-	{
-		handleAdminBlocks(event.getPlayer(), event, event);
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBlockPlace(BlockPlaceEvent event)
-	{
-		handleAdminBlocks(event.getPlayer(), event, event);
-	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event)
-	{
-		handleAdminBlocks(event.getPlayer(), new BlockPlaceEvent(event.getBlockClicked(), null, null, null, null, false), event);
-	}
-	
-	@EventHandler
-	public void onPlayerChangeLobby(PlayerChangeLobbyEvent event)
-	{
-		//Update signs, change player count
-		
-		//Get old lobby sign, and new lobby sign
-		
-		Lobby fromLobby = event.getFromLobby();
-		Lobby toLobby = event.getToLobby();
-		
-		updateSigns(fromLobby, toLobby);
-		
-		if (toLobby != null)
-		{
-			event.getPlayer().setInventory(toLobby.getInventory());
-		} else
-		{
-			event.getPlayer().getOnlinePlayer().getInventory().clear();
-		}
-	}
-	
-	private void updateSigns(Lobby fromLobby, Lobby toLobby)
-	{
-		if (fromLobby != null)
-		{
-			fromLobby.updateSign();
-		}
-		
-		if (toLobby != null)
-		{
-			toLobby.updateSign();
-		}
-	}
-	
-	@EventHandler
-	public void onSignChange(SignChangeEvent event)
-	{
-		if (event.getLine(0).equalsIgnoreCase("[lobby]"))
-		{
-			if (main.getLobbyHandler().containsLobby(event.getLine(1)))
-			{
-				Lobby lobby = main.getLobbyHandler().getLobby(event.getLine(1));
-				
-				lobby.setSign(event.getBlock().getLocation());
-				lobby.updateSign(event);
-				
-				main.getLobbyHandler().save(lobby);
-			} else
-			{
-				event.setLine(1, ChatColor.DARK_RED + "Invalid ID");
-			}
-		}
-	}
-	
-	private void handleAdminBlocks(Player bukkitPlayer, BlockEvent block, Cancellable cancel)
-	{
-		//Ask if they really want to break or place the block
-		
-		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(bukkitPlayer);
-		
-		if (bukkitPlayer.hasPermission("arkyne.manage"))
-		{
-			if (adminBlocks.containsKey(block.getBlock()))
-			{
-				if (System.currentTimeMillis() < adminBlocks.get(block.getBlock()))
-				{
-					adminBlocks.remove(block.getBlock());
-				} else
-				{
-					player.sendMessage("Do that again if you really want to", ChatColor.RED);
-					
-					adminBlocks.put(block.getBlock(), System.currentTimeMillis() + 8 * 1000);
-					
-					cancel.setCancelled(true);
-				}
-			} else
-			{
-				player.sendMessage("Do that again if you really want to", ChatColor.RED);
-				
-				adminBlocks.put(block.getBlock(), System.currentTimeMillis() + 8 * 1000);
-				
-				cancel.setCancelled(true);
-			}
-		} else
-		{
-			cancel.setCancelled(true);
-		}
-	}
 	*/
-	
-	private interface Callback
-	{
-		public void call();
-	}
 }

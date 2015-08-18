@@ -1,19 +1,25 @@
 package us.arkyne.server.game;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.WorldType;
+import org.bukkit.World.Environment;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
@@ -34,6 +40,7 @@ import us.arkyne.server.minigame.Joinable;
 import us.arkyne.server.minigame.Minigame;
 import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.util.Cuboid;
+import us.arkyne.server.util.Util;
 
 public abstract class Game extends Loader implements Loadable, Joinable, ConfigurationSerializable
 {
@@ -43,6 +50,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	protected Location sign;
 	
 	protected String mapName;
+	protected String worldName;
+	
 	protected GameStatus gameStatus;
 	
 	protected GameSubStatus gameSubStatus;
@@ -53,9 +62,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	protected SignMessage signMessage;
 	
-	protected int maxPlayers;
-	protected int startPlayers;
-	
 	
 	/* Game variables */
 	protected int timer = 0;
@@ -64,18 +70,17 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	protected List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
 	
-	//TODO: Add player limit and signs should display: #/total Players
-	
-	public Game(Minigame minigame, int id, int maxPlayers, int startPlayers, String mapName, SignMessage signMessage)
+	public Game(Minigame minigame, int id, String mapName, String worldName, SignMessage signMessage)
 	{
 		this.minigame = minigame;
 		this.id = id;
 		
-		this.maxPlayers = maxPlayers;
-		this.startPlayers = startPlayers;
-		
 		this.mapName = mapName;
+		this.worldName = worldName;
+		
 		this.signMessage = signMessage;
+		
+		regenArena();
 	}
 	
 	public void onLoad()
@@ -173,8 +178,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	public void join(ArkynePlayer player)
 	{
-		//TODO: Join the pregame lobby
-		
 		players.add(player);
 		
 		player.setJoinable(this);
@@ -182,7 +185,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		
 		updateSign();
 		
-		if (gameSubStatus == GameSubStatus.PREGAME_STANDBY && getPlayerCount() >= startPlayers)
+		if (gameSubStatus == GameSubStatus.PREGAME_STANDBY && getPlayerCount() >= getMinPlayers())
 		{
 			//Start game countdown
 			
@@ -192,8 +195,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	public void leave(ArkynePlayer player)
 	{
-		//TODO: Update the game sign
-		
 		players.remove(player);
 		
 		player.setJoinableNoLeave(minigame);
@@ -201,6 +202,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		
 		updateSign();
 	}
+	
+	//FIXME: Scoreboards and scoring!
 	
 	private void filterOffline()
 	{
@@ -215,6 +218,9 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 				player.setJoinable(null);
 				
 				playerIterator.remove();
+			} else
+			{
+				ArkyneMain.getInstance().getArkynePlayerHandler().hideShowPlayers(player, players);
 			}
 		}
 	}
@@ -275,24 +281,26 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 						case GAME_END:
 							setGameSubStatus(GameSubStatus.GAME_REGEN);
 							
-							for (ArkynePlayer player : players)
+							//Make sure EVERYONE is out of the world, not just the game attendees
+							for (Player player : arena.getWorld().getPlayers())
 							{
-								player.getOnlinePlayer().setHealth(player.getOnlinePlayer().getMaxHealth());
-								player.getOnlinePlayer().setFoodLevel(20);
-								player.getOnlinePlayer().setSaturation(20);
+								ArkynePlayer arkPlayer = ArkyneMain.getInstance().getArkynePlayerHandler().getPlayer(player);
 								
-								player.getOnlinePlayer().setGameMode(GameMode.SURVIVAL);
-								player.getOnlinePlayer().setAllowFlight(false);
-								player.getOnlinePlayer().setFlying(false);
+								player.setHealth(player.getMaxHealth());
+								player.setFoodLevel(20);
+								player.setSaturation(20);
 								
-								player.setJoinableNoLeave(minigame);
-								player.teleport(minigame.getSpawn(player));
+								player.setGameMode(GameMode.SURVIVAL);
+								player.setAllowFlight(false);
+								player.setFlying(false);
+								
+								minigame.join(arkPlayer, () ->
+								{
+									removePlayer(arkPlayer);
+									
+									return null;
+								});
 							}
-							
-							players.clear();
-							
-							updateSign();
-							regenArena();
 							
 							break;
 						default: break;
@@ -362,8 +370,22 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		Bukkit.getScheduler().runTask(getMain(), countdownRunnable);
 	}
 	
+	private void removePlayer(ArkynePlayer player)
+	{
+		players.remove(player);
+		
+		if (players.size() == 0 && arena.getWorld().getPlayers().size() == 0)
+		{
+			updateSign();
+			regenArena();
+		}
+	}
+	
 	protected abstract void onGameStart();
 	protected abstract void onGameEnd();
+	
+	public abstract int getMinPlayers();
+	public abstract int getMaxPlayers();
 	
 	protected abstract IGameSubStatus getGameSubStatus(GameSubStatus status);
 	protected abstract void onStatusChange(GameSubStatus status);
@@ -396,13 +418,13 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	public boolean isJoinable(ArkynePlayer player)
 	{
-		//TODO: Check if player is high enough rank to join past player limit!
+		//FIXME: Check if player is high enough rank to join past player limit!
 		
 		return pregameLobby != null
 				&& arena != null
 				&& gameStatus == GameStatus.PREGAME
 				&& (gameSubStatus == GameSubStatus.PREGAME_STANDBY || gameSubStatus == GameSubStatus.PREGAME_COUNTDOWN)
-				&& players.size() < maxPlayers;
+				&& players.size() < getMaxPlayers();
 	}
 	
 	public boolean isSign(Location signLocation)
@@ -416,7 +438,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		{
 			Sign sign = (Sign) this.sign.getBlock().getState();
 			
-			String status = getPlayerCount() + "/" + maxPlayers + " Players";
+			String status = getPlayerCount() + "/" + getMaxPlayers() + " Players";
 			
 			if (isRegenerating())
 			{
@@ -424,7 +446,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 			} else if (gameSubStatus != GameSubStatus.PREGAME_STANDBY && gameSubStatus != GameSubStatus.PREGAME_COUNTDOWN)
 			{
 				status = ChatColor.RED + "In Progress";
-			} else if (getPlayerCount() >= maxPlayers)
+			} else if (getPlayerCount() >= getMaxPlayers())
 			{
 				status = ChatColor.RED + "Game Full";
 			}
@@ -521,7 +543,32 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	private void regenArena()
 	{
-		getArena().getArenaReset().resetBlocks();
+		try
+		{
+			long start = System.currentTimeMillis();
+			
+			File arenaWorld = new File(worldName + "_" + getId());
+			boolean deleted = ArkyneMain.getInstance().getMultiverse().getMVWorldManager().deleteWorld(arenaWorld.getName(), true, true);
+			
+			FileUtils.copyDirectory(new File(worldName), arenaWorld);
+			new File(arenaWorld, "uid.dat").delete();
+			
+			boolean success = ArkyneMain.getInstance().getMultiverse().getMVWorldManager().addWorld(arenaWorld.getName(), Environment.NORMAL, null, WorldType.NORMAL, null, null, false);
+			
+			System.out.println("Deleted: " + deleted + ", Loaded: " + success + ", " + (System.currentTimeMillis() - start));
+			
+			World world = Bukkit.getWorld(arenaWorld.getName());
+			
+			pregameLobby.updateWorld(world);
+			arena.updateWorld(world);
+			
+			setGameSubStatus(GameSubStatus.PREGAME_STANDBY);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+			
+			Util.noticeableConsoleMessage("Could not regenerate arena for game: " + getIdString());
+		}
 	}
 	
 	public void save()
@@ -538,13 +585,9 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		pregameLobby = (Lobby) map.get("pregame_lobby");
 		
 		mapName = map.get("map_name").toString();
+		worldName = map.get("world_name").toString();
 		
-		maxPlayers = Integer.parseInt(map.get("max_players").toString());
-		startPlayers = Integer.parseInt(map.get("start_players").toString());
-		
-		UUID signWorld = map.get("sign_world") != null ? UUID.fromString(map.get("sign_world").toString()) : null;
-		
-		sign = map.get("sign") != null ? ((Vector) map.get("sign")).toLocation(Bukkit.getWorld(signWorld)) : null;
+		sign = map.get("sign") != null ? ((Vector) map.get("sign")).toLocation(Bukkit.getWorld(map.get("sign_world").toString())) : null;
 		signMessage = SignMessagePreset.valueOf(map.get("sign_message").toString());
 	}
 	
@@ -555,14 +598,13 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		map.put("minigame", minigame.getId());
 		map.put("id", id);
 		
-		map.put("max_players", maxPlayers);
-		map.put("start_players", startPlayers);
-		
 		map.put("arena", arena);
 		map.put("pregame_lobby", pregameLobby);
 		
 		map.put("map_name", mapName);
-		map.put("sign_world", sign != null ? sign.getWorld().getUID().toString() : null);
+		map.put("world_name", worldName);
+		
+		map.put("sign_world", sign != null ? sign.getWorld().getName() : null);
 		
 		map.put("sign", sign != null ? sign.toVector() : null);
 		map.put("sign_message", signMessage.name());

@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="D:/Users/Connor/Desktop/Arkyne Network/plugins/worldedit-bukkit-6.1.jar"/>
 	<classpathentry kind="lib" path="D:/Users/Connor/Desktop/Arkyne Network/plugins/PermissionsEx-1.23.3.jar"/>
 	<classpathentry kind="lib" path="D:/Users/Connor/Desktop/Arkyne Network/plugins/ArkyneNMS.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Connor/Desktop/Arkyne Network/plugins/Multiverse-Core-2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

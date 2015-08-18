@@ -35,6 +35,11 @@ public class Command
 		return args[arg + 1];
 	}
 	
+	public String[] getArgs()
+	{
+		return args;
+	}
+	
 	public boolean wasArgLengthError()
 	{
 		//If it was the correct sub command but the wrong arg length

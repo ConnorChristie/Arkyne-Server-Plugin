@@ -150,7 +150,7 @@ public class ArkyneEventListener implements Listener
 	@EventHandler
 	public void onPlayerChat(ArkynePlayerChatEvent event)
 	{
-		//TODO: Remove chat colors in messages
+		//FIXME: Remove chat colors in messages
 		
 		for (String swear : swearReplacements)
 		{

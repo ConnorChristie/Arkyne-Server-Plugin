@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.config.PlayersConfig;
 
 public class ArkynePlayerHandler
@@ -65,6 +67,24 @@ public class ArkynePlayerHandler
 	public List<ArkynePlayer> getPlayers()
 	{
 		return new ArrayList<ArkynePlayer>(players.values());
+	}
+	
+	public void hideShowPlayers(ArkynePlayer player, List<ArkynePlayer> canSee)
+	{
+		for (Player p : Bukkit.getOnlinePlayers())
+		{
+			ArkynePlayer other = ArkyneMain.getInstance().getArkynePlayerHandler().getPlayer(p);
+			
+			if (canSee.contains(other))
+			{
+				p.showPlayer(player.getOnlinePlayer());
+				player.getOnlinePlayer().showPlayer(p);
+			} else
+			{
+				p.hidePlayer(player.getOnlinePlayer());
+				player.getOnlinePlayer().hidePlayer(p);
+			}
+		}
 	}
 	
 	public void save(ArkynePlayer player)

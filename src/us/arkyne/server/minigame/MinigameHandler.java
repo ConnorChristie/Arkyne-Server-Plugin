@@ -31,14 +31,12 @@ public class MinigameHandler extends Loader
 	@Override
 	public void onLoad()
 	{
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onUnload()
 	{
-		// TODO Auto-generated method stub
 		
 	}
 	

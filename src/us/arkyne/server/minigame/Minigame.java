@@ -2,6 +2,7 @@ package us.arkyne.server.minigame;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -34,8 +35,6 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 	private GameHandler gameHandler;
 	
 	private List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
-	
-	//TODO: Add signs! Click sign to goto minigame lobby, sign to goto pregame lobby
 	
 	public Minigame(MinigamePlugin plugin, String name, String id)
 	{
@@ -109,6 +108,11 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 	
 	public void join(ArkynePlayer player)
 	{
+		join(player, null);
+	}
+	
+	public void join(ArkynePlayer player, Callable<Void> afterTeleport)
+	{
 		//Just in case a minigame ever wants to cancel the join event??? Future proofing!
 		
 		MinigameJoinEvent event = new MinigameJoinEvent(this, player);
@@ -122,7 +126,7 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 			{
 				//Teleport to minigame lobby
 				
-				lobby.join(player);
+				lobby.join(player, afterTeleport);
 				player.setJoinable(this);
 			}
 		}
@@ -168,7 +172,7 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		return lobby.getSpawn(player);
 	}
 	
-	public abstract int createGame(String mapName);
+	public abstract int createGame(String mapName, String worldName);
 	
 	public boolean setLobby(Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
 	{

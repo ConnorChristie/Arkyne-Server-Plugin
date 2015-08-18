@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.plugin.Plugin;
 
+import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import us.arkyne.server.command.CommandHandler;
@@ -130,6 +131,15 @@ public class ArkyneMain extends MinigamePlugin
 		if (plugin == null || !(plugin instanceof WorldEditPlugin)) return null;
 		
 		return (WorldEditPlugin) plugin;
+	}
+	
+	public MultiverseCore getMultiverse()
+	{
+		Plugin plugin = getServer().getPluginManager().getPlugin("Multiverse-Core");
+		
+		if (plugin == null || !(plugin instanceof MultiverseCore)) return null;
+		
+		return (MultiverseCore) plugin;
 	}
 	
 	public static ArkyneMain getInstance()
