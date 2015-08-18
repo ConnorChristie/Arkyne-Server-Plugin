@@ -16,6 +16,7 @@ import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 
 import us.arkyne.server.game.Game;
+import us.arkyne.server.game.team.ArkyneTeam;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.util.Cuboid;
@@ -26,7 +27,7 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 	protected Game game;
 	protected Cuboid cuboid;
 	
-	protected Map<String, Location> spawns = new HashMap<String, Location>();
+	protected List<ArkyneTeam> teams = new ArrayList<ArkyneTeam>();
 	
 	public Arena(Game game, Cuboid cuboid)
 	{
@@ -56,21 +57,29 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 		return game;
 	}
 	
-	public void addSpawn(String team, Location spawn)
+	public void addTeam(String team, Location spawn)
 	{
-		spawns.put(team, spawn);
+		teams.add(new ArkyneTeam(team, spawn));
 	}
 	
-	public Location getSpawn(String team)
+	public ArkyneTeam getTeam(String team)
 	{
-		return spawns.get(team);
+		for (ArkyneTeam t : teams)
+		{
+			if (t.getTeamName().equalsIgnoreCase(team))
+			{
+				return t;
+			}
+		}
+		
+		return null;
 	}
 	
 	public abstract Location getSpawn(ArkynePlayer player);
 	
-	public List<String> getTeams()
+	public List<ArkyneTeam> getTeams()
 	{
-		return new ArrayList<String>(spawns.keySet());
+		return teams;
 	}
 
 	public Cuboid getBounds()
@@ -85,9 +94,9 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 	
 	public void updateWorld(World world)
 	{
-		for (Location loc : spawns.values())
+		for (ArkyneTeam team : teams)
 		{
-			loc.setWorld(world);
+			team.getSpawn().setWorld(world);
 		}
 		
 		cuboid.setWorld(BukkitUtil.getLocalWorld(world));
@@ -102,7 +111,7 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 		Location max = ((Vector) map.get("boundry_max")).toLocation(world);
 		
 		cuboid = new Cuboid(min.getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
-		spawns = (Map<String, Location>) map.get("spawns");
+		teams = (List<ArkyneTeam>) map.get("teams");
 	}
 	
 	@Override
@@ -115,7 +124,7 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 		map.put("boundry_min", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMinimumPoint()).toVector());
 		map.put("boundry_max", BukkitUtil.toLocation(((BukkitWorld) cuboid.getWorld()).getWorld(), cuboid.getMaximumPoint()).toVector());
 		
-		map.put("spawns", spawns);
+		map.put("teams", teams);
 		
 		return map;
 	}

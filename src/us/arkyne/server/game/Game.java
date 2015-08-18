@@ -29,6 +29,7 @@ import us.arkyne.server.game.arena.Arena;
 import us.arkyne.server.game.status.GameStatus;
 import us.arkyne.server.game.status.GameSubStatus;
 import us.arkyne.server.game.status.IGameSubStatus;
+import us.arkyne.server.game.team.ArkyneTeam;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
@@ -68,6 +69,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	protected Runnable countdownRunnable;
 	
 	
+	protected List<ArkyneTeam> teams = new ArrayList<ArkyneTeam>();
 	protected List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
 	
 	public Game(Minigame minigame, int id, String mapName, String worldName, SignMessage signMessage)
@@ -138,6 +140,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	public String getMapName()
 	{
 		return mapName;
+	}
+	
+	public void addTeam(String teamName, Location spawn)
+	{
+		teams.add(new ArkyneTeam(teamName, spawn));
 	}
 	
 	public void setGameSubStatus(GameSubStatus subStatus)
