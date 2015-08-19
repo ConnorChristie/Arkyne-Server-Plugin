@@ -148,7 +148,7 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 	
 	public String getIdString()
 	{
-		return id + "";
+		return getName() + "-" + id;
 	}
 	
 	public Location getSpawn(ArkynePlayer player)

@@ -78,7 +78,7 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 	
 	public String getIdString()
 	{
-		return id;
+		return getName() + "-1";
 	}
 	
 	public Lobby getLobby()

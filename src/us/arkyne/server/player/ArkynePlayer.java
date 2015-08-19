@@ -5,19 +5,27 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -36,15 +44,59 @@ public class ArkynePlayer implements ConfigurationSerializable
 	private long lastPush = 0;
 	private Joinable joinable;
 	
+	private Scoreboard scoreboard;
+	private Objective objective;
+	
+	private String sbTitle = "  Arkyne Network!  ";
+	
+	private String colorOne = ChatColor.YELLOW + "" + ChatColor.BOLD;
+	private String colorTwo = ChatColor.GOLD + "" + ChatColor.BOLD;
+	
 	private Map<String, Object> extras = new HashMap<String, Object>();
 	
 	public ArkynePlayer(UUID uuid)
 	{
-		this.uuid = uuid;
-		this.player = Bukkit.getOfflinePlayer(uuid);
+		setUUID(uuid);
 	}
 	
 	//TODO: On player join and server reload, update inventory and gamemode
+	
+	public void onLogin()
+	{
+		getOnlinePlayer().setPlayerListName(getTitleName());
+		getOnlinePlayer().setScoreboard(scoreboard);
+		
+		updateScoreboard();
+	}
+	
+	public void onLeave()
+	{
+		
+	}
+	
+	public void updateScoreboard()
+	{
+		System.out.println("Joinable: " + joinable.getIdString());
+		
+		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+		objective.setDisplayName(colorOne + sbTitle);
+		
+		ArkyneMain.getInstance().getScoreboardHandler().buildObjective(objective, new String[] {
+				ChatColor.AQUA + "" + ChatColor.BOLD + "Crystals",
+				"350",
+				"",
+				ChatColor.GREEN + "" + ChatColor.BOLD + "Server",
+				(joinable != null ? joinable.getIdString() : ""),
+				" ",
+				ChatColor.YELLOW + "" + ChatColor.BOLD + "Website",
+				"ArkyneMC.com"
+		});
+	}
+	
+	public void flashScoreboardTitle(boolean direction)
+	{
+		objective.setDisplayName((direction ? colorOne : colorTwo) + sbTitle);
+	}
 	
 	public boolean isOnline()
 	{
@@ -60,6 +112,9 @@ public class ArkynePlayer implements ConfigurationSerializable
 	{
 		this.uuid = uuid;
 		this.player = Bukkit.getOfflinePlayer(uuid);
+		
+		this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+		this.objective = scoreboard.registerNewObjective(StringUtils.substring(player.getName(), 0, 12) + RandomUtils.nextInt(0, 999), "dummy");
 	}
 	
 	public UUID getUUID()
@@ -108,6 +163,8 @@ public class ArkynePlayer implements ConfigurationSerializable
 		ArkyneMain.getInstance().getArkynePlayerHandler().hideShowPlayers(this, joinable.getPlayers());
 		
 		updateInventory();
+		updateScoreboard();
+		
 		save();
 	}
 	
@@ -184,6 +241,30 @@ public class ArkynePlayer implements ConfigurationSerializable
 		zombie.setMetadata("CloneOwner", new FixedMetadataValue(ArkyneMain.getInstance(), player.getUniqueId().toString()));
 	}
 	
+	public void freeze()
+	{
+		if (isOnline())
+		{
+			Player player = getOnlinePlayer();
+			
+			player.setFoodLevel(4);
+			player.setWalkSpeed(0.0F);
+			player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 128));
+		}
+	}
+	
+	public void unfreeze()
+	{
+		if (isOnline())
+		{
+			Player player = getOnlinePlayer();
+			
+			player.setFoodLevel(20);
+			player.setWalkSpeed(0.2F);
+			player.removePotionEffect(PotionEffectType.JUMP);
+		}
+	}
+	
 	public Location getLocation()
 	{
 		if (isOnline())
@@ -198,13 +279,23 @@ public class ArkynePlayer implements ConfigurationSerializable
 	{
 		if (isOnline())
 		{
-			getOnlinePlayer().teleport(loc, TeleportCause.PLUGIN);
+			Player player = getOnlinePlayer();
 			
-			getOnlinePlayer().setFallDistance(-1F);
-			getOnlinePlayer().setVelocity(new Vector(0, 0, 0));
+			if (player.isInsideVehicle())
+			{
+				Entity ent = player.getVehicle();
+				
+				player.leaveVehicle();
+				ent.eject();
+			}
 			
-			getOnlinePlayer().setFireTicks(0);
-			getOnlinePlayer().setHealth(getOnlinePlayer().getMaxHealth());
+			player.teleport(loc, TeleportCause.PLUGIN);
+			
+			player.setFallDistance(-1F);
+			player.setVelocity(new Vector(0, 0, 0));
+			
+			player.setFireTicks(0);
+			player.setHealth(getOnlinePlayer().getMaxHealth());
 		}
 	}
 	

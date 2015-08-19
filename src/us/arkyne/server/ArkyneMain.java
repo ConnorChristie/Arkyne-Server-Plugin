@@ -17,6 +17,7 @@ import us.arkyne.server.lobby.MainLobbyHandler;
 import us.arkyne.server.minigame.MinigameHandler;
 import us.arkyne.server.player.ArkynePlayerHandler;
 import us.arkyne.server.plugin.MinigamePlugin;
+import us.arkyne.server.scoreboard.ScoreboardHandler;
 
 public class ArkyneMain extends MinigamePlugin
 {
@@ -28,6 +29,7 @@ public class ArkyneMain extends MinigamePlugin
 	private MinigameHandler minigameHandler;
 	
 	private ArkynePlayerHandler arkynePlayerHandler;
+	private ScoreboardHandler scoreboardHandler;
 	private CommandHandler commandHandler;
 	
 	public void onEnable()
@@ -41,8 +43,9 @@ public class ArkyneMain extends MinigamePlugin
 		loadAll();
 		
 		arkynePlayerHandler = new ArkynePlayerHandler();
+		scoreboardHandler = new ScoreboardHandler();
 		commandHandler = new CommandHandler();
-
+		
 		registerListeners();
 		registerCommands();
 		
@@ -117,6 +120,11 @@ public class ArkyneMain extends MinigamePlugin
 	public CommandHandler getCommandHandler()
 	{
 		return commandHandler;
+	}
+	
+	public ScoreboardHandler getScoreboardHandler()
+	{
+		return scoreboardHandler;
 	}
 	
 	public List<Loader> getLoaders()

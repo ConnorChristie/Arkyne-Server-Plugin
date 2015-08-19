@@ -25,8 +25,11 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.sk89q.worldedit.Vector;
@@ -54,6 +57,13 @@ public class BukkitEventListener implements Listener
 		main = ArkyneMain.getInstance();
 		
 		main.getServer().getPluginManager().registerEvents(this, main);
+	}
+	
+	@EventHandler
+	public void onServerListPing(ServerListPingEvent event)
+	{
+		event.setMaxPlayers(500);
+		event.setMotd(ChatColor.GREEN + "Arkyne Network " + '\u21E8' + ChatColor.YELLOW + " ArkyneMC.com\n" + ChatColor.GOLD + "" + ChatColor.BOLD + "Coming soon!");
 	}
 	
 	@EventHandler
@@ -166,7 +176,7 @@ public class BukkitEventListener implements Listener
 			{
 				if (!((Game) joinable).allowPlayerMovement())
 				{
-					event.setTo(event.getFrom());
+					event.getPlayer().setFoodLevel(4);
 					
 					return;
 				}
@@ -228,7 +238,7 @@ public class BukkitEventListener implements Listener
 			
 			if (player.getJoinable() instanceof Game)
 			{
-				if (((Game) player.getJoinable()).allowPvP())
+				if (((Game) player.getJoinable()).allowPvP() || !((Game) player.getJoinable()).allowPlayerMovement())
 				{
 					return;
 				}
@@ -337,6 +347,26 @@ public class BukkitEventListener implements Listener
 				cancel.setCancelled(true);
 			}
 		}
+	}
+	
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent event)
+	{
+		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(event.getPlayer());
+		
+		player.onLogin();
+		
+		//event.getPlayer().setFoodLevel(20);
+		//event.getPlayer().setWalkSpeed(0.2F);
+		//event.getPlayer().removePotionEffect(PotionEffectType.JUMP);
+	}
+	
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent event)
+	{
+		ArkynePlayer player = main.getArkynePlayerHandler().getPlayer(event.getPlayer());
+		
+		player.onLeave();
 	}
 	
 	/*

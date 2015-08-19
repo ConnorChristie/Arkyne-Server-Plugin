@@ -198,6 +198,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 			
 			setGameSubStatus(GameSubStatus.PREGAME_COUNTDOWN);
 		}
+		
+		ScreenMessageAPI.sendTabHeader(player.getOnlinePlayer(), ChatColor.GOLD + "You are playing on Arkyne Network!", ChatColor.GREEN + "Check out our website!\n" + ChatColor.YELLOW + "ArkyneMC.com");
 	}
 	
 	public void leave(ArkynePlayer player)
@@ -209,8 +211,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		
 		updateSign();
 	}
-	
-	//FIXME: Scoreboards and scoring!
 	
 	private void filterOffline()
 	{
@@ -261,6 +261,14 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 						player.getOnlinePlayer().setLevel(0);
 						
 						player.getOnlinePlayer().playSound(player.getLocation(), Sound.LEVEL_UP, 10, 1);
+						
+						if (gameSubStatus == GameSubStatus.PREGAME_COUNTDOWN)
+						{
+							player.freeze();
+						} else if (gameSubStatus == GameSubStatus.GAME_COUNTDOWN)
+						{
+							player.unfreeze();
+						}
 					}
 					
 					switch (gameSubStatus)
@@ -566,8 +574,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 			
 			World world = Bukkit.getWorld(arenaWorld.getName());
 			
-			pregameLobby.updateWorld(world);
-			arena.updateWorld(world);
+			if (pregameLobby != null) pregameLobby.updateWorld(world);
+			if (arena != null) arena.updateWorld(world);
 			
 			setGameSubStatus(GameSubStatus.PREGAME_STANDBY);
 		} catch (IOException e)
