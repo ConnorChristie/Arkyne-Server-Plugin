@@ -11,19 +11,27 @@ import org.bukkit.entity.Player;
 
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.config.PlayersConfig;
+import us.arkyne.server.loader.Loader;
 
-public class ArkynePlayerHandler
+public class ArkynePlayerHandler extends Loader
 {
 	private Map<UUID, ArkynePlayer> players = new HashMap<UUID, ArkynePlayer>();
 	
 	private PlayersConfig playersConfig;
 	
-	public ArkynePlayerHandler()
+	@Override
+	public void onLoad()
 	{
 		playersConfig = new PlayersConfig();
 		
 		//Load players from config
 		players = playersConfig.getPlayers();
+	}
+
+	@Override
+	public void onUnload()
+	{
+		
 	}
 	
 	public ArkynePlayer addPlayer(Player player)

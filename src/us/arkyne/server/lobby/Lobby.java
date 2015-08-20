@@ -16,6 +16,7 @@ import org.bukkit.util.Vector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 
+import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.inventory.InventoryPreset;
 import us.arkyne.server.loader.Loadable;
@@ -23,6 +24,7 @@ import us.arkyne.server.message.SignMessage;
 import us.arkyne.server.message.SignMessagePreset;
 import us.arkyne.server.minigame.Joinable;
 import us.arkyne.server.player.ArkynePlayer;
+import us.arkyne.server.scoreboard.ArkyneScoreboard;
 import us.arkyne.server.util.Cuboid;
 
 public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializable
@@ -192,6 +194,11 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 	public Inventory getInventory(ArkynePlayer player)
 	{
 		return inventory;
+	}
+	
+	public ArkyneScoreboard getScoreboard(ArkynePlayer player)
+	{
+		return ArkyneMain.getInstance().getScoreboardHandler().getDefaultScoreboard();
 	}
 	
 	public Lobby(Map<String, Object> map)

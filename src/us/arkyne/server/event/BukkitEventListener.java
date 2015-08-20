@@ -262,6 +262,7 @@ public class BukkitEventListener implements Listener
 			{
 				ArkynePlayer killer = main.getArkynePlayerHandler().getPlayer(event.getEntity().getKiller());
 				
+				((Game) player.getJoinable()).addPlayerKill(killer);
 				((Game) player.getJoinable()).onPlayerDeath(player, killer);
 				
 				event.setDeathMessage(player.getTitleName() + ChatColor.GRAY + " was killed by " + killer.getTitleName());

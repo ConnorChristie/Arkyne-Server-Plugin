@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,12 +22,10 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
 import ru.tehkode.permissions.bukkit.PermissionsEx;
+import us.arkyne.nms.screenmessage.ScreenMessageAPI;
 import us.arkyne.nms.zombie.ZombieClone;
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.inventory.Inventory;
@@ -44,14 +41,6 @@ public class ArkynePlayer implements ConfigurationSerializable
 	private long lastPush = 0;
 	private Joinable joinable;
 	
-	private Scoreboard scoreboard;
-	private Objective objective;
-	
-	private String sbTitle = "  Arkyne Network!  ";
-	
-	private String colorOne = ChatColor.YELLOW + "" + ChatColor.BOLD;
-	private String colorTwo = ChatColor.GOLD + "" + ChatColor.BOLD;
-	
 	private Map<String, Object> extras = new HashMap<String, Object>();
 	
 	public ArkynePlayer(UUID uuid)
@@ -59,43 +48,20 @@ public class ArkynePlayer implements ConfigurationSerializable
 		setUUID(uuid);
 	}
 	
-	//TODO: On player join and server reload, update inventory and gamemode
-	
 	public void onLogin()
 	{
-		getOnlinePlayer().setPlayerListName(getTitleName());
-		getOnlinePlayer().setScoreboard(scoreboard);
-		
-		updateScoreboard();
+		if (joinable == null)
+		{
+			ArkyneMain.getInstance().getMainLobbyHandler().getMainLobby().join(this);
+		} else
+		{
+			setJoinableNoLeave(joinable);
+		}
 	}
 	
 	public void onLeave()
 	{
 		
-	}
-	
-	public void updateScoreboard()
-	{
-		System.out.println("Joinable: " + joinable.getIdString());
-		
-		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-		objective.setDisplayName(colorOne + sbTitle);
-		
-		ArkyneMain.getInstance().getScoreboardHandler().buildObjective(objective, new String[] {
-				ChatColor.AQUA + "" + ChatColor.BOLD + "Crystals",
-				"350",
-				"",
-				ChatColor.GREEN + "" + ChatColor.BOLD + "Server",
-				(joinable != null ? joinable.getIdString() : ""),
-				" ",
-				ChatColor.YELLOW + "" + ChatColor.BOLD + "Website",
-				"ArkyneMC.com"
-		});
-	}
-	
-	public void flashScoreboardTitle(boolean direction)
-	{
-		objective.setDisplayName((direction ? colorOne : colorTwo) + sbTitle);
 	}
 	
 	public boolean isOnline()
@@ -112,9 +78,6 @@ public class ArkynePlayer implements ConfigurationSerializable
 	{
 		this.uuid = uuid;
 		this.player = Bukkit.getOfflinePlayer(uuid);
-		
-		this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-		this.objective = scoreboard.registerNewObjective(StringUtils.substring(player.getName(), 0, 12) + RandomUtils.nextInt(0, 999), "dummy");
 	}
 	
 	public UUID getUUID()
@@ -146,6 +109,18 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return "";
 	}
 	
+	public String getBracketedName()
+	{
+		if (isOnline())
+		{
+			String title = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', PermissionsEx.getUser(getOnlinePlayer()).getPrefix()));
+			
+			return ChatColor.GRAY + "[" + StringUtils.deleteWhitespace(title) + "] " + getOnlinePlayer().getName();
+		}
+		
+		return "";
+	}
+	
 	public void setJoinable(Joinable joinable)
 	{
 		if (this.joinable != null)
@@ -162,8 +137,12 @@ public class ArkynePlayer implements ConfigurationSerializable
 		
 		ArkyneMain.getInstance().getArkynePlayerHandler().hideShowPlayers(this, joinable.getPlayers());
 		
+		ScreenMessageAPI.sendTabHeader(getOnlinePlayer(), "\n" + ChatColor.GREEN + "You are playing on the Arkyne Network!", ChatColor.GREEN + "Check out our website!\n" + ChatColor.YELLOW + "ArkyneMC.com");
+		
+		getOnlinePlayer().setPlayerListName(getTitleName());
+		getOnlinePlayer().setScoreboard(joinable.getScoreboard(this).getScoreboard());
+		
 		updateInventory();
-		updateScoreboard();
 		
 		save();
 	}

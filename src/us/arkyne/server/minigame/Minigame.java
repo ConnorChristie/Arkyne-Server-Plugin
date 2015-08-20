@@ -19,6 +19,7 @@ import us.arkyne.server.lobby.MinigameLobby;
 import us.arkyne.server.message.SignMessage;
 import us.arkyne.server.player.ArkynePlayer;
 import us.arkyne.server.plugin.MinigamePlugin;
+import us.arkyne.server.scoreboard.ArkyneScoreboard;
 import us.arkyne.server.util.Cuboid;
 
 public abstract class Minigame extends Loader implements Loadable, Joinable
@@ -78,7 +79,7 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 	
 	public String getIdString()
 	{
-		return getName() + "-1";
+		return id + "-L-1";
 	}
 	
 	public Lobby getLobby()
@@ -104,6 +105,11 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 	public List<ArkynePlayer> getPlayers()
 	{
 		return players;
+	}
+	
+	public ArkyneScoreboard getScoreboard(ArkynePlayer player)
+	{
+		return ArkyneMain.getInstance().getScoreboardHandler().getDefaultScoreboard();
 	}
 	
 	public void join(ArkynePlayer player)

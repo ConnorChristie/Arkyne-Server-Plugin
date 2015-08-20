@@ -6,6 +6,7 @@ import org.bukkit.Location;
 
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.player.ArkynePlayer;
+import us.arkyne.server.scoreboard.ArkyneScoreboard;
 import us.arkyne.server.util.Cuboid;
 
 public interface Joinable
@@ -23,6 +24,8 @@ public interface Joinable
 	
 	public Cuboid getBounds();
 	public Location getSpawn(ArkynePlayer player);
+	
+	public ArkyneScoreboard getScoreboard(ArkynePlayer player);
 	
 	public static enum Type
 	{

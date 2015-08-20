@@ -40,10 +40,11 @@ public class ArkyneMain extends MinigamePlugin
 		setupMainLobby();
 		setupMiniGameHandler();
 		
+		setupPlayers();
+		setupScoreboards();
+		
 		loadAll();
 		
-		arkynePlayerHandler = new ArkynePlayerHandler();
-		scoreboardHandler = new ScoreboardHandler();
 		commandHandler = new CommandHandler();
 		
 		registerListeners();
@@ -75,6 +76,18 @@ public class ArkyneMain extends MinigamePlugin
 		{
 			loader.unloadAll();
 		}
+	}
+	
+	private void setupPlayers()
+	{
+		arkynePlayerHandler = new ArkynePlayerHandler();
+		loaders.add(arkynePlayerHandler);
+	}
+	
+	private void setupScoreboards()
+	{
+		scoreboardHandler = new ScoreboardHandler();
+		loaders.add(scoreboardHandler);
 	}
 	
 	private void setupMainLobby()

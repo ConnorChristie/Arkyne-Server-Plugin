@@ -40,6 +40,7 @@ import us.arkyne.server.message.SignMessagePreset;
 import us.arkyne.server.minigame.Joinable;
 import us.arkyne.server.minigame.Minigame;
 import us.arkyne.server.player.ArkynePlayer;
+import us.arkyne.server.scoreboard.ArkyneScoreboard;
 import us.arkyne.server.util.Cuboid;
 import us.arkyne.server.util.Util;
 
@@ -114,7 +115,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	public String getIdString()
 	{
-		return minigame.getId() + "-" + id;
+		return minigame.getId() + "-G-" + id;
 	}
 	
 	public Arena getArena()
@@ -187,10 +188,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	{
 		players.add(player);
 		
+		updateSign();
+		setupPlayer(player);
+		
 		player.setJoinable(this);
 		player.teleport(pregameLobby.getSpawn(player));
-		
-		updateSign();
 		
 		if (gameSubStatus == GameSubStatus.PREGAME_STANDBY && getPlayerCount() >= getMinPlayers())
 		{
@@ -198,8 +200,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 			
 			setGameSubStatus(GameSubStatus.PREGAME_COUNTDOWN);
 		}
-		
-		ScreenMessageAPI.sendTabHeader(player.getOnlinePlayer(), ChatColor.GOLD + "You are playing on Arkyne Network!", ChatColor.GREEN + "Check out our website!\n" + ChatColor.YELLOW + "ArkyneMC.com");
 	}
 	
 	public void leave(ArkynePlayer player)
@@ -210,6 +210,31 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		player.teleport(minigame.getSpawn(player));
 		
 		updateSign();
+	}
+	
+	private void setupPlayer(ArkynePlayer player)
+	{
+		player.setExtra("kills", 0);
+		
+		player.setExtra("scoreboard", new ArkyneScoreboard("[Battle Frontier] 0:05", new String[] {
+			" ",
+			ChatColor.WHITE + "Core Health: " + ChatColor.GREEN + "5000",
+			ChatColor.RED + "Core Health: " + ChatColor.GREEN + "5000",
+			"  ",
+			"Kills: " + ChatColor.YELLOW + (int) player.getExtra("kills")
+		}));
+	}
+	
+	public void addPlayerKill(ArkynePlayer player)
+	{
+		player.setExtra("kills", (player.hasExtra("kills") ? (int) player.getExtra("kills") : 0) + 1);
+		
+		if (player.hasExtra("scoreboard"))
+		{
+			ArkyneScoreboard sb = (ArkyneScoreboard) player.getExtra("scoreboard");
+			
+			sb.updateLine(4, "Kills: " + ChatColor.YELLOW + (int) player.getExtra("kills"));
+		}
 	}
 	
 	private void filterOffline()
@@ -332,6 +357,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 					{
 						if ((timer + 1) % secondsConversion == 0) //One second
 						{
+							//TODO: Per player scoreboard, maybe getScoreboard(ArkynePlayer);
+							
 							if (igameSubStatus.getTimeString() != null && (seconds == 30 || seconds == 60))
 							{
 								if (seconds % 10 == 0 || seconds <= 5)
@@ -515,6 +542,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	public int getPlayerCount()
 	{
 		return players.size();
+	}
+	
+	public ArkyneScoreboard getScoreboard(ArkynePlayer player)
+	{
+		return (ArkyneScoreboard) player.getExtra("scoreboard");
 	}
 	
 	public boolean isRegenerating()
