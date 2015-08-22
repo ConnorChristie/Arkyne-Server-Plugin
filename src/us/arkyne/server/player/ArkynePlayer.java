@@ -69,6 +69,16 @@ public class ArkynePlayer implements ConfigurationSerializable
 		return player.isOnline();
 	}
 	
+	public boolean isManager()
+	{
+		if (isOnline())
+		{
+			return getOnlinePlayer().hasPermission("arkyne.manage");
+		}
+		
+		return false;
+	}
+	
 	public Player getOnlinePlayer()
 	{
 		return Bukkit.getPlayer(uuid);

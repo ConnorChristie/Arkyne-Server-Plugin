@@ -109,7 +109,11 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 	
 	public ArkyneScoreboard getScoreboard(ArkynePlayer player)
 	{
-		return ArkyneMain.getInstance().getScoreboardHandler().getDefaultScoreboard();
+		ArkyneScoreboard sb = ArkyneMain.getInstance().getScoreboardHandler().getDefaultScoreboard();
+		
+		sb.setServer(getIdString());
+		
+		return sb;
 	}
 	
 	public void join(ArkynePlayer player)

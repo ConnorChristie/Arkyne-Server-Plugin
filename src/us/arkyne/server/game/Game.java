@@ -29,7 +29,6 @@ import us.arkyne.server.game.arena.Arena;
 import us.arkyne.server.game.status.GameStatus;
 import us.arkyne.server.game.status.GameSubStatus;
 import us.arkyne.server.game.status.IGameSubStatus;
-import us.arkyne.server.game.team.ArkyneTeam;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
@@ -70,7 +69,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	protected Runnable countdownRunnable;
 	
 	
-	protected List<ArkyneTeam> teams = new ArrayList<ArkyneTeam>();
 	protected List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
 	
 	public Game(Minigame minigame, int id, String mapName, String worldName, SignMessage signMessage)
@@ -143,11 +141,6 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		return mapName;
 	}
 	
-	public void addTeam(String teamName, Location spawn)
-	{
-		teams.add(new ArkyneTeam(teamName, spawn));
-	}
-	
 	public void setGameSubStatus(GameSubStatus subStatus)
 	{
 		this.gameSubStatus = subStatus;
@@ -216,7 +209,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	{
 		player.setExtra("kills", 0);
 		
-		player.setExtra("scoreboard", new ArkyneScoreboard("[Battle Frontier] 0:05", new String[] {
+		player.setExtra("scoreboard", new ArkyneScoreboard("[Battle Frontier]", new String[] {
 			" ",
 			ChatColor.WHITE + "Core Health: " + ChatColor.GREEN + "5000",
 			ChatColor.RED + "Core Health: " + ChatColor.GREEN + "5000",
@@ -234,6 +227,16 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 			ArkyneScoreboard sb = (ArkyneScoreboard) player.getExtra("scoreboard");
 			
 			sb.updateLine(4, "Kills: " + ChatColor.YELLOW + (int) player.getExtra("kills"));
+		}
+	}
+	
+	public void updateScoreboardTitle(ArkynePlayer player, int seconds)
+	{
+		if (player.hasExtra("scoreboard"))
+		{
+			ArkyneScoreboard sb = (ArkyneScoreboard) player.getExtra("scoreboard");
+			
+			sb.setTitle("[BattleFrontier] " + (int) (seconds / 60) + ":" + String.format("%02d", (int) (seconds % 60)));
 		}
 	}
 	
@@ -272,6 +275,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		
 		timer = igameSubStatus.getDuration() * secondsConversion - 1;
 		
+		for (ArkynePlayer p : players)
+		{
+			updateScoreboardTitle(p, igameSubStatus.getDuration());
+		}
+		
 		countdownRunnable = new Runnable()
 		{
 			public void run()
@@ -301,6 +309,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 						case PREGAME_COUNTDOWN:
 							sendPlayersMessage("Teleported to game arena!", ChatColor.GREEN);
 							setGameSubStatus(GameSubStatus.GAME_COUNTDOWN);
+							
+							for (ArkynePlayer player : players)
+							{
+								player.getOnlinePlayer().setScoreboard(getScoreboard(player).getScoreboard());
+							}
 							
 							filterOffline();
 							onGameStart();
@@ -353,6 +366,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 					boolean alertScreen = false;
 					boolean alertMessage = false;
 					
+					boolean updateTitle = false;
+					
 					if (timer != igameSubStatus.getDuration())
 					{
 						if ((timer + 1) % secondsConversion == 0) //One second
@@ -376,6 +391,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 									alertScreen = true;
 								}
 							}
+							
+							updateTitle = true;
 						}
 					}
 					
@@ -385,6 +402,11 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 					{
 						player.getOnlinePlayer().setExp(percent);
 						player.getOnlinePlayer().setLevel(seconds);
+						
+						if (updateTitle)
+						{
+							updateScoreboardTitle(player, seconds);
+						}
 						
 						if (alertMessage)
 						{
@@ -414,10 +436,14 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	private void removePlayer(ArkynePlayer player)
 	{
+		//FIXME: Race condition...
+		
 		players.remove(player);
 		
 		if (players.size() == 0 && arena.getWorld().getPlayers().size() == 0)
 		{
+			System.out.println("Called here");
+			
 			updateSign();
 			regenArena();
 		}
@@ -546,6 +572,15 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	public ArkyneScoreboard getScoreboard(ArkynePlayer player)
 	{
+		if (gameSubStatus == GameSubStatus.PREGAME_STANDBY || gameSubStatus == GameSubStatus.PREGAME_COUNTDOWN)
+		{
+			ArkyneScoreboard sb = ArkyneMain.getInstance().getScoreboardHandler().getDefaultScoreboard();
+			
+			sb.updateLine(10, getIdString());
+			
+			return sb;
+		}
+		
 		return (ArkyneScoreboard) player.getExtra("scoreboard");
 	}
 	

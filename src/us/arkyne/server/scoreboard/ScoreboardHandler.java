@@ -3,7 +3,6 @@ package us.arkyne.server.scoreboard;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -15,21 +14,18 @@ public class ScoreboardHandler extends Loader
 {
 	private ArkyneMain main;
 	
-	private String onlineStaff = "";
 	private String displayStaff = "";
+	private String displayNews = "";
 	
-	private ArkyneScoreboard defaultScoreboard;
+	private TextScroller staffScroller;
+	private TextScroller newsScroller;
 	
 	private int flashCount;
 	private boolean flashDirection;
 	
 	private Runnable sbFlasher;
-	private Runnable staffRunnable;
 	
 	private List<ArkyneScoreboard> scoreboards = new ArrayList<ArkyneScoreboard>();
-	
-	private int index = 8;
-	private int width = 16;
 	
 	public ScoreboardHandler()
 	{
@@ -39,7 +35,19 @@ public class ScoreboardHandler extends Loader
 	@Override
 	public void onLoad()
 	{
-		defaultScoreboard = new ArkyneScoreboard("[Arkyne Network!]", new String[] {
+		runScoreboardScroller();
+		runScoreboardFlasher();
+	}
+
+	@Override
+	public void onUnload()
+	{
+		
+	}
+	
+	public ArkyneScoreboard getDefaultScoreboard()
+	{
+		return new ArkyneScoreboard("  [Arkyne Network!]   ", new String[] {
 			ChatColor.AQUA + "" + ChatColor.BOLD + "Coins",
 			"350",
 			" ",
@@ -55,22 +63,6 @@ public class ScoreboardHandler extends Loader
 			ChatColor.YELLOW + "" + ChatColor.BOLD + "Website",
 			"www.ArkyneMC.com"
 		});
-		
-		updateOnlineStaff();
-		
-		runScoreboardScroller();
-		runScoreboardFlasher();
-	}
-
-	@Override
-	public void onUnload()
-	{
-		
-	}
-	
-	public ArkyneScoreboard getDefaultScoreboard()
-	{
-		return defaultScoreboard;
 	}
 	
 	public void addScoreboard(ArkyneScoreboard scoreboard)
@@ -81,71 +73,63 @@ public class ScoreboardHandler extends Loader
 	public void updateScoreboard(ArkyneScoreboard scoreboard)
 	{
 		scoreboard.flashTitle(flashDirection);
+		
 		scoreboard.updateStaff(displayStaff);
+		scoreboard.updateNews(displayNews);
 	}
 	
 	public String getOnlineStaff()
 	{
-		return onlineStaff;
-	}
-	
-	public void updateOnlineStaff()
-	{
-		onlineStaff = "";
+		String onlineStaff = "";
 		
-		for (ArkynePlayer p : main.getArkynePlayerHandler().getPlayers())
+		List<ArkynePlayer> players = main.getArkynePlayerHandler().getAdminPlayers();
+		
+		for (int i = 0; i < players.size(); i++)
 		{
-			if (p.isOnline() && p.getOnlinePlayer().hasPermission("arkyne.manage"))
-			{
-				onlineStaff += p.getBracketedName() + "  ";
-			}
+			onlineStaff += players.get(i).getTitleName() + (i == players.size() - 1 ? " " : ChatColor.WHITE + ", ");
 		}
 		
-		onlineStaff = (onlineStaff.equals("") ? "None " : onlineStaff) + StringUtils.repeat(" ", width - 1);
+		return onlineStaff.equals("") ? "None " : onlineStaff;
+	}
+	
+	public String getNews()
+	{
+		String news = "This is just some news scrolling across the screen!";
+		
+		return news;
 	}
 	
 	public void runScoreboardScroller()
 	{
-		staffRunnable = () ->
+		staffScroller = new TextScroller(getOnlineStaff(), 18, 4, () ->
 		{
-			displayStaff = "";
+			displayStaff = staffScroller.getText();
 			
-			String staffOnline = ChatColor.stripColor(onlineStaff);
+			for (ArkyneScoreboard sb : scoreboards) sb.updateStaff(displayStaff);
 			
-			if (index - width / 2 < 0)
-			{
-				displayStaff += staffOnline.substring(staffOnline.length() + (index - width / 2), staffOnline.length());
-				displayStaff += staffOnline.substring(0, index + width / 2);
-			} else if (index + width / 2 > staffOnline.length())
-			{
-				displayStaff += staffOnline.substring(index - width / 2, staffOnline.length());
-				displayStaff += staffOnline.substring(0, (index + width / 2) - staffOnline.length());
-			} else
-			{
-				displayStaff += staffOnline.substring(index - width / 2, index + width / 2);
-			}
+			return null;
+		}, () ->
+		{
+			staffScroller.setText(getOnlineStaff());
 			
-			for (ArkyneScoreboard sb : scoreboards)
-			{
-				sb.updateStaff(displayStaff);
-			}
-			
-			index++;
-			
-			if (index == staffOnline.length() - width / 2 + 2)
-			{
-				updateOnlineStaff();
-				
-				index = ChatColor.stripColor(onlineStaff).length() - width / 2 + 2;
-			} else if (index >= staffOnline.length())
-			{
-				index = 0;
-			}
-			
-			Bukkit.getScheduler().runTaskLater(ArkyneMain.getInstance(), staffRunnable, 4);
-		};
+			return null;
+		});
 		
-		Bukkit.getScheduler().runTask(ArkyneMain.getInstance(), staffRunnable);
+		/*
+		newsScroller = new TextScroller(getNews(), 18, 4, () ->
+		{
+			displayNews = newsScroller.getText();
+			
+			for (ArkyneScoreboard sb : scoreboards) sb.updateNews(displayNews);
+			
+			return null;
+		}, () ->
+		{
+			newsScroller.setText(getNews());
+			
+			return null;
+		});
+		*/
 	}
 	
 	private void runScoreboardFlasher()

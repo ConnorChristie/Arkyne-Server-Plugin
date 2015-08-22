@@ -198,7 +198,11 @@ public abstract class Lobby implements Loadable, Joinable, ConfigurationSerializ
 	
 	public ArkyneScoreboard getScoreboard(ArkynePlayer player)
 	{
-		return ArkyneMain.getInstance().getScoreboardHandler().getDefaultScoreboard();
+		ArkyneScoreboard sb = ArkyneMain.getInstance().getScoreboardHandler().getDefaultScoreboard();
+		
+		sb.setServer(getIdString());
+		
+		return sb;
 	}
 	
 	public Lobby(Map<String, Object> map)

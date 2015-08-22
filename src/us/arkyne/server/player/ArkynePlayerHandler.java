@@ -77,6 +77,36 @@ public class ArkynePlayerHandler extends Loader
 		return new ArrayList<ArkynePlayer>(players.values());
 	}
 	
+	public List<ArkynePlayer> getOnlinePlayers()
+	{
+		List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
+		
+		for (ArkynePlayer p : this.players.values())
+		{
+			if (p.isOnline())
+			{
+				players.add(p);
+			}
+		}
+		
+		return players;
+	}
+	
+	public List<ArkynePlayer> getAdminPlayers()
+	{
+		List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
+		
+		for (ArkynePlayer p : this.players.values())
+		{
+			if (p.isOnline() && p.getOnlinePlayer().hasPermission("arkyne.manage"))
+			{
+				players.add(p);
+			}
+		}
+		
+		return players;
+	}
+	
 	public void hideShowPlayers(ArkynePlayer player, List<ArkynePlayer> canSee)
 	{
 		for (Player p : Bukkit.getOnlinePlayers())

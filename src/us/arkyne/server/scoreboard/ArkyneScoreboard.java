@@ -22,6 +22,7 @@ public class ArkyneScoreboard
 	private String colorTwo = ChatColor.GOLD + "" + ChatColor.BOLD;
 	
 	private String previousStaff = "{StaffOnline}";
+	private String previousNews = "{ServerNews}";
 	
 	public ArkyneScoreboard(String title, String[] lines)
 	{
@@ -60,11 +61,29 @@ public class ArkyneScoreboard
 		}
 	}
 	
+	public void updateNews(String news)
+	{
+		int score = objective.getScore(previousNews).getScore();
+		
+		if (score != 0)
+		{
+			scoreboard.resetScores(previousNews);
+			objective.getScore(news).setScore(score);
+			
+			previousNews = news;
+		}
+	}
+	
 	public void updateLine(int i, String text)
 	{
 		lines[lines.length - i - 1] = text;
 		
 		setLines(lines, false);
+	}
+	
+	public void setServer(String serverId)
+	{
+		updateLine(10, serverId);
 	}
 	
 	public void setTitle(String title)
@@ -91,6 +110,8 @@ public class ArkyneScoreboard
 		{
 			objective.getScore(lines[i]).setScore(i + 1);
 		}
+		
+		previousStaff = "{StaffOnline}";
 		
 		ArkyneMain.getInstance().getScoreboardHandler().updateScoreboard(this);
 	}

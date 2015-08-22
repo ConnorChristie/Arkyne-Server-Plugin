@@ -59,7 +59,7 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 	
 	public void addTeam(String team, Location spawn)
 	{
-		teams.add(new ArkyneTeam(team, spawn));
+		teams.add(new ArkyneTeam(this, team, spawn));
 	}
 	
 	public ArkyneTeam getTeam(String team)
@@ -112,6 +112,11 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 		
 		cuboid = new Cuboid(min.getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
 		teams = (List<ArkyneTeam>) map.get("teams");
+		
+		for (ArkyneTeam team : teams)
+		{
+			team.setArena(this);
+		}
 	}
 	
 	@Override
