@@ -63,11 +63,8 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	protected SignMessage signMessage;
 	
-	
-	/* Game variables */
 	protected int timer = 0;
 	protected Runnable countdownRunnable;
-	
 	
 	protected List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
 	
@@ -88,7 +85,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	{
 		if (arena != null)
 		{
-			arena.setGame(this);
+			//arena.setGame(this);
 			
 			addLoadable(arena);
 		}
@@ -116,10 +113,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 		return minigame.getId() + "-G-" + id;
 	}
 	
-	public Arena getArena()
-	{
-		return arena;
-	}
+	public abstract <T extends Arena> T getArena();
 	
 	public Lobby getPregameLobby()
 	{

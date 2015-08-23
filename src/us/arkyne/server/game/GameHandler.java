@@ -29,14 +29,12 @@ public class GameHandler extends Loader
 		{
 			addLoadable(game);
 		}
-		
-		loadLoadables();
 	}
 
 	@Override
 	public void onUnload()
 	{
-		unloadLoadables();
+		
 	}
 	
 	public Map<Integer, Game> getGames()

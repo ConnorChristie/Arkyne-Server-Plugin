@@ -32,7 +32,7 @@ public class Command
 	
 	public String getArg(int arg)
 	{
-		return args[arg + 1];
+		return args[arg];
 	}
 	
 	public String[] getArgs()

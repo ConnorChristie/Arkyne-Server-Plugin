@@ -6,7 +6,6 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.EntityType;
@@ -20,7 +19,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -117,9 +115,6 @@ public class BukkitEventListener implements Listener
 						}
 					}
 				}
-			} else if (event.getItem().getType() == Material.BLAZE_ROD && player.isManager())
-			{
-				block.getLocation().getWorld().spawnEntity(block.getLocation().add(0.5, 1, 0.5), EntityType.ENDER_CRYSTAL);
 			}
 		} else if (event.getAction() == Action.RIGHT_CLICK_AIR)
 		{
@@ -231,23 +226,6 @@ public class BukkitEventListener implements Listener
 			}
 			
 			event.setCancelled(true);
-		} else if (event.getEntityType() == EntityType.ENDER_CRYSTAL)
-		{
-			event.setCancelled(true);
-			
-			if (event instanceof EntityDamageByEntityEvent)
-			{
-				EntityDamageByEntityEvent damageEvent = (EntityDamageByEntityEvent) event;
-				
-				if (damageEvent.getDamager() instanceof Player)
-				{
-					ArkynePlayer player = main.getArkynePlayerHandler().getPlayer((Player) damageEvent.getDamager());
-					
-					
-				}
-			}
-			
-			//event.getEntity().remove();
 		}
 	}
 	
@@ -338,7 +316,9 @@ public class BukkitEventListener implements Listener
 		
 		Arena arena = main.getMinigameHandler().getArena(block.getBlock().getLocation());
 		
-		if (arena == null || (arena != null && !arena.getGame().allowEnvironmentChanges()))
+		//FIXME: Right here
+		
+		if (arena == null /* || (arena != null && !arena.getGame().allowEnvironmentChanges())*/)
 		{
 			if (bukkitPlayer.hasPermission("arkyne.manage"))
 			{

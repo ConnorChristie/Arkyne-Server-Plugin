@@ -10,7 +10,10 @@ import org.bukkit.Location;
 import us.arkyne.server.ArkyneMain;
 import us.arkyne.server.config.LobbysConfig;
 import us.arkyne.server.event.customevents.MinigameJoinEvent;
+import us.arkyne.server.game.Game;
 import us.arkyne.server.game.GameHandler;
+import us.arkyne.server.game.arena.Arena;
+import us.arkyne.server.game.arena.ArenaHandler;
 import us.arkyne.server.inventory.Inventory;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.loader.Loader;
@@ -30,9 +33,10 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 	private String name;
 	private String id;
 	
+	private MinigameLobby lobby;
 	private LobbysConfig lobbysConfig;
 	
-	private MinigameLobby lobby;
+	private ArenaHandler arenaHandler;
 	private GameHandler gameHandler;
 	
 	private List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
@@ -52,9 +56,12 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		lobbysConfig = new LobbysConfig(plugin.getDataFolder());
 		lobby = (MinigameLobby) lobbysConfig.getLobby();
 		
+		arenaHandler = new ArenaHandler(this);
 		gameHandler = new GameHandler(this);
 		
 		addLoadable(lobby);
+		
+		addLoadable(arenaHandler);
 		addLoadable(gameHandler);
 		
 		plugin.getLogger().info("Loaded " + name + "!");
@@ -95,6 +102,11 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 	public ArkyneMain getMain()
 	{
 		return main;
+	}
+	
+	public ArenaHandler getArenaHandler()
+	{
+		return arenaHandler;
 	}
 	
 	public GameHandler getGameHandler()
@@ -182,7 +194,9 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		return lobby.getSpawn(player);
 	}
 	
-	public abstract int createGame(String mapName, String worldName);
+	public abstract <T extends Game> T createGame(String mapName, String worldName);
+	
+	public abstract <T extends Arena> T createArena(String mapName, String worldName);
 	
 	public boolean setLobby(Location spawn, Cuboid cuboid, Inventory inventory, SignMessage signMessage)
 	{
