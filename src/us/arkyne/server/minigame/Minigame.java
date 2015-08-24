@@ -194,7 +194,7 @@ public abstract class Minigame extends Loader implements Loadable, Joinable
 		return lobby.getSpawn(player);
 	}
 	
-	public abstract <T extends Game> T createGame(String mapName, String worldName);
+	public abstract <T extends Game> T createGame(Arena arena);
 	
 	public abstract <T extends Arena> T createArena(String mapName, String worldName);
 	

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import us.arkyne.server.game.Game;
-import us.arkyne.server.game.team.ArkyneTeam;
+import us.arkyne.server.game.team.ArenaTeam;
 
 public class GamesConfig extends Config
 {
@@ -15,7 +15,7 @@ public class GamesConfig extends Config
 	{
 		super(dataFolder, "games");
 		
-		ConfigurationSerialization.registerClass(ArkyneTeam.class);
+		ConfigurationSerialization.registerClass(ArenaTeam.class);
 		
 		loadConfig();
 	}

@@ -18,7 +18,7 @@ public class ScoreboardHandler extends Loader
 	private String displayNews = "";
 	
 	private TextScroller staffScroller;
-	private TextScroller newsScroller;
+	//private TextScroller newsScroller;
 	
 	private int flashCount;
 	private boolean flashDirection;

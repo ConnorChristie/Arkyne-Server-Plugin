@@ -21,7 +21,8 @@ import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 
 import us.arkyne.server.ArkyneMain;
-import us.arkyne.server.game.team.ArkyneTeam;
+import us.arkyne.server.game.team.ArenaTeam;
+import us.arkyne.server.game.team.GameTeam;
 import us.arkyne.server.loader.Loadable;
 import us.arkyne.server.minigame.Minigame;
 import us.arkyne.server.player.ArkynePlayer;
@@ -38,7 +39,7 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 	protected String worldName;
 	protected Cuboid cuboid;
 	
-	protected List<ArkyneTeam> teams = new ArrayList<ArkyneTeam>();
+	protected List<ArenaTeam> teams = new ArrayList<ArenaTeam>();
 	
 	public Arena(Minigame minigame, int id, String mapName, String worldName)
 	{
@@ -52,7 +53,7 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 	@Override
 	public void onLoad()
 	{
-		
+		//Make a subclass of ArenaTeam (BFArenaTeam) and move the core field to there...
 	}
 
 	@Override
@@ -61,13 +62,16 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 		
 	}
 	
-	public abstract Location getSpawn(ArkynePlayer player);
-	
 	public abstract void addTeam(String team, Location spawn);
 	
-	public ArkyneTeam getTeam(String team)
+	public Location getSpawn(ArkynePlayer player)
 	{
-		for (ArkyneTeam t : teams)
+		return ((GameTeam) player.getExtra("team")).getTeam().getSpawn();
+	}
+	
+	public ArenaTeam getTeam(String team)
+	{
+		for (ArenaTeam t : teams)
 		{
 			if (t.getTeamName().equalsIgnoreCase(team))
 			{
@@ -78,7 +82,7 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 		return null;
 	}
 	
-	public List<ArkyneTeam> getTeams()
+	public List<ArenaTeam> getTeams()
 	{
 		return teams;
 	}
@@ -115,7 +119,7 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 	
 	public void updateWorld(World world)
 	{
-		for (ArkyneTeam team : teams)
+		for (ArenaTeam team : teams)
 		{
 			team.getSpawn().setWorld(world);
 		}
@@ -175,12 +179,12 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 			Location min = ((Vector) map.get("boundry_min")).toLocation(world);
 			Location max = ((Vector) map.get("boundry_max")).toLocation(world);
 			
-			cuboid = new Cuboid(min.getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
+			cuboid = new Cuboid(getWorld(), BukkitUtil.toVector(min), BukkitUtil.toVector(max));
 		}
 		
-		teams = new ArrayList<ArkyneTeam>((List<? extends ArkyneTeam>) map.get("teams"));
+		teams = (List<ArenaTeam>) map.get("teams");
 		
-		for (ArkyneTeam team : teams)
+		for (ArenaTeam team : teams)
 		{
 			team.setArena(this);
 		}
