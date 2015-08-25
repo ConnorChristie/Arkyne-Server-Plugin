@@ -9,11 +9,10 @@ import us.arkyne.server.game.team.GameTeam;
 
 public abstract class GameArena
 {
-	@SuppressWarnings("unused")
-	private Game game;
-	private Arena arena;
+	protected Game game;
+	protected Arena arena;
 	
-	private List<GameTeam> teams = new ArrayList<GameTeam>();
+	protected List<GameTeam> teams = new ArrayList<GameTeam>();
 	
 	public GameArena(Game game, Arena arena)
 	{

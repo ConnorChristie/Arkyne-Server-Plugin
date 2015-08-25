@@ -530,7 +530,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 	
 	public Cuboid getBounds()
 	{
-		return gameStatus == GameStatus.PREGAME ? pregameLobby.getBounds() : getArena().getBounds();
+		return gameStatus == GameStatus.PREGAME ? pregameLobby.getBounds() : getArena().getBounds(this);
 	}
 	
 	public Location getSpawn()
@@ -598,7 +598,7 @@ public abstract class Game extends Loader implements Loadable, Joinable, Configu
 				World world = getArena().getWorld();
 				
 				if (pregameLobby != null) pregameLobby.updateWorld(world);
-				if (getArena() != null) getArena().updateWorld(world);
+				if (getArena() != null) getArena().updateWorld(Game.this, world);
 				
 				setGameSubStatus(GameSubStatus.PREGAME_STANDBY);
 				

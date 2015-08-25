@@ -6,10 +6,12 @@ import java.util.Random;
 
 import org.bukkit.Location;
 
+import us.arkyne.server.game.Game;
 import us.arkyne.server.player.ArkynePlayer;
 
 public class GameTeam
 {
+	private Game game;
 	private ArenaTeam team;
 	
 	private int score = 0;
@@ -19,8 +21,9 @@ public class GameTeam
 	
 	private List<ArkynePlayer> players = new ArrayList<ArkynePlayer>();
 	
-	public GameTeam(ArenaTeam team)
+	public GameTeam(Game game, ArenaTeam team)
 	{
+		this.game = game;
 		this.team = team;
 	}
 
@@ -53,7 +56,7 @@ public class GameTeam
 	{
 		players.add(player);
 		
-		Location loc = team.getSpawn().clone();
+		Location loc = team.getSpawn(game).clone();
 		loc.add(random.nextInt(spawnRadius * 2) - spawnRadius, 0, random.nextInt(spawnRadius * 2) - spawnRadius);
 		
 		player.teleport(loc);

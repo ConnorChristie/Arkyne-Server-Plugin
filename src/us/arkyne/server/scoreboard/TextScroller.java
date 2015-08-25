@@ -21,7 +21,7 @@ public class TextScroller
 	
 	public TextScroller(String text, int width, int interval, Callable<Void> onTextChange, Callable<Void> onUpdate)
 	{
-		this.text = StringUtils.repeat(" ", width - 1) + text;
+		this.text = StringUtils.repeat(" ", width + 2) + text;
 		
 		this.index = 0;
 		this.width = width;
@@ -50,196 +50,72 @@ public class TextScroller
 	
 	public void setText(String text)
 	{
-		this.text = StringUtils.repeat(" ", width - 1) + text;
+		this.text = StringUtils.repeat(" ", width + 2) + text;
 	}
 	
 	public String next()
 	{
-		String retText = "";
-		
-		int origIndex = index;
-		
-		retText = getDisplay(text, index, width);
-		
-		/*
-		if (retText.contains(ChatColor.COLOR_CHAR + ""))
+		if ((text.charAt(index) == ChatColor.COLOR_CHAR) || (index - 1 >= 0 && text.charAt(index - 1) == ChatColor.COLOR_CHAR))
 		{
-			index = origIndex;
+			index++;
 			
-			String adjText = getDisplay(text, origIndex, width + StringUtils.countMatches(retText, ChatColor.COLOR_CHAR + "") * 2 - 2);
-			
-			if (adjText.replace(retText, "").contains(ChatColor.COLOR_CHAR + ""))
+			return next();
+		}
+		
+		String display = "";
+		String beforeString = text.substring(0, index);
+		
+		int visibleCharLength = 0;
+		
+		for (int i = index; i < text.length(); i++)
+		{
+			if (visibleCharLength <= width)
 			{
-				index = origIndex;
+				display += text.charAt(i);
 				
-				adjText = getDisplay(text, origIndex, width + StringUtils.countMatches(adjText.replace(retText, ""), ChatColor.COLOR_CHAR + "") * 2);
-				
-				if (adjText.replace(retText, "").contains(ChatColor.COLOR_CHAR + ""))
+				if ((text.charAt(i) == ChatColor.COLOR_CHAR) || (i - 1 >= 0 && text.charAt(i - 1) == ChatColor.COLOR_CHAR))
 				{
-					index = origIndex;
-					
-					adjText = getDisplay(text, origIndex, width + StringUtils.countMatches(adjText.replace(retText, ""), ChatColor.COLOR_CHAR + "") * 2);
-					
-					if (adjText.replace(retText, "").contains(ChatColor.COLOR_CHAR + ""))
-					{
-						index = origIndex;
-						
-						adjText = getDisplay(text, origIndex, width + StringUtils.countMatches(adjText.replace(retText, ""), ChatColor.COLOR_CHAR + "") * 2);
-						
-						if (adjText.replace(retText, "").contains(ChatColor.COLOR_CHAR + ""))
-						{
-							System.out.println("Should have more...");
-						} else
-						{
-							retText = adjText;
-						}
-					} else
-					{
-						retText = adjText;
-					}
+					continue;
 				} else
 				{
-					retText = adjText;
+					visibleCharLength++;
 				}
-			} else
-			{
-				retText = adjText;
 			}
 		}
-		*/
 		
-		if (retText.contains(ChatColor.COLOR_CHAR + ""))
+		if (visibleCharLength <= width)
 		{
-			index = origIndex;
-			
-			retText = getDisplay(text, origIndex, width + StringUtils.countMatches(retText, ChatColor.COLOR_CHAR + "") * 2 - 2);
-			
-			if (retText.contains(ChatColor.COLOR_CHAR + ""))
+			for (int i = 0; i < text.length(); i++)
 			{
-				index = origIndex;
-				
-				retText = getDisplay(text, origIndex, width + StringUtils.countMatches(retText, ChatColor.COLOR_CHAR + "") * 2 - 2);
-				
-				if (retText.contains(ChatColor.COLOR_CHAR + ""))
+				if (visibleCharLength < width)
 				{
-					index = origIndex;
+					display += text.charAt(i);
 					
-					retText = getDisplay(text, origIndex, width + StringUtils.countMatches(retText, ChatColor.COLOR_CHAR + "") * 2 - 2);
-					
-					if (retText.contains(ChatColor.COLOR_CHAR + ""))
+					if ((text.charAt(i) == ChatColor.COLOR_CHAR) || (i - 1 >= 0 && text.charAt(i - 1) == ChatColor.COLOR_CHAR))
 					{
-						index = origIndex;
-						
-						retText = getDisplay(text, origIndex, width + StringUtils.countMatches(retText, ChatColor.COLOR_CHAR + "") * 2 - 2);
-						
-						if (retText.contains(ChatColor.COLOR_CHAR + ""))
-						{
-							index = origIndex;
-							
-							retText = getDisplay(text, origIndex, width + StringUtils.countMatches(retText, ChatColor.COLOR_CHAR + "") * 2 - 2);
-							
-							if (retText.contains(ChatColor.COLOR_CHAR + ""))
-							{
-								index = origIndex;
-								
-								retText = getDisplay(text, origIndex, width + StringUtils.countMatches(retText, ChatColor.COLOR_CHAR + "") * 2 - 2);
-								
-								if (retText.contains(ChatColor.COLOR_CHAR + ""))
-								{
-									index = origIndex;
-									
-									retText = getDisplay(text, origIndex, width + StringUtils.countMatches(retText, ChatColor.COLOR_CHAR + "") * 2 - 2);
-								}
-							}
-						}
+						continue;
+					} else
+					{
+						visibleCharLength++;
 					}
 				}
 			}
 		}
 		
-		int beginIndex = index;
-		
-		if (!retText.startsWith(ChatColor.COLOR_CHAR + ""))
-		{
-			String colors = "";
-			
-			for (int i = beginIndex; i >= 0; i--)
-			{
-				if (text.charAt(i) == ChatColor.COLOR_CHAR && isColor(text.charAt(i + 1)))
-				{
-					retText = text.substring(i, i + 2) + colors + retText;
-					
-					break;
-				} else if (text.charAt(i) == ChatColor.COLOR_CHAR)
-				{
-					colors = text.charAt(i) + "" + text.charAt(i + 1) + colors;
-				}
-			}
-		}
-		
-		if (retText.endsWith(ChatColor.COLOR_CHAR + ""))
-		{
-			retText = retText.substring(0, retText.length() - 1);
-		}
+		display = ChatColor.getLastColors(beforeString) + display;
 		
 		index++;
 		
-		if (index == 2)
+		if (index == text.length())
 		{
+			index = 0;
+			
 			try
 			{
 				onUpdate.call();
 			} catch (Exception e) { }
-		} else if (index >= text.length())
-		{
-			index = 0;
 		}
 		
-		return retText;
-	}
-	
-	private String getDisplay(String whole, int index, int width)
-	{
-		int beginIndex = index;
-		int endIndex = index + width;
-		
-		String ret = getWindow(whole, beginIndex, endIndex);
-		
-		if (ret.startsWith(ChatColor.COLOR_CHAR + "") || ((beginIndex - 1) >= 0 && whole.charAt(beginIndex - 1) == ChatColor.COLOR_CHAR)
-				|| ret.endsWith(ChatColor.COLOR_CHAR + "") || ((endIndex - 1) < whole.length() && whole.charAt(endIndex - 1) == ChatColor.COLOR_CHAR))
-		{
-			this.index++;
-			
-			return getDisplay(whole, this.index, width);
-		}
-		
-		return ret;
-	}
-	
-	private String getWindow(String whole, int beginIndex, int endIndex)
-	{
-		String ret = "";
-		
-		if (beginIndex < 0)
-		{
-			ret += whole.substring(whole.length() + beginIndex, whole.length());
-			
-			ret += whole.substring(0, endIndex);
-		} else if (endIndex > whole.length())
-		{
-			ret += whole.substring(beginIndex, whole.length());
-			
-			ret += whole.substring(0, endIndex - whole.length());
-		} else
-		{
-			ret += whole.substring(beginIndex, endIndex);
-		}
-		
-		return ret;
-	}
-	
-	private boolean isColor(char code)
-	{
-		return ChatColor.getByChar(code).isColor();
+		return display;
 	}
 }

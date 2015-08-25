@@ -21,6 +21,7 @@ import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 
 import us.arkyne.server.ArkyneMain;
+import us.arkyne.server.game.Game;
 import us.arkyne.server.game.team.ArenaTeam;
 import us.arkyne.server.game.team.GameTeam;
 import us.arkyne.server.loader.Loadable;
@@ -53,7 +54,7 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 	@Override
 	public void onLoad()
 	{
-		//Make a subclass of ArenaTeam (BFArenaTeam) and move the core field to there...
+		
 	}
 
 	@Override
@@ -64,9 +65,9 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 	
 	public abstract void addTeam(String team, Location spawn);
 	
-	public Location getSpawn(ArkynePlayer player)
+	public Location getSpawn(Game game, ArkynePlayer player)
 	{
-		return ((GameTeam) player.getExtra("team")).getTeam().getSpawn();
+		return ((GameTeam) player.getExtra("team")).getTeam().getSpawn(game);
 	}
 	
 	public ArenaTeam getTeam(String team)
@@ -92,14 +93,19 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 		this.cuboid = cuboid;
 	}
 
-	public Cuboid getBounds()
+	public Cuboid getBounds(Game game)
 	{
-		return cuboid;
+		return new Cuboid(getWorld(game), cuboid.getMinimumPoint(), cuboid.getMaximumPoint());
 	}
 	
 	public World getWorld()
 	{
 		return Bukkit.getWorld(worldName);
+	}
+	
+	public World getWorld(Game game)
+	{
+		return Bukkit.getWorld(worldName + "_" + game.getId());
 	}
 	
 	public Minigame getMinigame()
@@ -117,11 +123,11 @@ public abstract class Arena implements Loadable, ConfigurationSerializable
 		return mapName;
 	}
 	
-	public void updateWorld(World world)
+	public void updateWorld(Game game, World world)
 	{
 		for (ArenaTeam team : teams)
 		{
-			team.getSpawn().setWorld(world);
+			team.getSpawn(game).setWorld(world);
 		}
 		
 		cuboid.setWorld(BukkitUtil.getLocalWorld(world));

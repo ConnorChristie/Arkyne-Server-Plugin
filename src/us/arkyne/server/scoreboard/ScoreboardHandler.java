@@ -101,7 +101,7 @@ public class ScoreboardHandler extends Loader
 	
 	public void runScoreboardScroller()
 	{
-		staffScroller = new TextScroller(getOnlineStaff(), 18, 4, () ->
+		staffScroller = new TextScroller(getOnlineStaff(), 15, 4, () ->
 		{
 			displayStaff = staffScroller.getText();
 			

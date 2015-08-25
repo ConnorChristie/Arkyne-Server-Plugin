@@ -144,7 +144,7 @@ public class MinigameHandler extends Loader
 				{
 					Arena arena = game.getArena();
 					
-					if (arena != null && arena.getBounds().getWorld().equals(BukkitUtil.getLocalWorld(loc.getWorld())) && arena.getBounds().contains(BukkitUtil.toVector(loc)))
+					if (arena != null && arena.getBounds(game).getWorld().equals(BukkitUtil.getLocalWorld(loc.getWorld())) && arena.getBounds(game).contains(BukkitUtil.toVector(loc)))
 					{
 						return arena;
 					}

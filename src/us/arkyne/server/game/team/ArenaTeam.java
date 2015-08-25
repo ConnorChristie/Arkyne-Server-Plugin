@@ -7,11 +7,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+import us.arkyne.server.game.Game;
 import us.arkyne.server.game.arena.Arena;
 
 public class ArenaTeam implements ConfigurationSerializable
 {
-	@SuppressWarnings("unused")
 	private Arena arena;
 	
 	private String teamName;
@@ -35,9 +35,12 @@ public class ArenaTeam implements ConfigurationSerializable
 		return ChatColor.valueOf(teamName.toUpperCase()) + "";
 	}
 
-	public Location getSpawn()
+	public Location getSpawn(Game game)
 	{
-		return spawn;
+		Location gameSpawn = spawn.clone();
+		gameSpawn.setWorld(arena.getWorld(game));
+		
+		return gameSpawn;
 	}
 	
 	public void setArena(Arena arena)
