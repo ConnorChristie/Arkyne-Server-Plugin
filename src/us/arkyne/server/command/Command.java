@@ -99,7 +99,7 @@ public class Command
 		
 		if (!isPlayer && sendMessageIfNot)
 		{
-			sendSenderMessage("You have to be a player to use this command");
+			sendSenderMessage("You have to be a player to use that command");
 		}
 		
 		return isPlayer;
